@@ -44,7 +44,7 @@ are written down next to the things that worked.
 Same tasks, same local models, one harness, scored on disk. Full method,
 disclosures and caveats: **[docs/comparison.md](docs/comparison.md)**.
 
-On this project's own fixtures: 19 cases × 2 models:
+On this project's own fixtures, 19 cases × 2 models:
 
 | shape | ours | aider-told | aider-find |
 |---|---|---|---|
@@ -72,7 +72,7 @@ So the claim this project makes is narrow and specific:
 
 - **parity with aider on real code with small local models**, not superiority;
 - **a large, reproducible advantage on multi-file refactors at fixture scale**;
-- **a specific advantage on not doing the wrong thing** , asked to change a
+- **a specific advantage on not doing the wrong thing**: asked to change a
   constant that does not exist in click, this agent left the tree untouched on
   both models, while aider timed out with `src/` modified and the test suite
   red;
@@ -86,7 +86,7 @@ The harness ships so any of that can be corrected and re-run.
 
 ## What you need
 
-- **Python 3.9+** , the standard library and nothing else. There is no
+- **Python 3.9+**: the standard library and nothing else. There is no
   `requirements.txt` because there is nothing to install. (Developed and tested
   on 3.14; no syntax or API newer than 3.9 is used, but older versions are
   untested.)
@@ -102,7 +102,7 @@ The harness ships so any of that can be corrected and re-run.
   the model you just pulled is the one it runs. Point elsewhere with `--host`
   if Ollama is not on `127.0.0.1:11434`.
 
-Then clone and run , there is no build step and nothing to compile:
+Then clone and run. There is no build step and nothing to compile:
 
 ```bash
 git clone <this repo> && cd llm-agent-project
@@ -111,7 +111,7 @@ python3 tests.py        # 755 tests, no network, no model needed
 bobbin qwen2.5-coder:7b
 ```
 
-`install.sh` only makes a symlink , there is no package to install, so `git
+`install.sh` only makes a symlink; there is no package to install, so `git
 pull` updates the command. If you would rather not touch `~/.local/bin`, skip
 it: `./bobbin` and `./main.py` work identically from the checkout.
 
@@ -132,7 +132,7 @@ bobbin --mode research -p "trace what happens when the CLI runs"
 Naming a model you have not pulled fails immediately with the list of the ones
 you have, rather than a 404 from Ollama halfway through.
 
-Drive the tools with no model involved , the fastest way to answer "was that the
+Drive the tools with no model involved. The fastest way to answer "was that the
 tool layer or the model?":
 
 ```bash
@@ -151,22 +151,22 @@ python3 -m evals.run --cases tag:edit       # score a suite
 
 Each one came from watching a 7B fail.
 
-1. **Errors are returned to the model, never raised** , a tool error becomes a
+1. **Errors are returned to the model, never raised**: a tool error becomes a
    `tool` message that says how to fix the call.
-2. **Argument coercion** , models send `"10"` for an int and invent parameters;
+2. **Argument coercion**: models send `"10"` for an int and invent parameters;
    coerce what you can, drop what you can't.
-3. **Text-emitted tool calls are recovered** , the 7Bs never use the native tool
+3. **Text-emitted tool calls are recovered**: the 7Bs never use the native tool
    protocol. This is the single most load-bearing piece of the project.
-4. **Every result is budget-capped and truncation is announced** , so the model
+4. **Every result is budget-capped and truncation is announced**, so the model
    knows its view was partial.
-5. **Repeated-call detection** , without it, small models loop forever.
+5. **Repeated-call detection**: without it, small models loop forever.
 
 ## The comparison in full
 
 [docs/comparison.md](docs/comparison.md) has the method behind the two tables
 above: how aider was invoked, the timeout that 7 of its 24 real-repo runs hit,
 the matched-rep experiment that overturned the flattering explanation, and the
-four harness bugs found along the way , each of which favoured a different
+four harness bugs found along the way, each of which favoured a different
 side.
 
 ## Layout
@@ -184,7 +184,7 @@ tests.py     755 tests, no network
 
 ## Licence
 
-MIT , see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 ## Reproducing the comparison
 
