@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+
+# The real-repo oracle: a click checkout and a venv, ~200MB, both rebuilt by
+# evals/compare/setup.sh. The results they produce are committed; they are not.
+evals/compare/click-probe/
+evals/compare/clickenv/
+
+# Local Claude Code permissions — machine-specific, not project config.
+.claude/settings.local.json
+
+# NOT PART OF THIS PROJECT. Unrelated personal scripts that happen to live in
+# this directory; they import `requests` and `bs4`, which would contradict the
+# stdlib-only claim the moment anyone grepped the repo. Left on disk, kept out
+# of git — move them somewhere else when convenient.
+/tests/
+
+# The lab notebook stays local for now. docs/comparison.md is published — it is
+# the method behind the README's comparison tables, not a notebook entry.
+docs/*.md
+!docs/comparison.md

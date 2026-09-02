@@ -1,0 +1,334 @@
+{
+  "timestamp": "20260823-143007",
+  "models": [
+    "nemotron-3.5-lightning"
+  ],
+  "mode": "direct",
+  "allow_edits": true,
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "nemotron-3.5-lightning": {
+      "cases": 1,
+      "passed": 1,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 4.0,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 0,
+      "challenges": 0,
+      "quoted": 1,
+      "notices": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 31.9,
+      "tool_use": {
+        "check_imports": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "edit_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find_files": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "grep": {
+          "calls": 2,
+          "cases": 1,
+          "per_case": 2.0
+        },
+        "list_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "read_file": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "review_changes": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "undo_edit": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "write_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "multi-absence-subject",
+      "tags": [
+        "multi-turn",
+        "writes",
+        "guards"
+      ],
+      "model": "nemotron-3.5-lightning",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "review_changes",
+        "undo_edit",
+        "write_file"
+      ],
+      "budget": 14,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "4",
+      "turn_count": 3,
+      "num_ctx": 16384,
+      "context_chars": 5574,
+      "context_tokens_est": 1393,
+      "steps": 7,
+      "tool_calls": [
+        "grep",
+        "find_files",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "QF_SENTINEL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "docs/notes.md",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture/docs/notes.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 1,
+      "context_notices": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 31.9,
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "There is a tracking id starting with QF_SENTINEL somewhere here. What is it?",
+          "answer": "The tracking ID starting with `QF_SENTINEL` is **QF_SENTINEL_2208**, as documented in the repository's README.md (line 3).",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 12,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "QF_SENTINEL",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 8.7,
+          "context_chars": 4136,
+          "context_tokens_est": 1034
+        },
+        {
+          "turn": 2,
+          "prompt": "Summarise docs/notes.md.",
+          "answer": "The `docs/notes.md` file contains design notes for the repository:\n\n- **Cache**: The cache in `src/core/cache.py` holds computed values for `CACHE_TTL` seconds. The TTL lifetime is set in `src/core/config.py` and read nowhere else. There is no secondary cache, and there are no background refreshes \u2014 when an entry expires, the next caller recomputes it.\n\n- **Retry budget**: Separate from the cache, the retry budget also lives in the same config file (`src/core/config.py`).",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 12,
+          "steps": 3,
+          "tool_calls": [
+            "find_files",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "find_files",
+              "args": {
+                "pattern": "docs/notes.md",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture/docs/notes.md"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 1,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 15.2,
+          "context_chars": 5296,
+          "context_tokens_est": 1324
+        },
+        {
+          "turn": 3,
+          "prompt": "What is MAX_RETRIES set to? Answer with just the number.",
+          "answer": "4",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 14,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "MAX_RETRIES",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 8.0,
+          "context_chars": 5574,
+          "context_tokens_est": 1393
+        }
+      ]
+    }
+  ]
+}

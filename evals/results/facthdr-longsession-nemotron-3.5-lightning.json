@@ -1,0 +1,1249 @@
+{
+  "timestamp": "20260825-221327",
+  "models": [
+    "nemotron-3.5-lightning"
+  ],
+  "mode": "direct",
+  "allow_edits": true,
+  "switches": {
+    "AGENT_COMPACT": "1",
+    "AGENT_COMPACT_HEADER": "facts",
+    "AGENT_COMPACT_RESTATE": "1"
+  },
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "nemotron-3.5-lightning": {
+      "cases": 1,
+      "passed": 1,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 38.0,
+      "tool_errors": 6,
+      "repeat_blocks": 1,
+      "recovered": 0,
+      "challenges": 0,
+      "quoted": 0,
+      "presup": 0,
+      "notices": 2,
+      "compactions": 4,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 1555.1,
+      "tool_use": {
+        "check_imports": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "edit_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "find_files": {
+          "calls": 2,
+          "cases": 1,
+          "per_case": 2.0
+        },
+        "grep": {
+          "calls": 4,
+          "cases": 1,
+          "per_case": 4.0
+        },
+        "list_files": {
+          "calls": 8,
+          "cases": 1,
+          "per_case": 8.0
+        },
+        "read_file": {
+          "calls": 23,
+          "cases": 1,
+          "per_case": 23.0
+        },
+        "review_changes": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "undo_edit": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "write_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "multi-long-session",
+      "tags": [
+        "multi-turn",
+        "recall",
+        "writes"
+      ],
+      "model": "nemotron-3.5-lightning",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "review_changes",
+        "undo_edit",
+        "write_file"
+      ],
+      "budget": 30,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "ZQ_SENTINEL_4417",
+      "turn_count": 12,
+      "num_ctx": 4608,
+      "context_chars": 17836,
+      "context_tokens_est": 4459,
+      "steps": 49,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "list_files",
+        "list_files",
+        "list_files",
+        "list_files",
+        "list_files",
+        "list_files",
+        "list_files",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "list_files",
+        "find",
+        "grep",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "find_files",
+        "read_file",
+        "read_file",
+        "read_file",
+        "grep",
+        "read_file",
+        "find_files",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "ZQ_SENTINEL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/architecture.md"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/shipping"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/util"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/__init__.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/__init__.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/auth.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/routes.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/cache.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/db.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/items.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/reorder.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/stock.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/__init__.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/__init__.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+          }
+        },
+        {
+          "name": "find",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture",
+            "name": "routes.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "routes\\.py",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/routes.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/docs/runbook.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/reorder.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/shipping/carriers.py"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "tests/test_reorder.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/tests/test_reorder.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/util/text.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/util/time.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "cache",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/config.py"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*runbook*",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/docs/runbook.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture",
+            "pattern": "ZQ_SENTINEL"
+          }
+        }
+      ],
+      "tool_errors": 6,
+      "repeat_blocks": 1,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "context_notices": 2,
+      "compactions": 4,
+      "digest_previews": [
+        "turn 4: 1. Facts stated by user (character for character): there is a tracking id starting with ZQ_SENTINEL somewhere in this project\n\n2. Instruction, decision or preference from user: what is it\n\n3. What has been done to the workspace so far, in one line each: No prior workspace actions are documented in the provided conversation snippet.",
+        "turn 5: **Facts stated by user:**  \n- List every file under src/ and say what each one is for.\n\n**Instructions/preferences from user:**  \n- To enumerate all files within the src/ directory and describe their purpose.\n\n**What has been done to the workspace so far:**  \n1. [list_files] root directory: \"./ (4 entries, depth 1): docs/, src/, tests/, README.md 579B\"  \n2. [list_files] src/ subdirectory: \"src/ (6",
+        "turn 7: **Facts stated by user:**\n- Read src/api/routes.py and explain what each route does.\n- What does src/core/config.py define? Quote the constants.\n\n**Instructions/preferences from user:**\n- Note on this conversation: it is at or past the limit of what you can see, so the earliest turns may no longer be visible to you.\n- Do not answer from memory about earlier turns. If this question refers to someth",
+        "turn 10: 1. Facts stated by user (character for character): there is a tracking id starting with ZQ_SENTINEL somewhere in this project\n\n2. Instruction, decision or preference from user: what is it\n\n3. What has been done to the workspace so far, in one line each: No prior workspace actions are documented in the provided conversation snippet."
+      ],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1555.1,
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "There is a tracking id starting with ZQ_SENTINEL somewhere in this project. What is it?",
+          "answer": "The tracking ID starting with `ZQ_SENTINEL` in this project is **ZQ_SENTINEL_4417**.\n\nIt appears on line 3 of `docs/architecture.md`:\n\n```\nInternal tracking id for this document: ZQ_SENTINEL_4417\n```",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 3,
+          "tool_calls": [
+            "grep",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "ZQ_SENTINEL",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "docs/architecture.md"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 58.1,
+          "context_chars": 5177,
+          "context_tokens_est": 1294
+        },
+        {
+          "turn": 2,
+          "prompt": "List every file under src/ and say what each one is for.",
+          "answer": "Based on my exploration of the workspace, here's what I found:\n\n**Workspace structure:**\n- `src/api/routes.py` - HTTP routes for Depot with 3 endpoints: GET /stock/<sku>, POST /stock/<sku>/adjust, GET /reorder\n- `src/core/config.py` - Runtime configuration constants (REORDER_THRESHOLD=12, CACHE_TTL=45, MAX_BATCH=250, TOKEN_HEADER=\"x_depot_token\", DATABASE_URL=\"postgres://localhost/depot\")\n- `src/core/cache.py` - Dictionary with lifetime for stock levels, uses CACHE_TTL from config\n- `src/core/db.py` - Database handle with lazy connection, uses DATABASE_URL from config\n- `src/inventory/items.py` - Item records using db.rows(\"items\")\n- `src/inventory/reorder.py` - Reorder policy using REORDER_THRESHOLD and MAX_BATCH from config\n- `src/inventory/stock.py` - Stock level management using cache and db\n\n**Key integration points:**\n1. **Cache-TTL coupling**: `CACHE_TTL=45` (from config) is imported in `cache.py` and used as expiry time (`now + CACHE_TTL`)\n2. **Config-aware reordering**: `REORDER_THRESHOLD=12` and `MAX_BATCH=250` from config are used in `reorder.py`\n3. **DB connection via config**: `DATABASE_URL` from config is imported in both `db.py` and `items.py`\n4. **Cache invalidation on writes**: `cache.drop(sku)` in `stock.adjust()` ensures stale cache entries are cleared\n\nThe system is tightly coupled through the config module, with all major components importing configuration values they depend on.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 21,
+          "tool_calls": [
+            "list_files",
+            "list_files",
+            "list_files",
+            "list_files",
+            "list_files",
+            "list_files",
+            "list_files",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "read_file",
+            "list_files"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/shipping"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/util"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/__init__.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/__init__.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/auth.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/routes.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/config.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/cache.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/db.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/items.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/reorder.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/stock.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/__init__.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/__init__.py"
+              }
+            },
+            {
+              "name": "list_files",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+              }
+            }
+          ],
+          "tool_errors": 5,
+          "repeat_blocks": 1,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 193.3,
+          "context_chars": 14712,
+          "context_tokens_est": 3678
+        },
+        {
+          "turn": 3,
+          "prompt": "Read src/api/routes.py and explain what each route does.",
+          "answer": "Based on reading `src/api/routes.py`, here are the three HTTP routes:\n\n**1. GET /stock/<sku>**\n- Decorated with `@require_token`\n- Takes an SKU from the request path\n- Calls `level_for(request.sku)` to get the current stock level for that item\n- Returns `{\"sku\": <sku>, \"level\": <current_level>}`\n\n**2. POST /stock/<sku>/adjust**\n- Decorated with `@require_token`\n- Takes an SKU from the request path and a `delta` value from the request body\n- Calls `adjust(request.sku, request.delta)` to move the stock level up or down by delta\n- Returns `{\"sku\": <sku>, \"level\": <new_level>}` after adjustment\n\n**3. GET /reorder**\n- Decorated with `@require_token`\n- No path parameters needed\n- Calls `reorder_due()` which queries all items and returns those at or below the `REORDER_THRESHOLD` (from config)\n- Returns `{\"due\": [<list of SKUs needing reorder>]}`\n\nAll three routes share the `@require_token` dependency, meaning each endpoint requires valid authentication before it can be accessed.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 4,
+          "tool_calls": [
+            "find",
+            "grep",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "find",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture",
+                "name": "routes.py"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "routes\\.py",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/api/routes.py"
+              }
+            }
+          ],
+          "tool_errors": 1,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 1,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 69.5,
+          "context_chars": 17650,
+          "context_tokens_est": 4412
+        },
+        {
+          "turn": 4,
+          "prompt": "What does src/core/config.py define? Quote the constants.",
+          "answer": "Based on reading `src/core/config.py`, here are the defined constants:\n\n```python\nREORDER_THRESHOLD = 12\nCACHE_TTL = 45\nMAX_BATCH = 250\nTOKEN_HEADER = \"x_depot_token\"\nDATABASE_URL = \"postgres://localhost/depot\"\n```\n\nThese five runtime configuration values control:\n- **REORDER_THRESHOLD** (12): The stock level below which items are flagged for reordering\n- **CACHE_TTL** (45): Time-to-live in seconds for cached stock levels before they expire\n- **MAX_BATCH** (250): Maximum batch size for bulk operations\n- **TOKEN_HEADER** (\"x_depot_token\"): The HTTP header name used for authentication\n- **DATABASE_URL** (\"postgres://localhost/depot\"): Connection string for the PostgreSQL database",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 2,
+          "tool_calls": [
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/config.py"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 1,
+          "compactions": 1,
+          "digest_previews": [
+            "1. Facts stated by user (character for character): there is a tracking id starting with ZQ_SENTINEL somewhere in this project\n\n2. Instruction, decision or preference from user: what is it\n\n3. What has been done to the workspace so far, in one line each: No prior workspace actions are documented in the provided conversation snippet."
+          ],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 357.0,
+          "context_chars": 17836,
+          "context_tokens_est": 4459
+        },
+        {
+          "turn": 5,
+          "prompt": "Summarise docs/runbook.md, including any codes it mentions.",
+          "answer": "Based on reading `docs/runbook.md`, here's a summary:\n\n## On-call runbook \u2014 Escalation code: **PAGER-7731**\n\n### 1. The queue is backing up\n- **Check `reorder_due()` first** \u2014 A slow reorder pass blocks the nightly batch, and the batch holds the write lock the API needs.\n\n### 2. A carrier is rejecting labels\n- `shipping/carriers.py` maintains a per-carrier failure count.\n- **Three failures in a row** \u2192 the carrier is skipped for the rest of that run; the next cheapest carrier takes over.\n- This is silent by design \u2014 check the counts before assuming a bug.\n\n### 3. Cache looks stale\n- `CACHE_TTL` in `core/config.py` is the only lifetime the cache has.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 2,
+          "tool_calls": [
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/docs/runbook.md"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 1,
+          "digest_previews": [
+            "**Facts stated by user:**  \n- List every file under src/ and say what each one is for.\n\n**Instructions/preferences from user:**  \n- To enumerate all files within the src/ directory and describe their purpose.\n\n**What has been done to the workspace so far:**  \n1. [list_files] root directory: \"./ (4 entries, depth 1): docs/, src/, tests/, README.md 579B\"  \n2. [list_files] src/ subdirectory: \"src/ (6"
+          ],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 259.5,
+          "context_chars": 11993,
+          "context_tokens_est": 2998
+        },
+        {
+          "turn": 6,
+          "prompt": "Explain how src/inventory/reorder.py decides what to order.",
+          "answer": "Based on reading `src/inventory/reorder.py`, here's how the reorder policy works:\n\n## Two functions determine what and how much to order:\n\n### `reorder_due()` \u2014 Which items need ordering\n- Returns **every SKU** whose current stock level is at or below `REORDER_THRESHOLD` (12, from `src/core/config.py`)\n- Iterates over all items via `all_items()`, checks each with `level_for(item[\"sku\"])`, and includes it if `level <= 12`\n\n### `order_size(sku)` \u2014 How many to order for a given SKU\n- **Formula**: `shortfall = REORDER_THRESHOLD * 3 - level_for(sku)`\n  - Aims to bring stock up to **3\u00d7 the reorder threshold** (i.e., 36 units)\n  - Subtracts the current level to compute the shortfall\n- **Caps the order at `MAX_BATCH`** (250, also from config):\n  ```python\n  return min(max(shortfall, 0), MAX_BATCH)\n  ```\n  - `max(shortfall, 0)` prevents negative orders (if stock is already above threshold)\n  - `min(..., MAX_BATCH)` caps at 250 units maximum\n\n## In summary:\n- **Trigger**: Items at or below 12 units\n- **Target**: Restock to 36 units (3 \u00d7 threshold)  \n- **Cap**: Never order more than 250 units at once",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 2,
+          "tool_calls": [
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/inventory/reorder.py"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 56.1,
+          "context_chars": 13962,
+          "context_tokens_est": 3490
+        },
+        {
+          "turn": 7,
+          "prompt": "What does src/shipping/carriers.py do?",
+          "answer": "Based on reading `src/shipping/carriers.py`, here's what this module does:\n\n## Carrier selection with failure tracking\n\n### Carrier definitions\nThree carriers with their pricing:\n- **ravenpost**: $4.20 base + $0.85/kg\n- **tortoise**: $2.10 base + $1.60/kg  \n- **kestrel**: $6.00 base + $0.40/kg\n\n### Failure tracking\n- `_failures` dict tracks failure counts per carrier, all starting at 0\n- **Three failures in a row** \u2192 the carrier is skipped for the rest of that run (the next cheapest takes over)\n- This is silent by design \u2014 you check the counts before assuming a bug\n\n### Key functions\n\n1. **`quote(name, weight_kg)`** \u2014 Calculates shipping cost:\n   ```python\n   round(terms[\"base\"] + terms[\"per_kg\"] * weight_kg, 2)\n   ```\n\n2. **`cheapest(weight_kg)`** \u2014 Finds the cheapest carrier still \"in the running\":\n   - Filters to carriers with `_failures[name] < 3`\n   - Returns the one with the lowest quote for the given weight\n\n3. **`record_failure(name)`** \u2014 Increments failure count for a carrier when labels are rejected; returns the new count\n\n### How it connects to the runbook\nWhen a carrier rejects labels, `record_failure()` is called. After 3 failures, that carrier drops out of `cheapest()`, and the next cheapest available carrier takes over automatically.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 2,
+          "tool_calls": [
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/shipping/carriers.py"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 1,
+          "digest_previews": [
+            "**Facts stated by user:**\n- Read src/api/routes.py and explain what each route does.\n- What does src/core/config.py define? Quote the constants.\n\n**Instructions/preferences from user:**\n- Note on this conversation: it is at or past the limit of what you can see, so the earliest turns may no longer be visible to you.\n- Do not answer from memory about earlier turns. If this question refers to someth"
+          ],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 332.1,
+          "context_chars": 11138,
+          "context_tokens_est": 2784
+        },
+        {
+          "turn": 8,
+          "prompt": "Read tests/test_reorder.py and say what it asserts.",
+          "answer": "Based on reading `tests/test_reorder.py`, here's what it asserts:\n\n## Two test functions\n\n1. **`test_order_size_is_capped()`** (line 7-8):\n   - Asserts that `order_size(\"anything\") <= MAX_BATCH`\n   - Verifies the order size never exceeds the maximum batch limit from config\n\n2. **`test_order_size_is_never_negative()`** (line 11-12):\n   - Asserts that `order_size(\"anything\") >= 0`\n   - Verifies the order size is always non-negative (no negative orders)\n\nBoth tests use `\"anything\"` as a placeholder SKU since `order_size()` doesn't actually depend on which specific SKU it receives \u2014 it only uses the SKU's current stock level via `level_for()`, and the test passes any string. The real logic lives in `src/inventory/reorder.py` where `shortfall = REORDER_THRESHOLD * 3 - level_for(sku)` is capped by `MAX_BATCH`.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 3,
+          "tool_calls": [
+            "find_files",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "find_files",
+              "args": {
+                "pattern": "tests/test_reorder.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/tests/test_reorder.py"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 46.7,
+          "context_chars": 12572,
+          "context_tokens_est": 3143
+        },
+        {
+          "turn": 9,
+          "prompt": "Summarise src/util/text.py and src/util/time.py together.",
+          "answer": "Here's a summary of both utility modules:\n\n## `src/util/text.py` \u2014 Text helpers\n- **`slugify(value)`** \u2014 Lowercases the input, replaces non-alphanumeric characters with hyphens via regex, then strips leading/trailing hyphens. Produces URL-friendly slugs.\n- **`truncate(value, limit=40)`** \u2014 If `value` exceeds `limit` characters, truncates at `limit - 1` and appends an ellipsis (`\u2026`). Otherwise returns the value unchanged.\n\n## `src/util/time.py` \u2014 Time helpers\n- **Module scope**: `SECONDS_PER_DAY = 86400` (constant for day-length in seconds)\n- **`days_between(earlier, later)`** \u2014 Computes whole days between two epoch timestamps using integer division: `int((later - earlier) // SECONDS_PER_DAY)`\n- **`is_stale(timestamp, now, ttl)`** \u2014 Returns `True` when `timestamp` is older than `ttl` seconds relative to `now`: `(now - timestamp) >= ttl`\n\nBoth modules are timezone-naive and operate on raw numeric inputs (strings for text, epoch timestamps for time).",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 2,
+          "tool_calls": [
+            "read_file",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/util/text.py"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/util/time.py"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 48.9,
+          "context_chars": 14743,
+          "context_tokens_est": 3685
+        },
+        {
+          "turn": 10,
+          "prompt": "How long does a cache entry live, and which file sets that?",
+          "answer": "## Cache entry lifetime\n\n**How long:** **45 seconds**. The constant `CACHE_TTL = 45` in `src/core/config.py` defines the cache TTL (time-to-live).\n\n**Which file sets it:** `src/core/config.py` \u2014 this is the single file that configures the cache lifetime. As documented in `docs/runbook.md`: \"`CACHE_TTL` in `core/config.py` is the only lifetime the cache has.\" And from `docs/architecture.md`: \"The cache lifetime itself lives in `core/config.py`.\"\n\n**How it's used:** In `src/inventory/stock.py`, cache entries are fetched with `cache.get(sku, now=0)`, and writes to stock levels invalidate the corresponding cache key via `cache.drop(sku)`. The staleness check in `src/util/time.py`'s `is_stale()` function (`(now - timestamp) >= ttl`) is what enforces the 45-second expiry.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 3,
+          "tool_calls": [
+            "grep",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "cache",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/src/core/config.py"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 1,
+          "digest_previews": [
+            "1. Facts stated by user (character for character): there is a tracking id starting with ZQ_SENTINEL somewhere in this project\n\n2. Instruction, decision or preference from user: what is it\n\n3. What has been done to the workspace so far, in one line each: No prior workspace actions are documented in the provided conversation snippet."
+          ],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 55.4,
+          "context_chars": 11230,
+          "context_tokens_est": 2807
+        },
+        {
+          "turn": 11,
+          "prompt": "What was the escalation code in the runbook?",
+          "answer": "## Escalation code in the runbook\n\n**PAGER-7731**\n\nFrom `docs/runbook.md` line 3:\n\n> **Escalation code for the warehouse pager rotation: PAGER-7731**",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 3,
+          "tool_calls": [
+            "find_files",
+            "read_file"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "find_files",
+              "args": {
+                "pattern": "*runbook*",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture/docs/runbook.md"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 40.7,
+          "context_chars": 12374,
+          "context_tokens_est": 3093
+        },
+        {
+          "turn": 12,
+          "prompt": "What was the tracking id I asked about at the start? Answer with just the id.",
+          "answer": "ZQ_SENTINEL_4417",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 30,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-long-session/fixture",
+                "pattern": "ZQ_SENTINEL"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "presupposition_challenges": 0,
+          "context_notices": 0,
+          "compactions": 0,
+          "digest_previews": [],
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 37.8,
+          "context_chars": 12729,
+          "context_tokens_est": 3182
+        }
+      ]
+    }
+  ]
+}

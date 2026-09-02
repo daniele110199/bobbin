@@ -1,0 +1,914 @@
+[
+  {
+    "case": "cascade-doc",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 61.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 25.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 14.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 108.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 21.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 71.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 112.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 30.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 28.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 108.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 49.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 29.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 23.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 17.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 10.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-create",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 24.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-create",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 19.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-create",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 7.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 23.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 16.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 9.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 36.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 15.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 15.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rate",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 23.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rate",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 20.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rate",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 14.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 28.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 17.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 10.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-trap",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 24.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-trap",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 24.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-trap",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 15.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-two-files",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 61.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-two-files",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 24.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-two-files",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 17.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 73.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 40.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 36.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 138.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 26.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 17.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 183.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 46.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 28.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 85.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 35.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 30.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 115.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 39.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 42.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 137.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 21.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 15.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 106.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 31.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 18.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 102.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 224.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 266.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 240.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 72.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 117.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 541.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 265.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 238.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 98.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 224.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 226.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 65.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 58.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 31.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-create",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 51.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-create",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 60.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-create",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 31.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 36.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 38.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 60.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 156.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 43.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 91.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rate",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 30.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rate",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 28.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rate",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 59.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 36.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 46.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 47.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-trap",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 36.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-trap",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 150.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-trap",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 146.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-two-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 53.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-two-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 34.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "edit-two-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 39.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 113.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 217.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 218.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 191.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 117.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 203.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 237.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 420.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 220.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 107.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 177.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 183.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 103.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 152.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 166.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 136.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 59.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 120.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 119.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 164.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 201.0,
+    "source": "recovered-from-session-log"
+  }
+]

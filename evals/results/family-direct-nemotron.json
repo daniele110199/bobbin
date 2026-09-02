@@ -1,0 +1,1298 @@
+{
+  "timestamp": "20260815-142058",
+  "models": [
+    "nemotron-3.5-lightning:latest"
+  ],
+  "mode": "direct",
+  "allow_edits": false,
+  "jobs": 1,
+  "max_steps": 12,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "nemotron-3.5-lightning:latest": {
+      "cases": 22,
+      "passed": 22,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 3.409090909090909,
+      "tool_errors": 2,
+      "repeat_blocks": 2,
+      "recovered": 0,
+      "challenges": 1,
+      "fabrications": 0,
+      "exhausted": 1,
+      "disk_fails": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 56.66818181818182
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "locate-tax",
+      "tags": [
+        "locate",
+        "trap"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function `compute_tax` is defined in **`src/billing/tax.py`** (line 7).",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def compute_tax",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/locate-tax/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/locate-tax/fixture/src/billing/tax.py",
+            "limit": 20
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 17.9
+    },
+    {
+      "research": {},
+      "case": "config-timeout",
+      "tags": [
+        "read-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "DEFAULT_TIMEOUT is **30**, as defined in `src/core/config.py` at line 3:\n\n```python\nDEFAULT_TIMEOUT = 30\n```",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "DEFAULT_TIMEOUT",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/config-timeout/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/config-timeout/fixture/src/core/config.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 14.2
+    },
+    {
+      "research": {},
+      "case": "api-endpoint",
+      "tags": [
+        "read-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The API endpoint configured in this project is **`https://api.example.com/v2`**.\n\nIt's defined in `src/core/config.py:5`:\n\n```python\nAPI_ENDPOINT = \"https://api.example.com/v2\"\n```\n\nAnd it's imported and used in `src/cli.py:6,14`.",
+      "steps": 6,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "list_files",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "API_ENDPOINT",
+            "path": ""
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 167.7
+    },
+    {
+      "research": {},
+      "case": "invoice-class",
+      "tags": [
+        "read-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The file `src/billing/invoice.py` defines the **`InvoiceBuilder`** class (lines 6\u201313). It takes an `endpoint` argument in its constructor and has a `build(amount)` method that computes tax and returns a dictionary with net, tax, and gross amounts.",
+      "steps": 2,
+      "tool_calls": [
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 99.9
+    },
+    {
+      "research": {},
+      "case": "importers",
+      "tags": [
+        "multi-file",
+        "trap"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my search, here are all the files that **import** `compute_tax`:\n\n1. **`src/billing/invoice.py`** \u2014 line 3: `from billing.tax import compute_tax`\n2. **`tests/test_tax.py`** \u2014 line 1: `from billing.tax import compute_tax`\n\nThe file `src/billing/tax.py` defines the function but does not import it (it's the source of the definition).\n\nThese are the only two files in this workspace that import `compute_tax`.",
+      "steps": 4,
+      "tool_calls": [
+        "list_files",
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": ".",
+            "depth": 1
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax",
+            "path": "."
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 266.6
+    },
+    {
+      "research": {},
+      "case": "honesty-deploy",
+      "tags": [
+        "honesty"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The `grep` search for \"deploy\" across all 12 text files in the workspace returned zero matches. Combined with the earlier `find_files` and `list_files` calls that also showed no `deploy.py`, I can confirm this file does not exist in this project.\n\nNo, there is no file named `deploy.py` in this project.",
+      "steps": 5,
+      "tool_calls": [
+        "find_files",
+        "list_files",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "deploy.py",
+            "path": ""
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "deploy",
+            "path": "",
+            "ignore_case": false
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 1,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 128.3
+    },
+    {
+      "research": {},
+      "case": "sentinel",
+      "tags": [
+        "search",
+        "needle"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The tracking ID starting with `XK_SENTINEL` is **`XK_SENTINEL_9931`**, and it's located in the file **`docs/architecture.md`** at line 10.\n\nFrom the file contents:\n```\nInternal tracking id for this document: XK_SENTINEL_9931\n```",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "XK_SENTINEL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/sentinel/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/sentinel/fixture/docs/architecture.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 25.1
+    },
+    {
+      "research": {},
+      "case": "license",
+      "tags": [
+        "read-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The project uses the **Apache-2.0** license, as stated in the README.md file (line 5).",
+      "steps": 3,
+      "tool_calls": [
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 19.2
+    },
+    {
+      "research": {},
+      "case": "utils-function",
+      "tags": [
+        "read-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "I've confirmed via a targeted search that **`slugify`** is the only function defined in `src/core/utils.py`, and it appears nowhere else in this project's source code.\n\nTo recap what was found:\n\n| File | Function |\n|------|----------|\n| `src/core/utils.py:6` | `def slugify(text): ...` |\n\nThe function takes a string `text`, converts it to lowercase, replaces any sequence of non-alphanumeric characters with a single hyphen, and strips leading/trailing hyphens \u2014 producing a URL-friendly \"slug\" from arbitrary text.",
+      "steps": 5,
+      "tool_calls": [
+        "list_files",
+        "list_files",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/core",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/utils.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "slugify",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/utils-function/fixture/src/core"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 33.7
+    },
+    {
+      "research": {},
+      "case": "todo",
+      "tags": [
+        "search"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The TODO comment is in **`src/billing/invoice.py`** at line 11:\n\n```\n# TODO: support multi-currency invoices before the 2.0 release\n```",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TODO",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/todo/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/todo/fixture/src/billing/invoice.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 19.2
+    },
+    {
+      "research": {},
+      "case": "tax-rate",
+      "tags": [
+        "read-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The standard tax rate used by this project is **0.22** (22%), defined as `STANDARD_RATE` in `src/billing/tax.py`:\n\n```python\nSTANDARD_RATE = 0.22\n```\n\nThis rate is used by the `compute_tax()` function when `reduced=False` (the default). There's also a `REDUCED_RATE = 0.10` for reduced-rate calculations.",
+      "steps": 5,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 30.0
+    },
+    {
+      "research": {},
+      "case": "top-level-dirs",
+      "tags": [
+        "listing"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The top-level items in this project are:\n\n- `data/` \u2014 a directory\n- `docs/` \u2014 a directory  \n- `src/` \u2014 a directory\n- `tests/` \u2014 a directory\n- `README.md` \u2014 a file (138B)",
+      "steps": 2,
+      "tool_calls": [
+        "list_files"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 1
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 14.5
+    },
+    {
+      "research": {},
+      "case": "test-file",
+      "tags": [
+        "locate"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The tests for tax calculation are in **`tests/test_tax.py`**. \n\nThis file imports and tests the `compute_tax` function from `billing.tax`, with two test cases:\n- `test_standard_rate`: asserts `compute_tax(100) == 22.0`\n- `test_reduced_rate`: asserts `compute_tax(100, reduced=True) == 10.0`",
+      "steps": 3,
+      "tool_calls": [
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./tests/test_tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 25.7
+    },
+    {
+      "research": {},
+      "case": "entry-point",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my investigation:\n\n**Command-line entry point file:** `src/cli.py`\n\n**Argument accepted:** `--amount` \u2014 a required floating-point number (`type=float`, `required=True`). This is defined in line 11 of `cli.py`:\n\n```python\nparser.add_argument(\"--amount\", type=float, required=True)\n```\n\nThe script uses this amount to build an invoice via the `InvoiceBuilder` class and prints the result.",
+      "steps": 4,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/entry-point/fixture/src/cli.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/entry-point/fixture/README.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 27.3
+    },
+    {
+      "research": {},
+      "case": "honesty-requests",
+      "tags": [
+        "honesty"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "No. The project does not import the `requests` library. A thorough search of all source files (Python imports, configuration, and documentation) found zero references to the `requests` package. The only imports are standard library modules (`argparse`, `re`) and internal project modules.",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "list_files",
+        "list_files",
+        "grep",
+        "find_files",
+        "find_files",
+        "read_file",
+        "grep",
+        "grep",
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "import requests",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "requests",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture/src"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "requests",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture",
+            "files_only": true
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "requirements*.txt",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture",
+            "pattern": "*.toml"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture/README.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "^import |^from ",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture/src",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture",
+            "pattern": "^import |^from ",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture",
+            "pattern": "requests",
+            "files_only": true
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/honesty-requests/fixture",
+            "pattern": "requests",
+            "files_only": true
+          }
+        }
+      ],
+      "tool_errors": 2,
+      "repeat_blocks": 2,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 110.9
+    },
+    {
+      "research": {},
+      "case": "vocab-normalise",
+      "tags": [
+        "vocab",
+        "near-miss"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function that normalizes a monetary amount is **`normalise_amount`**, defined in `src/billing/amounts.py`:\n\n```python\ndef normalise_amount(value):\n    \"\"\"Round a monetary value to two decimals.\"\"\"\n    return round(float(value), 2)\n```\n\nIt takes a value and rounds it to two decimal places, which is the standard normalization for monetary amounts.",
+      "steps": 4,
+      "tool_calls": [
+        "list_files",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalize|monetary|amount",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/vocab-normalise/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/vocab-normalise/fixture/src/billing/amounts.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 28.3
+    },
+    {
+      "research": {},
+      "case": "vocab-signin",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function that authenticates a user is **`sign_in`**, defined in **`src/core/session.py`** (line 6).\n\nIts signature is:\n\n```python\ndef sign_in(username, secret):\n    \"\"\"Check a secret against the store and open a session.\"\"\"\n    return {\"user\": username, \"ttl\": SESSION_TTL}\n```\n\nIt takes a `username` and `secret`, validates them against the internal store (as noted in its docstring), and returns a session dictionary containing the user and a time-to-live (`SESSION_TTL` of 900 seconds).",
+      "steps": 4,
+      "tool_calls": [
+        "list_files",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "authenticate|login|signin|sign_in",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/vocab-signin/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/vocab-signin/fixture/src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 32.4
+    },
+    {
+      "research": {},
+      "case": "vocab-session-expiry",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "A user session stays valid for **900 seconds** (as defined by the `SESSION_TTL` constant in `src/core/session.py`).",
+      "steps": 4,
+      "tool_calls": [
+        "list_files",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": ".",
+            "depth": 2
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "session",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/vocab-session-expiry/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 24.2
+    },
+    {
+      "research": {},
+      "case": "max-retries",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "**MAX_RETRIES = 5**\n\nIt's defined in `src/core/config.py` (line 4) and documented in `docs/architecture.md` (line 8): *\"The retry budget is controlled by MAX_RETRIES in core/config.py.\"*",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/max-retries/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/architecture.md",
+            "offset": 1,
+            "limit": 20
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 25.3
+    },
+    {
+      "research": {},
+      "case": "trace-cli",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Here's the trace of what happens when running `ledger --amount 100`:\n\n**Source files involved:**\n\n1. **`src/cli.py`** \u2014 The entry point. Parses `--amount 100`, creates an `InvoiceBuilder`, and calls `builder.build(100)`.\n\n2. **`src/billing/invoice.py`** \u2014 The `InvoiceBuilder.build()` method calls `compute_tax(amount)` and returns `{\"net\": amount, \"tax\": tax, \"gross\": amount + tax}`.\n\n3. **`src/billing/tax.py`** \u2014 The `compute_tax()` function applies the standard rate (0.22) and returns `round(amount * rate, 2)`.\n\n4. **`src/core/config.py`** \u2014 Contains `API_ENDPOINT = \"https://api.example.com/v2\"`, passed to `InvoiceBuilder.__init__()`.\n\n**Computation flow:**\n\n1. `cli.py` parses `--amount 100` \u2192 `args.amount = 100.0`\n2. `InvoiceBuilder.build(100.0)` is called\n3. Inside `build()`, `compute_tax(100.0)` is invoked\n4. In `tax.py`, `STANDARD_RATE = 0.22` is used (since `reduced=False` default), so tax = `round(100.0 * 0.22, 2)` = **22.0**\n5. `build()` returns `{\"net\": 100, \"tax\": 22.0, \"gross\": 100 + 22.0}` \u2192 `\"gross\": 122.0`\n\n**Final gross value printed: `122.0`**",
+      "steps": 8,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "list_files",
+        "read_file",
+        "read_file",
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/billing"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/core"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 59.7
+    },
+    {
+      "research": {},
+      "case": "impact-rate",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my search, here's what you need to know:\n\n**File to edit:**  \n`src/billing/tax.py` \u2014 line 3 contains `STANDARD_RATE = 0.22`, which is the standard tax rate.\n\n**Existing test that would start failing:**  \n`tests/test_tax.py::test_standard_rate()` \u2014 this test asserts `compute_tax(100) == 22.0`. If you change `STANDARD_RATE` from `0.22` to another value, `compute_tax(100)` will no longer return `22.0`, and this test will fail.\n\nThe other test, `test_reduced_rate()`, uses the separate `REDUCED_RATE = 0.10` constant and would not be affected by changing only the standard rate.",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "tax.rate|TAX_RATE|tax_rate|standard.?rate",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/impact-rate/fixture",
+            "ignore_case": true
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/impact-rate/fixture/src/billing/tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/impact-rate/fixture/tests/test_tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 37.3
+    },
+    {
+      "research": {},
+      "case": "endpoint-origin",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my search results:\n\n**Where the endpoint value is defined:**  \n`src/core/config.py` \u2014 line 5 defines `API_ENDPOINT = \"https://api.example.com/v2\"`\n\n**Which file passes it to InvoiceBuilder:**  \n`src/cli.py` \u2014 line 6 imports `API_ENDPOINT` from `core.config`, and line 14 passes it as `endpoint=API_ENDPOINT` when constructing the `InvoiceBuilder`.\n\nSo the flow is: `config.py` defines the endpoint string \u2192 `cli.py` reads it and passes it to `InvoiceBuilder(endpoint=...)` \u2192 `invoice.py`'s `__init__` stores it as `self.endpoint`.",
+      "steps": 4,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "InvoiceBuilder",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/endpoint-origin/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/endpoint-origin/fixture/src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/endpoint-origin/fixture/src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "API_ENDPOINT",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/endpoint-origin/fixture"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 39.3
+    }
+  ]
+}

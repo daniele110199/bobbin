@@ -1,0 +1,272 @@
+{
+  "timestamp": "20260815-101951",
+  "models": [
+    "qwen3-coder:30b"
+  ],
+  "mode": "direct",
+  "allow_edits": false,
+  "jobs": 1,
+  "max_steps": 12,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 4,
+      "passed": 4,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 4.0,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 1,
+      "challenges": 0,
+      "fabrications": 0,
+      "exhausted": 0,
+      "disk_fails": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 23.35
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "locate-tax",
+      "tags": [
+        "locate",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function `compute_tax` is defined in the file `src/billing/tax.py`. The function takes two parameters: `amount` and `reduced` (with a default value of False). It calculates tax based on either a standard rate of 0.22 or a reduced rate of 0.10, depending on the `reduced` parameter, and returns the rounded result.",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 16.3
+    },
+    {
+      "research": {},
+      "case": "importers",
+      "tags": [
+        "multi-file",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on the search results, there are two files that import compute_tax:\n\n1. src/billing/invoice.py - This file imports compute_tax from billing.tax and uses it in line 12.\n2. tests/test_tax.py - This file imports compute_tax from billing.tax and uses it in lines 5 and 9.\n\nThese are the only two files that import or use the compute_tax function according to the search results.",
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 8.9
+    },
+    {
+      "research": {},
+      "case": "vocab-normalise",
+      "tags": [
+        "vocab",
+        "near-miss"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function that normalizes a monetary amount is `normalise_amount`, and it is defined in the file `src/billing/amounts.py`. \n\nThis function takes a value as input, converts it to a float, and rounds it to two decimal places, which is the standard way to handle monetary amounts.",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalize.*amount"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 11.5
+    },
+    {
+      "research": {},
+      "case": "trace-cli",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my analysis of the codebase, here's what happens when someone runs the command-line tool with --amount 100:\n\n**Source files involved:**\n1. `src/cli.py` - Command line entry point that parses arguments and calls the builder\n2. `src/billing/invoice.py` - Contains InvoiceBuilder class that processes the amount\n3. `src/billing/tax.py` - Contains tax calculation logic\n\n**Execution trace:**\n1. User runs: `python src/cli.py --amount 100`\n2. CLI parses argument and calls `InvoiceBuilder.build(100)`\n3. InvoiceBuilder calculates tax using `compute_tax(100)`\n4. In `tax.py`, the standard rate of 0.22 is applied to amount 100\n5. Tax amount = 100 \u00d7 0.22 = 22.0\n6. Gross value = net amount + tax = 100 + 22.0 = 122.0\n\n**Final gross value that gets printed:** 122.0",
+      "steps": 12,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "read_file",
+        "list_files",
+        "read_file",
+        "read_file",
+        "list_files",
+        "read_file",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/billing"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/core"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "if __name__",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 56.7
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+=== budget probe (qwen, 2 renames @ 80 steps) 20:39:38
+fail  budget=80 used=  8 real-rename-across-files   change=False tests=True  127s
+PASS  budget=80 used= 13 real-rename-internal       change=True  tests=True  82s
+=== missing cell (nemotron x real-nonexistent x 3 arms) 20:43:07
+PASS  nemotron-3.5 ours        real-nonexistent           change=True  tests=True    1082s
+fail  nemotron-3.5 aider-told  real-nonexistent           change=False tests=False    900s
+fail  nemotron-3.5 aider-find  real-nonexistent           change=False tests=False    900s
+=== ALL COMPLETE 21:31:10

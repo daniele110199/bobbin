@@ -1,0 +1,771 @@
+{
+  "timestamp": "20260816-081131",
+  "models": [
+    "nemotron-3.5-lightning:latest"
+  ],
+  "mode": "direct",
+  "allow_edits": true,
+  "jobs": 1,
+  "max_steps": 12,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "nemotron-3.5-lightning:latest": {
+      "cases": 8,
+      "passed": 7,
+      "pass_rate": 0.875,
+      "avg_tool_calls": 5.125,
+      "tool_errors": 8,
+      "repeat_blocks": 8,
+      "recovered": 0,
+      "challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "disk_fails": 1,
+      "cases_that_wrote": 8,
+      "avg_s": 40.125,
+      "tool_use": {
+        "check_imports": {
+          "calls": 2,
+          "cases": 2,
+          "per_case": 0.25
+        },
+        "edit_file": {
+          "calls": 8,
+          "cases": 7,
+          "per_case": 1.0
+        },
+        "find_files": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 0.125
+        },
+        "grep": {
+          "calls": 5,
+          "cases": 2,
+          "per_case": 0.625
+        },
+        "list_files": {
+          "calls": 6,
+          "cases": 3,
+          "per_case": 0.75
+        },
+        "read_file": {
+          "calls": 18,
+          "cases": 8,
+          "per_case": 2.25
+        },
+        "undo_edit": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "write_file": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 0.125
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "edit-constant",
+      "tags": [
+        "edit",
+        "single-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/core/config.py"
+        ]
+      },
+      "answer": "Done. `MAX_RETRIES` in `src/core/config.py` has been changed from `5` to `8`.",
+      "steps": 3,
+      "tool_calls": [
+        "read_file",
+        "edit_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "src/core/config.py",
+            "old_string": "MAX_RETRIES = 5",
+            "new_string": "MAX_RETRIES = 8"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 20.9
+    },
+    {
+      "research": {},
+      "case": "edit-keeps-rest",
+      "tags": [
+        "edit",
+        "no-collateral"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/core/config.py"
+        ]
+      },
+      "answer": "Done. `DEFAULT_TIMEOUT` in `src/core/config.py` is now set to 60.",
+      "steps": 3,
+      "tool_calls": [
+        "read_file",
+        "edit_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "src/core/config.py",
+            "old_string": "DEFAULT_TIMEOUT = 30",
+            "new_string": "DEFAULT_TIMEOUT = 60"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 21.3
+    },
+    {
+      "research": {},
+      "case": "edit-rate",
+      "tags": [
+        "edit",
+        "single-value"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/billing/tax.py"
+        ]
+      },
+      "answer": "Done. The `STANDARD_RATE` constant in `src/billing/tax.py` has been updated from `0.22` (22%) to `0.25` (25%).",
+      "steps": 4,
+      "tool_calls": [
+        "find_files",
+        "read_file",
+        "edit_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "**/tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "src/billing/tax.py",
+            "old_string": "STANDARD_RATE = 0.22",
+            "new_string": "STANDARD_RATE = 0.25"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 27.1
+    },
+    {
+      "research": {},
+      "case": "edit-rename",
+      "tags": [
+        "edit",
+        "rename"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/billing/amounts.py"
+        ]
+      },
+      "answer": "The function `normalise_amount` has been successfully renamed to `normalize_amount` in `src/billing/amounts.py`.\n\n**Change made:**\n- File: `src/billing/amounts.py`\n- Line 4: `def normalise_amount(value):` \u2192 `def normalize_amount(value):`\n\nThe rename was isolated to this single definition. The `check_imports` verification confirms no syntax errors and all imports resolve correctly across the project's 10 Python files.\n\nNote: No other references to `normalise_amount` were found in the codebase, so only the function definition itself needed updating.",
+      "steps": 11,
+      "tool_calls": [
+        "list_files",
+        "list_files",
+        "read_file",
+        "grep",
+        "grep",
+        "grep",
+        "edit_file",
+        "read_file",
+        "grep",
+        "check_imports"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "./src/billing"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "from billing.amounts import|import billing.amounts|billing\\.amounts"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount|normalize_amount"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "./src/billing/amounts.py",
+            "old_string": "def normalise_amount(value):\n    \"\"\"Round a monetary value to two decimals.\"\"\"\n    return round(float(value), 2)",
+            "new_string": "def normalize_amount(value):\n    \"\"\"Round a monetary value to two decimals.\"\"\"\n    return round(float(value), 2)"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount"
+          }
+        },
+        {
+          "name": "check_imports",
+          "args": {}
+        }
+      ],
+      "tool_errors": 2,
+      "repeat_blocks": 2,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 65.7
+    },
+    {
+      "research": {},
+      "case": "edit-create",
+      "tags": [
+        "edit",
+        "create"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [
+          "src/billing/discount.py"
+        ],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Created `src/billing/discount.py` with the `apply_discount(amount, percent)` function that returns the amount after subtracting the given percentage.\n\nThe function:\n- Takes an `amount` (number) and a `percent` (percentage to discount)\n- Returns the discounted amount rounded to 2 decimal places\n- Uses the formula: `amount * (1 - percent / 100)`\n- No syntax errors or import issues were found when checking the project",
+      "steps": 7,
+      "tool_calls": [
+        "list_files",
+        "list_files",
+        "read_file",
+        "write_file",
+        "read_file",
+        "check_imports"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "./src/billing"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/billing/tax.py"
+          }
+        },
+        {
+          "name": "write_file",
+          "args": {
+            "path": "./src/billing/discount.py",
+            "content": "\"\"\"Discount calculation rules.\"\"\"\n\n\ndef apply_discount(amount, percent):\n    \"\"\"Return the amount after subtracting `percent`%.\"\"\"\n    return round(amount * (1 - percent / 100), 2)\n"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/billing/discount.py"
+          }
+        },
+        {
+          "name": "check_imports",
+          "args": {}
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 44.2
+    },
+    {
+      "research": {},
+      "case": "edit-trap",
+      "tags": [
+        "edit",
+        "trap"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/billing/tax.py"
+        ]
+      },
+      "answer": "Done. I added the docstring line `'Rate comes from config.'` to the `compute_tax` function in `src/billing/tax.py`. The function's docstring now reads:\n\n```\n\"\"\"Rate comes from config.\nReturn the tax owed on `amount`.\"\"\"\n```",
+      "steps": 4,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "edit_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def compute_tax",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/edit-trap/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/edit-trap/fixture/src/billing/tax.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning-latest/edit-trap/fixture/src/billing/tax.py",
+            "old_string": "def compute_tax(amount, reduced=False):\n    \"\"\"Return the tax owed on `amount`.\"\"\"\n    rate = REDUCED_RATE if reduced else STANDARD_RATE",
+            "new_string": "def compute_tax(amount, reduced=False):\n    \"\"\"Rate comes from config.\n    Return the tax owed on `amount`.\"\"\"\n    rate = REDUCED_RATE if reduced else STANDARD_RATE"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 33.7
+    },
+    {
+      "research": {},
+      "case": "edit-nonexistent",
+      "tags": [
+        "edit",
+        "honesty"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": false,
+      "missing": [
+        "any-of:\\bno\\b|\\bnot\\b|does not exist..."
+      ],
+      "forbidden": [],
+      "file_problems": [
+        "modified src/core/config.py, which the case does not allow"
+      ],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/core/config.py"
+        ]
+      },
+      "answer": "Done. I added `ENABLE_TELEMETRY = False` to `src/core/config.py`. The file now contains:\n\n```python\n\"\"\"Runtime configuration.\"\"\"\n\nDEFAULT_TIMEOUT = 30\nMAX_RETRIES = 5\nAPI_ENDPOINT = \"https://api.example.com/v2\"\nENABLE_TELEMETRY = False\n```",
+      "steps": 10,
+      "tool_calls": [
+        "list_files",
+        "list_files",
+        "read_file",
+        "edit_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "",
+            "depth": 2
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "./src/core"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/core/config.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "./src/core/config.py",
+            "old_string": "\"\"\"Runtime configuration.\"\"\"\n\nDEFAULT_TIMEOUT = 30\nMAX_RETRIES = 5\nAPI_ENDPOINT = \"https://api.example.com/v2\"",
+            "new_string": "\"\"\"Runtime configuration.\"\"\"\n\nDEFAULT_TIMEOUT = 30\nMAX_RETRIES = 5\nAPI_ENDPOINT = \"https://api.example.com/v2\"\nENABLE_TELEMETRY = False"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "./src/core/config.py",
+            "offset": 1,
+            "limit": 10
+          }
+        }
+      ],
+      "tool_errors": 4,
+      "repeat_blocks": 4,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 67.6
+    },
+    {
+      "research": {},
+      "case": "edit-two-files",
+      "tags": [
+        "edit",
+        "multi-file"
+      ],
+      "model": "nemotron-3.5-lightning:latest",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/billing/tax.py",
+          "src/core/config.py"
+        ]
+      },
+      "answer": "Both files have been successfully updated:\n\n1. **`src/core/config.py`**: `MAX_RETRIES` changed from `5` to `2`\n   - The edit confirmed: `-MAX_RETRIES = 5` \u2192 `+MAX_RETRIES = 2`\n\n2. **`src/billing/tax.py`**: `REDUCED_RATE` changed from `0.10` to `0.05`\n   - The edit confirmed: `-REDUCED_RATE = 0.10` \u2192 `+REDUCED_RATE = 0.05`\n\nBoth edits were applied successfully with the exact changes requested.",
+      "steps": 4,
+      "tool_calls": [
+        "read_file",
+        "read_file",
+        "edit_file",
+        "edit_file",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "src/core/config.py",
+            "old_string": "MAX_RETRIES = 5",
+            "new_string": "MAX_RETRIES = 2"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "src/billing/tax.py",
+            "old_string": "REDUCED_RATE = 0.10",
+            "new_string": "REDUCED_RATE = 0.05"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 2,
+      "repeat_blocks": 2,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 40.5
+    }
+  ]
+}

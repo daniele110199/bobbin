@@ -1,0 +1,293 @@
+{
+  "timestamp": "20260817-144647",
+  "models": [
+    "qwen3-coder:30b"
+  ],
+  "mode": "direct",
+  "allow_edits": true,
+  "jobs": 1,
+  "max_steps": 24,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 1,
+      "passed": 1,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 22.0,
+      "tool_errors": 2,
+      "repeat_blocks": 2,
+      "recovered": 0,
+      "challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "disk_fails": 0,
+      "cases_that_wrote": 1,
+      "avg_s": 106.8,
+      "tool_use": {
+        "check_imports": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "edit_file": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "find_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "grep": {
+          "calls": 11,
+          "cases": 1,
+          "per_case": 11.0
+        },
+        "list_files": {
+          "calls": 2,
+          "cases": 1,
+          "per_case": 2.0
+        },
+        "read_file": {
+          "calls": 7,
+          "cases": 1,
+          "per_case": 7.0
+        },
+        "review_changes": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "undo_edit": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "write_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "repair-half-deleted",
+      "tags": [
+        "repair",
+        "delete"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "review_changes",
+        "undo_edit",
+        "write_file"
+      ],
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": [
+          "src/store/orders.py"
+        ]
+      },
+      "answer": "I have successfully completed the task of removing the order-size limit from the repository. \n\nThe issue was that someone had started removing the order-size limit but left the job half-finished. There was a reference to `MAX_ITEMS` in `src/store/orders.py` that was never defined, causing broken code.\n\nI removed the incomplete logic that was checking for maximum items and raising a \"too many items\" error, leaving only the core functionality of placing an order. The limit has been completely removed with no references to it remaining anywhere in the codebase.\n\nThe fix involved editing `src/store/orders.py` to remove these two lines:\n```python\nif len(lines) > MAX_ITEMS:\n    raise ValueError(\"too many items\")\n```\n\nNow the order placement function works without any size restrictions, and there are no remaining references to the order-size limit anywhere in the codebase.",
+      "steps": 23,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "read_file",
+        "grep",
+        "grep",
+        "grep",
+        "read_file",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "grep",
+        "edit_file",
+        "grep",
+        "read_file",
+        "grep",
+        "list_files",
+        "grep",
+        "grep",
+        "review_changes"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 3
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/config.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "limit",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "size",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "max",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/store/models.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/store/orders.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_ITEMS",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/store/pricing.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_ITEMS"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_orders.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_ITEMS",
+            "file_glob": "*"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "order.*size|size.*order",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "edit_file",
+          "args": {
+            "path": "src/store/orders.py",
+            "old_string": "\"\"\"Order placement.\"\"\"\n\nfrom src.store.models import Order\nfrom src.store.pricing import apply_discount\n\n\ndef place_order(customer, lines, percent=0):\n    if len(lines) > MAX_ITEMS:\n        raise ValueError(\"too many items\")\n    order = Order(customer, lines)\n    return {\"order\": order, \"due\": apply_discount(order, percent)}",
+            "new_string": "\"\"\"Order placement.\"\"\"\n\nfrom src.store.models import Order\nfrom src.store.pricing import apply_discount\n\n\ndef place_order(customer, lines, percent=0):\n    order = Order(customer, lines)\n    return {\"order\": order, \"due\": apply_discount(order, percent)}"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_ITEMS"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/store/orders.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "\"too many items\"",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "."
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "order.*limit|limit.*order",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "items",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "review_changes",
+          "args": {}
+        }
+      ],
+      "tool_errors": 2,
+      "repeat_blocks": 2,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 106.8
+    }
+  ]
+}

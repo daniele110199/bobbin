@@ -1,0 +1,13 @@
+fail  rep1 budget= 40 used= 40* real-rename-across-files   change=False touched=True  tests=False    243s
+fail  rep1 budget= 40 used= 44* real-rename-internal       change=False touched=True  tests=False    219s
+fail  rep1 budget= 80 used= 37  real-rename-across-files   change=False touched=True  tests=False    375s
+fail  rep1 budget= 80 used= 53  real-rename-internal       change=False touched=True  tests=False    222s
+fail  rep2 budget= 40 used= 40* real-rename-across-files   change=False touched=True  tests=True     460s
+fail  rep2 budget= 40 used= 38  real-rename-internal       change=False touched=False tests=True     202s
+fail  rep2 budget= 80 used= 33  real-rename-across-files   change=False touched=True  tests=False    160s
+PASS  rep2 budget= 80 used= 17  real-rename-internal       change=True  touched=True  tests=True      88s
+fail  rep3 budget= 40 used= 44* real-rename-across-files   change=False touched=True  tests=False    250s
+PASS  rep3 budget= 40 used= 14  real-rename-internal       change=True  touched=True  tests=True      90s
+fail  rep3 budget= 80 used= 42  real-rename-across-files   change=False touched=True  tests=False    230s
+fail  rep3 budget= 80 used= 48  real-rename-internal       change=False touched=True  tests=False    216s
+MATCHED PROBE COMPLETE

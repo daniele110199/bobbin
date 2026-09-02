@@ -1,0 +1,482 @@
+{
+  "timestamp": "20260823-141933",
+  "models": [
+    "nemotron-3.5-lightning"
+  ],
+  "mode": "direct",
+  "allow_edits": true,
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "nemotron-3.5-lightning": {
+      "cases": 1,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 13.0,
+      "tool_errors": 1,
+      "repeat_blocks": 1,
+      "recovered": 0,
+      "challenges": 1,
+      "quoted": 1,
+      "notices": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 1,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 265.7,
+      "tool_use": {
+        "check_imports": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "edit_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find_files": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "grep": {
+          "calls": 11,
+          "cases": 1,
+          "per_case": 11.0
+        },
+        "list_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "read_file": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "review_changes": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "undo_edit": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "write_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "multi-absence-subject",
+      "tags": [
+        "multi-turn",
+        "writes",
+        "guards"
+      ],
+      "model": "nemotron-3.5-lightning",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "review_changes",
+        "undo_edit",
+        "write_file"
+      ],
+      "budget": 14,
+      "passed": false,
+      "missing": [],
+      "forbidden": [
+        "turn 2: QF_SENTINEL"
+      ],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "4",
+      "turn_count": 3,
+      "num_ctx": 16384,
+      "context_chars": 10100,
+      "context_tokens_est": 2525,
+      "steps": 16,
+      "tool_calls": [
+        "grep",
+        "find_files",
+        "read_file",
+        "grep",
+        "grep",
+        "grep",
+        "grep",
+        "grep",
+        "grep",
+        "grep",
+        "grep",
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "QF_SENTINEL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "docs/notes.md",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture/docs/notes.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "CACHE_TTL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TTL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture",
+            "pattern": "CACHE"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TTL",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "refresh",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture",
+            "pattern": "second.cache"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture",
+            "pattern": "budget"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "\\bnow\\b",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "background",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+          }
+        }
+      ],
+      "tool_errors": 1,
+      "repeat_blocks": 1,
+      "recovered_text_calls": 0,
+      "absence_challenges": 1,
+      "quoted_absences": 1,
+      "context_notices": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 265.7,
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "There is a tracking id starting with QF_SENTINEL somewhere here. What is it?",
+          "answer": "The tracking ID starting with `QF_SENTINEL` is **QF_SENTINEL_2208**, as documented in the repository's README.md (line 3).",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 12,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "QF_SENTINEL",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 8.6,
+          "context_chars": 4136,
+          "context_tokens_est": 1034
+        },
+        {
+          "turn": 2,
+          "prompt": "Summarise docs/notes.md.",
+          "answer": "Based on the tool results from this conversation:\n\n**Tracking ID:** The tracking ID starting with `QF_SENTINEL` is **QF_SENTINEL_2208**, as stated in README.md line 3: \"Internal tracking id for this repository: QF_SENTINEL_2208\".\n\n**docs/notes.md summary:** The design notes describe:\n- A cache in `src/core/cache.py` that holds computed values for `CACHE_TTL` seconds (where `CACHE_TTL = 60` per `src/core/config.py`)\n- No secondary cache and no background refreshes \u2014 when an entry expires, the next caller recomputes it\n- A separate retry budget that also lives in `src/core/config.py`\n\nAll claims about what is or isn't present in the notes were verified through grep searches of the workspace files.",
+          "passed": false,
+          "missing": [],
+          "forbidden": [
+            "QF_SENTINEL"
+          ],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 12,
+          "steps": 12,
+          "tool_calls": [
+            "find_files",
+            "read_file",
+            "grep",
+            "grep",
+            "grep",
+            "grep",
+            "grep",
+            "grep",
+            "grep",
+            "grep",
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "find_files",
+              "args": {
+                "pattern": "docs/notes.md",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "read_file",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture/docs/notes.md"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "CACHE_TTL",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "TTL",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture",
+                "pattern": "CACHE"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "TTL",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "refresh",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture",
+                "pattern": "second.cache"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture",
+                "pattern": "budget"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "\\bnow\\b",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "background",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            }
+          ],
+          "tool_errors": 1,
+          "repeat_blocks": 1,
+          "recovered_text_calls": 0,
+          "absence_challenges": 1,
+          "quoted_absences": 1,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": true,
+          "llm_error": null,
+          "duration_s": 249.9,
+          "context_chars": 9822,
+          "context_tokens_est": 2455
+        },
+        {
+          "turn": 3,
+          "prompt": "What is MAX_RETRIES set to? Answer with just the number.",
+          "answer": "4",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 14,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "MAX_RETRIES",
+                "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/multi-absence-subject/fixture"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "quoted_absences": 0,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 7.2,
+          "context_chars": 10100,
+          "context_tokens_est": 2525
+        }
+      ]
+    }
+  ]
+}

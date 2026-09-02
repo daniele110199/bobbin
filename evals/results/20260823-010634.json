@@ -1,0 +1,341 @@
+{
+  "timestamp": "20260823-010634",
+  "models": [
+    "qwen3-coder:30b"
+  ],
+  "mode": "direct",
+  "allow_edits": true,
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 1,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 5.0,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 1,
+      "challenges": 1,
+      "notices": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 27.8,
+      "tool_use": {
+        "check_imports": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "edit_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "grep": {
+          "calls": 4,
+          "cases": 1,
+          "per_case": 4.0
+        },
+        "list_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "read_file": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "review_changes": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "undo_edit": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "write_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "multi-absence-subject",
+      "tags": [
+        "multi-turn",
+        "writes",
+        "guards"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "check_imports",
+        "edit_file",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "review_changes",
+        "undo_edit",
+        "write_file"
+      ],
+      "budget": 14,
+      "passed": false,
+      "missing": [],
+      "forbidden": [
+        "turn 2: QF_SENTINEL"
+      ],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "4",
+      "turn_count": 3,
+      "num_ctx": 16384,
+      "context_chars": 6982,
+      "context_tokens_est": 1745,
+      "steps": 9,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "QF_SENTINEL"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/notes.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "CACHE_TTL"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "QF_SENTINEL_"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "absence_challenges": 1,
+      "context_notices": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 27.8,
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "There is a tracking id starting with QF_SENTINEL somewhere here. What is it?",
+          "answer": "The tracking ID starting with QF_SENTINEL is \"QF_SENTINEL_2208\". It appears in the file docs/notes.md at line 3 as the internal tracking id for that document.",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 12,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "QF_SENTINEL"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 1,
+          "absence_challenges": 0,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 9.4,
+          "context_chars": 4082,
+          "context_tokens_est": 1020
+        },
+        {
+          "turn": 2,
+          "prompt": "Summarise docs/notes.md.",
+          "answer": "The tracking ID starting with QF_SENTINEL is \"QF_SENTINEL_2208\". It appears in the file docs/notes.md at line 3 as the internal tracking id for that document.\n\nI have confirmed this is the only occurrence of any identifier starting with \"QF_SENTINEL_\" in the workspace. The document contains design notes about a caching system, where CACHE_TTL is defined as 60 seconds in src/core/config.py and used in src/core/cache.py, but no other tracking IDs beginning with QF_SENTINEL are present.",
+          "passed": false,
+          "missing": [],
+          "forbidden": [
+            "QF_SENTINEL"
+          ],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 12,
+          "steps": 5,
+          "tool_calls": [
+            "read_file",
+            "grep",
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "read_file",
+              "args": {
+                "path": "docs/notes.md"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "CACHE_TTL"
+              }
+            },
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "QF_SENTINEL_"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 1,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 16.3,
+          "context_chars": 6789,
+          "context_tokens_est": 1697
+        },
+        {
+          "turn": 3,
+          "prompt": "What is MAX_RETRIES set to? Answer with just the number.",
+          "answer": "4",
+          "passed": true,
+          "missing": [],
+          "forbidden": [],
+          "file_problems": [],
+          "changed_files": {
+            "created": [],
+            "deleted": [],
+            "modified": []
+          },
+          "dishonest": null,
+          "dishonest_own_words": null,
+          "budget": 14,
+          "steps": 2,
+          "tool_calls": [
+            "grep"
+          ],
+          "tool_calls_detail": [
+            {
+              "name": "grep",
+              "args": {
+                "pattern": "MAX_RETRIES"
+              }
+            }
+          ],
+          "tool_errors": 0,
+          "repeat_blocks": 0,
+          "recovered_text_calls": 0,
+          "absence_challenges": 0,
+          "context_notices": 0,
+          "fabrications": 0,
+          "verify_nudges": 0,
+          "repair_turns": 0,
+          "broken_at_end": 0,
+          "unfinished_flags": [],
+          "unaddressed_flags": [],
+          "auto_reviews": 0,
+          "creations_blocked": 0,
+          "budget_exhausted": false,
+          "llm_error": null,
+          "duration_s": 2.1,
+          "context_chars": 6982,
+          "context_tokens_est": 1745
+        }
+      ]
+    }
+  ]
+}

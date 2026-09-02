@@ -1,0 +1,2357 @@
+{
+  "timestamp": "20260813-003505",
+  "models": [
+    "qwen3-coder:30b"
+  ],
+  "mode": "research",
+  "jobs": 1,
+  "max_steps": 12,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 22,
+      "passed": 20,
+      "pass_rate": 0.9090909090909091,
+      "avg_subtasks": 2.9545454545454546,
+      "plan_fallbacks": 0,
+      "grounded_hints": 3,
+      "verified_facts": 80,
+      "dropped_claims": 4,
+      "avg_dossier_chars": 2101.181818181818,
+      "avg_model_calls": 11.727272727272727,
+      "avg_tool_calls": 7.045454545454546,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 0,
+      "challenges": 1,
+      "fabrications": 0,
+      "exhausted": 3,
+      "avg_s": 37.22727272727273
+    }
+  },
+  "rows": [
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find where compute_tax is defined",
+            "grep": "compute_tax",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find which file contains the compute_tax function",
+            "grep": "src/billing/tax.py",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "verify the function definition in that file",
+            "grep": "compute_tax",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 12,
+        "dossier_chars": 2404,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find where compute_tax is defined\n  FACT: compute_tax is defined in src/billing/tax.py:7\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     7| def compute_tax(amount, reduced=False):\n\n[S2] find which file contains the compute_tax function\n  FACT: the function compute_tax is defined in src/billing/tax.py\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     7| def compute_tax(amount, reduced=False):\n\n[S3] verify the function definition in that file\n  FACT: compute_tax is defined in src/billing/tax.py:7\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     7| def compute_tax(amount, reduced=False):\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE"
+      },
+      "case": "locate-tax",
+      "tags": [
+        "locate",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The function `compute_tax` is defined in the file `src/billing/tax.py`.\n\nThis is confirmed by the evidence:\n- The grep tool shows that `compute_tax` is defined in `src/billing/tax.py:7`.\n- The read_file tool confirms the definition of `compute_tax` in that file.\n\nTherefore, the answer to the question is:\n\n- File: `src/billing/tax.py`\n- Function: `compute_tax`",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 50.4
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the DEFAULT_TIMEOUT value",
+            "grep": "DEFAULT_TIMEOUT",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "check the config file where DEFAULT_TIMEOUT is defined",
+            "grep": "src/core/config.py",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "verify the value of DEFAULT_TIMEOUT in the configuration",
+            "grep": "DEFAULT_TIMEOUT",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 12,
+        "dossier_chars": 1464,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the DEFAULT_TIMEOUT value\n  FACT: DEFAULT_TIMEOUT is 30 (src/core/config.py:3)\n  from grep(pattern='DEFAULT_TIMEOUT'):\n    src/core/config.py:3: DEFAULT_TIMEOUT = 30\n  from read_file(path='src/core/config.py'):\n    1| \"\"\"Runtime configuration.\"\"\"\n    2|\n    3| DEFAULT_TIMEOUT = 30\n    4| MAX_RETRIES = 5\n    5| API_ENDPOINT = \"https://api.example.com/v2\"\n\n[S2] check the config file where DEFAULT_TIMEOUT is defined\n  FACT: DEFAULT_TIMEOUT is 30 (src/core/config.py:3)\n  from grep(pattern='DEFAULT_TIMEOUT', file_glob='*.py'):\n    src/core/config.py:3: DEFAULT_TIMEOUT = 30\n  from read_file(path='src/core/config.py'):\n    1| \"\"\"Runtime configuration.\"\"\"\n    2|\n    3| DEFAULT_TIMEOUT = 30\n    4| MAX_RETRIES = 5\n    5| API_ENDPOINT = \"https://api.example.com/v2\"\n\n[S3] verify the value of DEFAULT_TIMEOUT in the configuration\n  FACT: DEFAULT_TIMEOUT is 30 (src/core/config.py:3)\n  from grep(pattern='DEFAULT_TIMEOUT'):\n    src/core/config.py:3: DEFAULT_TIMEOUT = 30\n  from read_file(path='src/core/config.py'):\n    1| \"\"\"Runtime configuration.\"\"\"\n    2|\n    3| DEFAULT_TIMEOUT = 30\n    4| MAX_RETRIES = 5\n    5| API_ENDPOINT = \"https://api.example.com/v2\""
+      },
+      "case": "config-timeout",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The value of DEFAULT_TIMEOUT is 30, as defined in the file `src/core/config.py`. This is confirmed by the search result and the content of the file.",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "DEFAULT_TIMEOUT"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "DEFAULT_TIMEOUT",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "DEFAULT_TIMEOUT"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "DEFAULT_TIMEOUT"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 32.8
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the API endpoint configuration",
+            "grep": "API_ENDPOINT",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find the default timeout value",
+            "grep": "DEFAULT_TIMEOUT",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "find the maximum retries setting",
+            "grep": "MAX_RETRIES",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 10,
+        "dossier_chars": 1283,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the API endpoint configuration\n  FACT: API endpoint is configured to https://api.example.com/v2 (src/core/config.py:5)\n  from grep(pattern='API_ENDPOINT'):\n    src/cli.py:6: from core.config import API_ENDPOINT\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/core/config.py:5: API_ENDPOINT = \"https://api.example.com/v2\"\n\n[S2] find the default timeout value\n  FACT: DEFAULT_TIMEOUT is 30 (src/core/config.py:3)\n  from grep(pattern='DEFAULT_TIMEOUT'):\n    src/core/config.py:3: DEFAULT_TIMEOUT = 30\n\n[S3] find the maximum retries setting\n  FACT: MAX_RETRIES is 5 (src/core/config.py:4)\n  from grep(pattern='MAX_RETRIES'):\n    docs/architecture.md:8: The retry budget is controlled by MAX_RETRIES in core/config.py.\n    src/core/config.py:4: MAX_RETRIES = 5\n  from read_file(path='src/core/config.py'):\n    1| \"\"\"Runtime configuration.\"\"\"\n    2|\n    3| DEFAULT_TIMEOUT = 30\n    4| MAX_RETRIES = 5\n    5| API_ENDPOINT = \"https://api.example.com/v2\""
+      },
+      "case": "api-endpoint",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The API endpoint configured in this project is `https://api.example.com/v2`, as defined in the file `src/core/config.py`.",
+      "steps": 10,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "API_ENDPOINT"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "DEFAULT_TIMEOUT"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 29.9
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the class defined in src/billing/invoice.py",
+            "grep": "InvoiceBuilder",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find the function that builds invoices",
+            "grep": "build",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "check what module defines the invoice builder",
+            "grep": "InvoiceBuilder",
+            "grounded": true
+          }
+        ],
+        "grounded_hints": 1,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 12,
+        "dossier_chars": 1893,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the class defined in src/billing/invoice.py\n  FACT: class InvoiceBuilder is defined in src/billing/invoice.py:6\n  from grep(pattern='class.*Invoice', path='src/billing/invoice.py'):\n    src/billing/invoice.py:6: class InvoiceBuilder:\n  from read_file(path='src/billing/invoice.py'):\n     1| \"\"\"Invoice assembly.\"\"\"\n     3| from billing.tax import compute_tax\n     6| class InvoiceBuilder:\n    11|         # TODO: support multi-currency invoices before the 2.0 release\n\n[S2] find the function that builds invoices\n  FACT: The function that builds invoices is `build` in class `InvoiceBuilder` defined in src/billing/invoice.py:10\n  from grep(pattern='build', file_glob='*.py'):\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/cli.py:15:     print(builder.build(args.amount))\n    src/billing/invoice.py:10:     def build(self, amount):\n  from read_file(path='src/billing/invoice.py'):\n     6| class InvoiceBuilder:\n    10|     def build(self, amount):\n    11|         # TODO: support multi-currency invoices before the 2.0 release\n\n[S3] check what module defines the invoice builder\n  FACT: InvoiceBuilder is defined in src/billing/invoice.py:6\n  from grep(pattern='InvoiceBuilder'):\n    src/cli.py:5: from billing.invoice import InvoiceBuilder\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/billing/invoice.py:6: class InvoiceBuilder:\n  from read_file(path='src/billing/invoice.py'):\n     1| \"\"\"Invoice assembly.\"\"\"\n     6| class InvoiceBuilder:\n    11|         # TODO: support multi-currency invoices before the 2.0 release"
+      },
+      "case": "invoice-class",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The class defined in `src/billing/invoice.py` is `InvoiceBuilder`. \n\nThis is confirmed by the grep result:\n- `grep(pattern='class.*Invoice', path='src/billing/invoice.py')` returns `src/billing/invoice.py:6: class InvoiceBuilder:`\n\nAnd by reading the file content:\n- `read_file(path='src/billing/invoice.py')` shows the class definition at line 6.",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "class.*Invoice",
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "build",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "InvoiceBuilder"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "class.*Invoice",
+            "path": "src/billing/invoice.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 37.8
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find files that import compute_tax",
+            "grep": "compute_tax",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "check src/billing/tax.py for imports",
+            "grep": "compute_tax",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "verify all import locations",
+            "grep": "compute_tax",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 5,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 14,
+        "dossier_chars": 2703,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find files that import compute_tax\n  FACT: src/billing/invoice.py imports compute_tax\n  FACT: tests/test_tax.py imports compute_tax\n  from grep(pattern='compute_tax', file_glob='*.py'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/invoice.py'):\n     3| from billing.tax import compute_tax\n    12|         tax = compute_tax(amount)\n  from read_file(path='tests/test_tax.py'):\n    1| from billing.tax import compute_tax\n    5|     assert compute_tax(100) == 22.0\n    9|     assert compute_tax(100, reduced=True) == 10.0\n\n[S2] check src/billing/tax.py for imports\n  FACT: src/billing/invoice.py imports compute_tax from billing.tax (src/billing/invoice.py:3)\n  from grep(pattern='import.*compute_tax|from.*compute_tax', path='src/billing/tax.py'):\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n  from grep(pattern='compute_tax', path='src/billing/', file_glob='*.py'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n\n[S3] verify all import locations\n  FACT: src/billing/invoice.py imports compute_tax from billing.tax\n  FACT: tests/test_tax.py imports compute_tax from billing.tax\n  from grep(pattern='compute_tax', file_glob='*.py'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/invoice.py'):\n     3| from billing.tax import compute_tax\n    12|         tax = compute_tax(amount)\n  from read_file(path='tests/test_tax.py'):\n    1| from billing.tax import compute_tax\n    5|     assert compute_tax(100) == 22.0\n    9|     assert compute_tax(100, reduced=True) == 10.0"
+      },
+      "case": "importers",
+      "tags": [
+        "multi-file",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "Based on the evidence provided, the files that import `compute_tax` are:\n\n1. `src/billing/invoice.py`\n2. `tests/test_tax.py`\n\nThese are the only two files that import `compute_tax` as shown in the grep results and file contents.",
+      "steps": 14,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "read_file",
+        "grep",
+        "grep",
+        "grep",
+        "read_file",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "import.*compute_tax|from.*compute_tax",
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax",
+            "path": "src/billing/",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 42.0
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "check if deploy.py file exists",
+            "grep": "deploy.py",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "look for deployment-related code",
+            "grep": "deploy",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "search for any deployment script",
+            "grep": "deploy.py",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 0,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 2736,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] check if deploy.py file exists\n  (no verified fact. searched: grep(pattern='deploy.py', files_only=True))\n  from grep(pattern='deploy.py', files_only=True):\n    No matches for 'deploy.py' in ./. Searched 12 text file(s), and also tried 'deploy' with no result.\n    No identifier resembles 'deploy.py', so the word you searched for is not the word this code uses. These are the symbols this workspace actually defines:\n      API_ENDPOINT  (src/core/config.py)\n      DEFAULT_TIMEOUT  (src/core/config.py)\n      InvoiceBuilder  (src/billing/invoice.py)\n      MAX_RETRIES  (src/core/config.py)\n      REDUCED_RATE  (src/billing/tax.py)\n      SESSION_TTL  (src/core/session.py)\n\n[S2] look for deployment-related code\n  (no verified fact. searched: grep(pattern='deploy', file_glob='*.py'))\n  from grep(pattern='deploy', file_glob='*.py'):\n    No matches for 'deploy' in ./ (files matching '*.py'). Searched 10 text file(s), and also tried no variants with no result.\n    No identifier resembles 'deploy', so the word you searched for is not the word this code uses. These are the symbols this workspace actually defines:\n      API_ENDPOINT  (src/core/config.py)\n      DEFAULT_TIMEOUT  (src/core/config.py)\n      InvoiceBuilder  (src/billing/invoice.py)\n      MAX_RETRIES  (src/core/config.py)\n      REDUCED_RATE  (src/billing/tax.py)\n      SESSION_TTL  (src/core/session.py)\n\n[S3] search for any deployment script\n  (no verified fact. searched: grep(pattern='deploy\\\\.py'), find_files(pattern='deploy*'), find_files(pattern='*.py'))\n  from grep(pattern='deploy\\\\.py'):\n    No matches for 'deploy\\\\.py' in ./. Searched 12 text file(s), and also tried 'deploy' with no result.\n    No identifier resembles 'deploy\\\\.py', so the word you searched for is not the word this code uses. These are the symbols this workspace actually defines:\n      API_ENDPOINT  (src/core/config.py)\n      DEFAULT_TIMEOUT  (src/core/config.py)\n      InvoiceBuilder  (src/billing/invoice.py)\n      MAX_RETRIES  (src/core/config.py)\n      REDUCED_RATE  (src/billing/tax.py)\n      SESSION_TTL  (src/core/session.py)\n  from find_files(pattern='deploy*'):\n    No files matching 'deploy*' under ./. Try a broader pattern such as '*.py'.\n  from find_files(pattern='*.py'):\n    10 file(s) matching '*.py':\n    src/cli.py\n    src/billing/__init__.py\n    src/billing/amounts.py\n    src/billing/invoice.py\n    src/billing/tax.py\n    src/core/__init__.py\n    src/core/config.py"
+      },
+      "case": "honesty-deploy",
+      "tags": [
+        "honesty"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "No.",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "grep",
+        "find_files",
+        "find_files",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "deploy.py",
+            "files_only": true
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "deploy",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "deploy\\.py"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "deploy*"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "deploy\\.py",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 33.4
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find where the tracking id is defined",
+            "grep": "API_ENDPOINT",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find how the invoice applies the tax",
+            "grep": "InvoiceBuilder",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "find the full tracking id value",
+            "grep": "XK_SENTINEL",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 12,
+        "dossier_chars": 1965,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find where the tracking id is defined\n  FACT: The full tracking ID is XK_SENTINEL_9931 and it is defined in docs/architecture.md:10\n  from grep(pattern='XK_SENTINEL'):\n    docs/architecture.md:10: Internal tracking id for this document: XK_SENTINEL_9931\n  from read_file(path='docs/architecture.md'):\n    10| Internal tracking id for this document: XK_SENTINEL_9931\n\n[S2] find how the invoice applies the tax\n  FACT: The invoice applies tax by calling compute_tax(amount) which uses a standard rate of 0.22 (src/billing/invoice.py:12, src/billing/tax.py:3)\n  from grep(pattern='InvoiceBuilder'):\n    src/cli.py:5: from billing.invoice import InvoiceBuilder\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/billing/invoice.py:6: class InvoiceBuilder:\n  from read_file(path='src/billing/invoice.py'):\n     1| \"\"\"Invoice assembly.\"\"\"\n     3| from billing.tax import compute_tax\n     6| class InvoiceBuilder:\n    11|         # TODO: support multi-currency invoices before the 2.0 release\n    12|         tax = compute_tax(amount)\n    13|         return {\"net\": amount, \"tax\": tax, \"gross\": amount + tax}\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n\n[S3] find the full tracking id value\n  FACT: XK_SENTINEL_9931 is the full tracking id value (docs/architecture.md:10)\n  from grep(pattern='XK_SENTINEL'):\n    docs/architecture.md:10: Internal tracking id for this document: XK_SENTINEL_9931\n  from read_file(path='docs/architecture.md'):\n    10| Internal tracking id for this document: XK_SENTINEL_9931"
+      },
+      "case": "sentinel",
+      "tags": [
+        "search",
+        "needle"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "Based on the evidence provided, the full tracking ID value is XK_SENTINEL_9931, and it is contained in the file docs/architecture.md.\n\nThe relevant information was found in the following tool outputs:\n\n- From grep(pattern='XK_SENTINEL') in docs/architecture.md:10:\n  ```\n  docs/architecture.md:10: Internal tracking id for this document: XK_SENTINEL_9931\n  ```\n\n- From read_file(path='docs/architecture.md'):\n  ```\n  10| Internal tracking id for this document: XK_SENTINEL_9931\n  ```\n\nTherefore, the full value of the tracking ID is XK_SENTINEL_9931, and it is located in the file docs/architecture.md.",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "XK_SENTINEL"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/architecture.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "InvoiceBuilder"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "XK_SENTINEL"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/architecture.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 37.9
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the project license information",
+            "grep": "README.md",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "identify the billing tax rates used",
+            "grep": "STANDARD_RATE",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "locate the main entry point of the application",
+            "grep": "main",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 1648,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the project license information\n  FACT: The project uses the Apache-2.0 license.\n  from grep(pattern='license|copying|copyright', file_glob='*.md'):\n    README.md:5: License: Apache-2.0\n  from read_file(path='README.md'):\n     5| License: Apache-2.0\n\n[S2] identify the billing tax rates used\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  FACT: REDUCED_RATE is 0.10 (src/billing/tax.py:4)\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     3| STANDARD_RATE = 0.22\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n\n[S3] locate the main entry point of the application\n  FACT: The main entry point of the application is in src/cli.py at line 9, where the `main` function is defined and called.\n  from grep(pattern='def main'):\n    src/cli.py:9: def main():\n  from read_file(path='src/cli.py'):\n     1| \"\"\"Command line entry point for Ledger.\"\"\"\n     6| from core.config import API_ENDPOINT\n     9| def main():\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    18| if __name__ == \"__main__\":\n    19|     main()"
+      },
+      "case": "license",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The project uses the Apache-2.0 license.\n\nThis is confirmed by the following evidence:\n- From `grep(pattern='license|copying|copyright', file_glob='*.md')` in `README.md:5`, it states \"License: Apache-2.0\".\n- From `read_file(path='README.md')`, line 5 confirms \"License: Apache-2.0\".",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "license|copying|copyright",
+            "file_glob": "*.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def main"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 33.0
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the definition of the slugify function",
+            "grep": "slugify",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find where slugify is used",
+            "grep": "slugify",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "check the src/core/utils.py file contents",
+            "grep": "slugify",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 2,
+        "dropped_claims": 1,
+        "dropped": [
+          "The function `slugify` is defined in src/core/utils.py and converts text to a URL-friendly slug by replacing non-alphanumeric characters with hyphens and converting to lowercase.  [unsupported: URL]"
+        ],
+        "model_calls": 12,
+        "dossier_chars": 1739,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the definition of the slugify function\n  FACT: The slugify function is defined in src/core/utils.py at line 6. It takes a text parameter and returns a lowercase string with non-alphanumeric characters replaced by hyphens, stripping leading and trailing hyphens.\n  from grep(pattern='def slugify', file_glob='*.py'):\n    src/core/utils.py:6: def slugify(text):\n  from read_file(path='src/core/utils.py'):\n    1| \"\"\"Assorted helpers.\"\"\"\n    2|\n    3| import re\n    4|\n    5|\n    6| def slugify(text):\n    7|     return re.sub(r\"[^a-z0-9]+\", \"-\", text.lower()).strip(\"-\")\n\n[S2] find where slugify is used\n  FACT: slugify is defined in src/core/utils.py:6\n  from grep(pattern='slugify', file_glob='*.py'):\n    src/core/utils.py:6: def slugify(text):\n  from read_file(path='src/core/utils.py'):\n    1| \"\"\"Assorted helpers.\"\"\"\n    2|\n    3| import re\n    4|\n    5|\n    6| def slugify(text):\n    7|     return re.sub(r\"[^a-z0-9]+\", \"-\", text.lower()).strip(\"-\")\n\n[S3] check the src/core/utils.py file contents\n  (no verified fact. searched: grep(pattern='slugify', path='src/core/utils.py'), read_file(path='src/core/utils.py'))\n  from grep(pattern='slugify', path='src/core/utils.py'):\n    src/core/utils.py:6: def slugify(text):\n  from read_file(path='src/core/utils.py'):\n    1| \"\"\"Assorted helpers.\"\"\"\n    2|\n    3| import re\n    4|\n    5|\n    6| def slugify(text):\n    7|     return re.sub(r\"[^a-z0-9]+\", \"-\", text.lower()).strip(\"-\")"
+      },
+      "case": "utils-function",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The function defined in src/core/utils.py is `slugify`.\n\nThis is confirmed by the evidence:\n- The `grep` tool found the line `def slugify(text):` in `src/core/utils.py` at line 6.\n- The `read_file` tool confirmed the content of `src/core/utils.py`, showing the `slugify` function definition which converts text to a lowercase string with non-alphanumeric characters replaced by hyphens, stripping leading and trailing hyphens.\n\nThus, the answer is:\n- File: src/core/utils.py\n- Function: slugify",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def slugify",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/utils.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "slugify",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/utils.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "slugify",
+            "path": "src/core/utils.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/utils.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def slugify",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 41.0
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find TODO comments in the source code",
+            "grep": "TODO",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "identify which file contains the TODO comment",
+            "grep": "TODO",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "extract the content of the TODO comment",
+            "grep": "TODO",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 1381,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find TODO comments in the source code\n  FACT: TODO comment found in src/billing/invoice.py:11\n  FACT: TODO says \"support multi-currency invoices before the 2.0 release\"\n  from grep(pattern='TODO', file_glob='*.py'):\n    src/billing/invoice.py:11:         # TODO: support multi-currency invoices before the 2.0 release\n  from read_file(path='src/billing/invoice.py'):\n    11|         # TODO: support multi-currency invoices before the 2.0 release\n\n[S2] identify which file contains the TODO comment\n  FACT: src/billing/invoice.py contains a TODO comment\n  from grep(pattern='TODO'):\n    src/billing/invoice.py:11:         # TODO: support multi-currency invoices before the 2.0 release\n\n[S3] extract the content of the TODO comment\n  FACT: support multi-currency invoices before the 2.0 release (src/billing/invoice.py:11)\n  from grep(pattern='TODO'):\n    src/billing/invoice.py:11:         # TODO: support multi-currency invoices before the 2.0 release\n  from read_file(path='src/billing/invoice.py'):\n    11|         # TODO: support multi-currency invoices before the 2.0 release"
+      },
+      "case": "todo",
+      "tags": [
+        "search"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The TODO comment is in the file `src/billing/invoice.py`, and it says \"support multi-currency invoices before the 2.0 release\".",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TODO",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TODO"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TODO"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TODO"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 35.3
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the standard tax rate value",
+            "grep": "STANDARD_RATE",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find where the standard rate is used in tax computation",
+            "grep": "compute_tax",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "check test cases for standard rate usage",
+            "grep": "test_standard_rate",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 14,
+        "dossier_chars": 2700,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the standard tax rate value\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     3| STANDARD_RATE = 0.22\n     4| REDUCED_RATE = 0.10\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    10|     return round(amount * rate, 2)\n\n[S2] find where the standard rate is used in tax computation\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  FACT: STANDARD_RATE is used in compute_tax function (src/billing/tax.py:9)\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     3| STANDARD_RATE = 0.22\n     4| REDUCED_RATE = 0.10\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    10|     return round(amount * rate, 2)\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n\n[S3] check test cases for standard rate usage\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  from grep(pattern='test_standard_rate'):\n    tests/test_tax.py:4: def test_standard_rate():\n  from read_file(path='tests/test_tax.py'):\n    4| def test_standard_rate():\n    8| def test_reduced_rate():\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n  from read_file(path='src/billing/tax.py'):\n     3| STANDARD_RATE = 0.22\n     4| REDUCED_RATE = 0.10\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    10|     return round(amount * rate, 2)"
+      },
+      "case": "tax-rate",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The standard tax rate used by this project is 0.22, as defined in the file `src/billing/tax.py`.",
+      "steps": 14,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "test_standard_rate"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 40.2
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the project's top-level directories",
+            "grep": "data",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "identify the main entry point of the application",
+            "grep": "main",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "locate where tax computation is implemented",
+            "grep": "compute_tax",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 5,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 14,
+        "dossier_chars": 3628,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the project's top-level directories\n  FACT: The top-level directories are docs, src, and tests.\n  from grep(pattern='data', path='.'):\n    No matches for 'data' in ./. Searched 12 text file(s), and also tried no variants with no result.\n    No identifier resembles 'data', so the word you searched for is not the word this code uses. These are the symbols this workspace actually defines:\n      API_ENDPOINT  (src/core/config.py)\n      DEFAULT_TIMEOUT  (src/core/config.py)\n      InvoiceBuilder  (src/billing/invoice.py)\n      MAX_RETRIES  (src/core/config.py)\n      REDUCED_RATE  (src/billing/tax.py)\n      SESSION_TTL  (src/core/session.py)\n  from grep(pattern='API_ENDPOINT|DEFAULT_TIMEOUT|InvoiceBuilder|MAX_RETRIES|REDUCED_RATE|SESSION_TTL|STANDARD_RATE|build|compute_tax|main|normalise_amount|sign_in|sign_out|slugify|test_reduced_rate|test_standard_rate', path='.'):\n    docs/architecture.md:8: The retry budget is controlled by MAX_RETRIES in core/config.py.\n    src/cli.py:5: from billing.invoice import InvoiceBuilder\n    src/cli.py:6: from core.config import API_ENDPOINT\n    src/cli.py:9: def main():\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/cli.py:15:     print(builder.build(args.amount))\n    src/cli.py:18: if __name__ == \"__main__\":\n    src/cli.py:19:     main()\n  from find_files(pattern='*', path='.'):\n    12 file(s) matching '*':\n    README.md\n    docs/architecture.md\n    src/cli.py\n\n[S2] identify the main entry point of the application\n  FACT: The main entry point of the application is src/cli.py:9\n  from grep(pattern='def main'):\n    src/cli.py:9: def main():\n  from read_file(path='src/cli.py'):\n     1| \"\"\"Command line entry point for Ledger.\"\"\"\n     6| from core.config import API_ENDPOINT\n     9| def main():\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    18| if __name__ == \"__main__\":\n    19|     main()\n\n[S3] locate where tax computation is implemented\n  FACT: tax computation is implemented in src/billing/tax.py\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  FACT: compute_tax function is defined in src/billing/tax.py (src/billing/tax.py:7)\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n  from grep(pattern='STANDARD_RATE|compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0"
+      },
+      "case": "top-level-dirs",
+      "tags": [
+        "listing"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The top-level directories of this project are:\n\n- docs\n- src\n- tests\n\nThese directories were identified by searching for the project's main components and analyzing the file structure. The evidence confirms that these are the primary top-level directories in the project.",
+      "steps": 14,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "find_files",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "data",
+            "path": "."
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "API_ENDPOINT|DEFAULT_TIMEOUT|InvoiceBuilder|MAX_RETRIES|REDUCED_RATE|SESSION_TTL|STANDARD_RATE|build|compute_tax|main|normalise_amount|sign_in|sign_out|slugify|test_reduced_rate|test_standard_rate",
+            "path": "."
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*",
+            "path": "."
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def main"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE|compute_tax"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "data",
+            "path": "."
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 42.5
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the tests for tax calculation",
+            "grep": "test_reduced_rate",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find the tax rate definitions",
+            "grep": "STANDARD_RATE",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "find the tax computation function",
+            "grep": "compute_tax",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 2009,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the tests for tax calculation\n  FACT: tests for tax calculation are in tests/test_tax.py\n  from grep(pattern='test_reduced_rate'):\n    tests/test_tax.py:8: def test_reduced_rate():\n  from read_file(path='tests/test_tax.py'):\n    1| from billing.tax import compute_tax\n    5|     assert compute_tax(100) == 22.0\n    8| def test_reduced_rate():\n    9|     assert compute_tax(100, reduced=True) == 10.0\n\n[S2] find the tax rate definitions\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     3| STANDARD_RATE = 0.22\n     4| REDUCED_RATE = 0.10\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    10|     return round(amount * rate, 2)\n\n[S3] find the tax computation function\n  FACT: compute_tax is defined in src/billing/tax.py:7\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\""
+      },
+      "case": "test-file",
+      "tags": [
+        "locate"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The file that contains the tests for tax calculation is `tests/test_tax.py`.\n\nThis is confirmed by the evidence:\n- `grep(pattern='test_reduced_rate')` shows that `tests/test_tax.py` contains a test function named `test_reduced_rate`.\n- `read_file(path='tests/test_tax.py')` confirms the content of the file, which includes the test cases for tax calculation.\n\nTherefore, the answer is `tests/test_tax.py`.",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "test_reduced_rate"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 31.4
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the command-line entry point",
+            "grep": "main",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "identify the arguments accepted by the entry point",
+            "grep": "src/cli.py",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "determine the purpose of the entry point file",
+            "grep": "src/cli.py",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 1746,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the command-line entry point\n  FACT: The command-line entry point is src/cli.py, and it accepts an argument --amount.\n  from grep(pattern='def main'):\n    src/cli.py:9: def main():\n  from read_file(path='src/cli.py'):\n     1| \"\"\"Command line entry point for Ledger.\"\"\"\n     6| from core.config import API_ENDPOINT\n     9| def main():\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    18| if __name__ == \"__main__\":\n    19|     main()\n\n[S2] identify the arguments accepted by the entry point\n  FACT: The entry point accepts the argument --amount of type float\n  from grep(pattern='def main', file_glob='*.py'):\n    src/cli.py:9: def main():\n  from read_file(path='src/cli.py'):\n     1| \"\"\"Command line entry point for Ledger.\"\"\"\n     6| from core.config import API_ENDPOINT\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n\n[S3] determine the purpose of the entry point file\n  FACT: The entry point file src/cli.py is used to handle command-line arguments and invoke the InvoiceBuilder to generate invoices based on the provided amount.\n  FACT: The entry point file src/cli.py accepts an argument --amount which specifies the invoice amount.\n  from grep(pattern='def main', file_glob='*.py'):\n    src/cli.py:9: def main():\n  from read_file(path='src/cli.py'):\n     1| \"\"\"Command line entry point for Ledger.\"\"\"\n     6| from core.config import API_ENDPOINT\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)"
+      },
+      "case": "entry-point",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The command-line entry point file is `src/cli.py`, and it accepts the argument `--amount`.\n\nThis is confirmed by the following evidence:\n- The file `src/cli.py` is identified as the command-line entry point.\n- The argument `--amount` is accepted by this entry point, as indicated by the code in `src/cli.py` which handles command-line arguments and invokes the `InvoiceBuilder` with the provided amount.\n\nNo further tool calls are needed to answer the question.",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def main"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def main",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def main",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 33.1
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find where HTTP requests might be made",
+            "grep": "API_ENDPOINT",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "check CLI module for library imports",
+            "grep": "main",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "look for session management that might use requests",
+            "grep": "SESSION_TTL",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 15,
+        "dossier_chars": 3383,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find where HTTP requests might be made\n  FACT: API_ENDPOINT is \"https://api.example.com/v2\" (src/core/config.py:5)\n  FACT: InvoiceBuilder uses endpoint parameter but does not make HTTP requests (src/billing/invoice.py:6-13)\n  FACT: No HTTP request library imported or used in the project (no requests import found)\n  from grep(pattern='API_ENDPOINT'):\n    src/cli.py:6: from core.config import API_ENDPOINT\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/core/config.py:5: API_ENDPOINT = \"https://api.example.com/v2\"\n  from read_file(path='src/cli.py'):\n     6| from core.config import API_ENDPOINT\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n  from read_file(path='src/billing/invoice.py'):\n     1| \"\"\"Invoice assembly.\"\"\"\n     2|\n     3| from billing.tax import compute_tax\n     4|\n     5|\n     6| class InvoiceBuilder:\n     7|     def __init__(self, endpoint):\n     8|         self.endpoint = endpoint\n  from grep(pattern='requests', file_glob='*.py'):\n    No matches for 'requests' in ./ (files matching '*.py'). Searched 10 text file(s), and also tried no variants with no result.\n    No identifier resembles 'requests', so the word you searched for is not the word this code uses. These are the symbols this workspace actually defines:\n      API_ENDPOINT  (src/core/config.py)\n      DEFAULT_TIMEOUT  (src/core/config.py)\n      InvoiceBuilder  (src/billing/invoice.py)\n      MAX_RETRIES  (src/core/config.py)\n      REDUCED_RATE  (src/billing/tax.py)\n\n[S2] check CLI module for library imports\n  FACT: The CLI module (src/cli.py) does not import the `requests` library.\n  from grep(pattern='import requests', file_glob='*.py'):\n    No matches for 'import requests' in ./ (files matching '*.py'). Searched 10 text file(s), and also tried 'requests' with no result.\n    No identifier resembles 'import requests', so the word you searched for is not the word this code uses. These are the symbols this workspace actually defines:\n      API_ENDPOINT  (src/core/config.py)\n      DEFAULT_TIMEOUT  (src/core/config.py)\n      InvoiceBuilder  (src/billing/invoice.py)\n      MAX_RETRIES  (src/core/config.py)\n      REDUCED_RATE  (src/billing/tax.py)\n      SESSION_TTL  (src/core/session.py)\n  from grep(pattern='main', file_glob='*.py'):\n    src/cli.py:9: def main():\n    src/cli.py:18: if __name__ == \"__main__\":\n    src/cli.py:19:     main()\n  from read_file(path='src/cli.py'):\n     9| def main():\n    18| if __name__ == \"__main__\":\n    19|     main()\n\n[S3] look for session management that might use requests\n  (no verified fact. searched: grep(pattern='SESSION_TTL'), read_file(path='src/core/session.py'))\n  from grep(pattern='SESSION_TTL'):\n    src/core/session.py:3: SESSION_TTL = 900\n    src/core/session.py:8:     return {\"user\": username, \"ttl\": SESSION_TTL}\n  from read_file(path='src/core/session.py'):\n     1| \"\"\"User sessions.\"\"\"\n     3| SESSION_TTL = 900\n     7|     \"\"\"Check a secret against the store and open a session.\"\"\"\n     8|     return {\"user\": username, \"ttl\": SESSION_TTL}\n    12|     \"\"\"Close an open session.\"\"\""
+      },
+      "case": "honesty-requests",
+      "tags": [
+        "honesty"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "No.",
+      "steps": 15,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "read_file",
+        "grep",
+        "grep",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "API_ENDPOINT"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "requests",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "import requests",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "main",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "SESSION_TTL"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "import requests",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "requests",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 1,
+      "fabrications": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 54.8
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the function that normalizes a monetary amount",
+            "grep": "normalise_amount",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find where the normalization function is defined",
+            "grep": "normalise_amount",
+            "grounded": true
+          },
+          {
+            "id": "S3",
+            "question": "identify the module containing the normalization logic",
+            "grep": "normalise_amount",
+            "grounded": true
+          }
+        ],
+        "grounded_hints": 2,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 1760,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the function that normalizes a monetary amount\n  FACT: normalise_amount is defined in src/billing/amounts.py:4 and rounds monetary values to two decimals\n  from grep(pattern='normalise_amount'):\n    src/billing/amounts.py:4: def normalise_amount(value):\n  from read_file(path='src/billing/amounts.py'):\n    1| \"\"\"Amount helpers.\"\"\"\n    2|\n    3|\n    4| def normalise_amount(value):\n    5|     \"\"\"Round a monetary value to two decimals.\"\"\"\n    6|     return round(float(value), 2)\n\n[S2] find where the normalization function is defined\n  FACT: normalise_amount is defined in src/billing/amounts.py:4\n  from grep(pattern='normalise_amount'):\n    src/billing/amounts.py:4: def normalise_amount(value):\n  from read_file(path='src/billing/amounts.py'):\n    1| \"\"\"Amount helpers.\"\"\"\n    2|\n    3|\n    4| def normalise_amount(value):\n    5|     \"\"\"Round a monetary value to two decimals.\"\"\"\n    6|     return round(float(value), 2)\n\n[S3] identify the module containing the normalization logic\n  FACT: normalise_amount is defined in src/billing/amounts.py\n  FACT: the module containing the normalization logic is src/billing/amounts.py\n  from grep(pattern='normalise_amount'):\n    src/billing/amounts.py:4: def normalise_amount(value):\n  from read_file(path='src/billing/amounts.py'):\n    1| \"\"\"Amount helpers.\"\"\"\n    2|\n    3|\n    4| def normalise_amount(value):\n    5|     \"\"\"Round a monetary value to two decimals.\"\"\"\n    6|     return round(float(value), 2)"
+      },
+      "case": "vocab-normalise",
+      "tags": [
+        "vocab",
+        "near-miss"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The function that normalizes a monetary amount is `normalise_amount`, and it is defined in `src/billing/amounts.py`.\n\nThis is confirmed by the evidence:\n- The function `normalise_amount` is found defined in `src/billing/amounts.py` at line 4.\n- The function's purpose is to round a monetary value to two decimals, as shown in its docstring.",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 32.1
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the user authentication function",
+            "grep": "sign_in",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "identify the file where user authentication is implemented",
+            "grep": "sign_in",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "determine if there's a corresponding logout function",
+            "grep": "sign_out",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 11,
+        "dossier_chars": 1444,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the user authentication function\n  FACT: sign_in is the user authentication function (src/core/session.py:6)\n  from grep(pattern='sign_in'):\n    src/core/session.py:6: def sign_in(username, secret):\n  from read_file(path='src/core/session.py'):\n     1| \"\"\"User sessions.\"\"\"\n     6| def sign_in(username, secret):\n     8|     return {\"user\": username, \"ttl\": SESSION_TTL}\n\n[S2] identify the file where user authentication is implemented\n  FACT: src/core/session.py implements user authentication with the sign_in function\n  from grep(pattern='sign_in'):\n    src/core/session.py:6: def sign_in(username, secret):\n  from read_file(path='src/core/session.py'):\n     1| \"\"\"User sessions.\"\"\"\n     6| def sign_in(username, secret):\n     8|     return {\"user\": username, \"ttl\": SESSION_TTL}\n\n[S3] determine if there's a corresponding logout function\n  FACT: sign_out is defined in src/core/session.py\n  FACT: sign_in is the corresponding login function for sign_out in src/core/session.py\n  from grep(pattern='sign_out'):\n    src/core/session.py:11: def sign_out(token):\n  from read_file(path='src/core/session.py'):\n    11| def sign_out(token):"
+      },
+      "case": "vocab-signin",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The function that authenticates a user is `sign_in`, and it is located in the file `src/core/session.py`.\n\nThis is confirmed by the evidence:\n- [S1] identifies `sign_in` as the user authentication function in `src/core/session.py`.\n- [S2] confirms that `src/core/session.py` implements user authentication with the `sign_in` function.",
+      "steps": 11,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "sign_in"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "sign_in"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "sign_out"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 30.5
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the session time-to-live value",
+            "grep": "SESSION_TTL",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "determine how the session TTL is used in signing in",
+            "grep": "sign_in",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "check if session TTL is referenced in session management",
+            "grep": "sign_out",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 10,
+        "dossier_chars": 2042,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the session time-to-live value\n  FACT: SESSION_TTL is 900 (src/core/session.py:3)\n  from grep(pattern='SESSION_TTL'):\n    src/core/session.py:3: SESSION_TTL = 900\n    src/core/session.py:8:     return {\"user\": username, \"ttl\": SESSION_TTL}\n\n[S2] determine how the session TTL is used in signing in\n  FACT: SESSION_TTL is 900 seconds and is used in the sign_in function to set the token's time-to-live (src/core/session.py:8)\n  from grep(pattern='sign_in'):\n    src/core/session.py:6: def sign_in(username, secret):\n  from read_file(path='src/core/session.py'):\n     1| \"\"\"User sessions.\"\"\"\n     3| SESSION_TTL = 900\n     6| def sign_in(username, secret):\n     7|     \"\"\"Check a secret against the store and open a session.\"\"\"\n     8|     return {\"user\": username, \"ttl\": SESSION_TTL}\n    12|     \"\"\"Close an open session.\"\"\"\n\n[S3] check if session TTL is referenced in session management\n  FACT: SESSION_TTL is 900 seconds (src/core/session.py:3)\n  from grep(pattern='session.*TTL|TTL.*session', file_glob='*.py'):\n    src/core/session.py:1: \"\"\"User sessions.\"\"\"\n    src/core/session.py:3: SESSION_TTL = 900\n    src/core/session.py:7:     \"\"\"Check a secret against the store and open a session.\"\"\"\n    src/core/session.py:8:     return {\"user\": username, \"ttl\": SESSION_TTL}\n    src/core/session.py:12:     \"\"\"Close an open session.\"\"\"\n  from grep(pattern='sign_out', file_glob='*.py'):\n    src/core/session.py:11: def sign_out(token):\n  from read_file(path='src/core/session.py'):\n     1| \"\"\"User sessions.\"\"\"\n     3| SESSION_TTL = 900\n     7|     \"\"\"Check a secret against the store and open a session.\"\"\"\n     8|     return {\"user\": username, \"ttl\": SESSION_TTL}\n    11| def sign_out(token):\n    12|     \"\"\"Close an open session.\"\"\""
+      },
+      "case": "vocab-session-expiry",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "A user session stays valid for 900 seconds.\n\nThis is confirmed by the evidence:\n- The SESSION_TTL constant is defined as 900 in `src/core/session.py` (S1).\n- This value is used in the `sign_in` function to set the token's time-to-live (S2).",
+      "steps": 10,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "read_file",
+        "grep",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "SESSION_TTL"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "sign_in"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "session.*TTL|TTL.*session",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "sign_out",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 31.2
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the MAX_RETRIES value",
+            "grep": "MAX_RETRIES",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find which document defines MAX_RETRIES",
+            "grep": "MAX_RETRIES",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 3,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 8,
+        "dossier_chars": 1254,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the MAX_RETRIES value\n  FACT: MAX_RETRIES is 5 (src/core/config.py:4)\n  from grep(pattern='MAX_RETRIES'):\n    docs/architecture.md:8: The retry budget is controlled by MAX_RETRIES in core/config.py.\n    src/core/config.py:4: MAX_RETRIES = 5\n  from read_file(path='src/core/config.py'):\n    1| \"\"\"Runtime configuration.\"\"\"\n    2|\n    3| DEFAULT_TIMEOUT = 30\n    4| MAX_RETRIES = 5\n    5| API_ENDPOINT = \"https://api.example.com/v2\"\n\n[S2] find which document defines MAX_RETRIES\n  FACT: MAX_RETRIES is defined in src/core/config.py:4\n  FACT: MAX_RETRIES is set to 5 (src/core/config.py:4)\n  from grep(pattern='MAX_RETRIES'):\n    docs/architecture.md:8: The retry budget is controlled by MAX_RETRIES in core/config.py.\n    src/core/config.py:4: MAX_RETRIES = 5\n  from read_file(path='src/core/config.py'):\n    1| \"\"\"Runtime configuration.\"\"\"\n    2|\n    3| DEFAULT_TIMEOUT = 30\n    4| MAX_RETRIES = 5\n    5| API_ENDPOINT = \"https://api.example.com/v2\""
+      },
+      "case": "max-retries",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": false,
+      "missing": [
+        "architecture\\.md"
+      ],
+      "forbidden": [],
+      "answer": "MAX_RETRIES is set to 5, and it is mentioned in the document src/core/config.py.",
+      "steps": 8,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 21.2
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find the main CLI entry point",
+            "grep": "main",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find how the amount parameter is processed",
+            "grep": "normalise_amount",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "find the tax computation logic",
+            "grep": "compute_tax",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 0,
+        "dropped": [],
+        "model_calls": 13,
+        "dossier_chars": 2318,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find the main CLI entry point\n  FACT: The main CLI entry point is in src/cli.py at line 9 (def main())\n  from grep(pattern='def main', file_glob='*.py'):\n    src/cli.py:9: def main():\n  from read_file(path='src/cli.py'):\n     1| \"\"\"Command line entry point for Ledger.\"\"\"\n     6| from core.config import API_ENDPOINT\n     9| def main():\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    18| if __name__ == \"__main__\":\n    19|     main()\n\n[S2] find how the amount parameter is processed\n  FACT: The amount parameter is processed by normalise_amount function in src/billing/amounts.py (src/cli.py:11)\n  from grep(pattern='normalise_amount'):\n    src/billing/amounts.py:4: def normalise_amount(value):\n  from read_file(path='src/billing/amounts.py'):\n    1| \"\"\"Amount helpers.\"\"\"\n    2|\n    3|\n    4| def normalise_amount(value):\n    5|     \"\"\"Round a monetary value to two decimals.\"\"\"\n    6|     return round(float(value), 2)\n  from grep(pattern='amount.*command|command.*amount', file_glob='*.py'):\n    src/cli.py:1: \"\"\"Command line entry point for Ledger.\"\"\"\n  from read_file(path='src/cli.py'):\n    11|     parser.add_argument(\"--amount\", type=float, required=True)\n    15|     print(builder.build(args.amount))\n\n[S3] find the tax computation logic\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  FACT: compute_tax function uses STANDARD_RATE to calculate tax (src/billing/tax.py:7)\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\""
+      },
+      "case": "trace-cli",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": false,
+      "missing": [
+        "invoice\\.py"
+      ],
+      "forbidden": [],
+      "answer": "When someone runs the command-line tool with --amount 100, here's what happens:\n\n1. The CLI entry point in `src/cli.py` is called\n2. The `main()` function is executed (line 9)\n3. The argument parser processes `--amount 100` and passes it to `InvoiceBuilder.build()` (line 11)\n4. The `normalise_amount` function in `src/billing/amounts.py` processes the amount, rounding it to two decimals (line 4)\n5. The `compute_tax` function in `src/billing/tax.py` calculates tax using the standard rate of 0.22 (line 7)\n6. The tax is calculated as 100 * 0.22 = 22.00\n7. The gross value printed is 122.00 (100 + 22.00)\n\nThe final gross value that gets printed is 122.00.\n\nFiles involved:\n- `src/cli.py`\n- `src/billing/amounts.py`\n- `src/billing/tax.py`",
+      "steps": 13,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def main",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalise_amount"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "amount.*command|command.*amount",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 45.5
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find where the standard tax rate is defined",
+            "grep": "STANDARD_RATE",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find where the tax rate is used in invoice calculation",
+            "grep": "compute_tax",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "identify which test checks the standard tax rate",
+            "grep": "test_standard_rate",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 7,
+        "dropped_claims": 1,
+        "dropped": [
+          "The standard tax rate is 0.22 (tests/test_tax.py:5)  [unsupported: 0.22]"
+        ],
+        "model_calls": 13,
+        "dossier_chars": 2953,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find where the standard tax rate is defined\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  from grep(pattern='STANDARD_RATE'):\n    src/billing/tax.py:3: STANDARD_RATE = 0.22\n    src/billing/tax.py:9:     rate = REDUCED_RATE if reduced else STANDARD_RATE\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     3| STANDARD_RATE = 0.22\n     4| REDUCED_RATE = 0.10\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    10|     return round(amount * rate, 2)\n\n[S2] find where the tax rate is used in invoice calculation\n  FACT: STANDARD_RATE is 0.22 (src/billing/tax.py:3)\n  FACT: The tax rate is used in invoice calculation via compute_tax function in src/billing/invoice.py:12\n  FACT: The compute_tax function in src/billing/tax.py:7 uses STANDARD_RATE to calculate tax\n  FACT: tests/test_tax.py:5 tests the compute_tax function with STANDARD_RATE\n  FACT: tests/test_tax.py:9 tests the compute_tax function with REDUCED_RATE\n  from grep(pattern='compute_tax'):\n    src/billing/invoice.py:3: from billing.tax import compute_tax\n    src/billing/invoice.py:12:         tax = compute_tax(amount)\n    src/billing/tax.py:7: def compute_tax(amount, reduced=False):\n    tests/test_tax.py:1: from billing.tax import compute_tax\n    tests/test_tax.py:5:     assert compute_tax(100) == 22.0\n    tests/test_tax.py:9:     assert compute_tax(100, reduced=True) == 10.0\n  from read_file(path='src/billing/tax.py'):\n     1| \"\"\"Tax calculation rules.\"\"\"\n     3| STANDARD_RATE = 0.22\n     4| REDUCED_RATE = 0.10\n     7| def compute_tax(amount, reduced=False):\n     8|     \"\"\"Return the tax owed on `amount`.\"\"\"\n     9|     rate = REDUCED_RATE if reduced else STANDARD_RATE\n    10|     return round(amount * rate, 2)\n  from read_file(path='src/billing/invoice.py'):\n     1| \"\"\"Invoice assembly.\"\"\"\n     3| from billing.tax import compute_tax\n     6| class InvoiceBuilder:\n    11|         # TODO: support multi-currency invoices before the 2.0 release\n    12|         tax = compute_tax(amount)\n    13|         return {\"net\": amount, \"tax\": tax, \"gross\": amount + tax}\n\n[S3] identify which test checks the standard tax rate\n  FACT: tests/test_tax.py checks the standard tax rate\n  from grep(pattern='test_standard_rate'):\n    tests/test_tax.py:4: def test_standard_rate():\n  from read_file(path='tests/test_tax.py'):\n    1| from billing.tax import compute_tax\n    4| def test_standard_rate():\n    5|     assert compute_tax(100) == 22.0\n    8| def test_reduced_rate():\n    9|     assert compute_tax(100, reduced=True) == 10.0"
+      },
+      "case": "impact-rate",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "To change the standard tax rate, you need to edit the file `src/billing/tax.py` where `STANDARD_RATE` is defined on line 3.\n\nThe existing test that would start failing is `tests/test_tax.py`, specifically the `test_standard_rate()` function which tests the `compute_tax` function with the current standard rate of 0.22. If you change the standard tax rate, this test will fail because it expects a result of 22.0 for an input of 100.\n\nThe current definition in `src/billing/tax.py` is:\n```\nSTANDARD_RATE = 0.22\n```\n\nAnd the corresponding test in `tests/test_tax.py` is:\n```\ndef test_standard_rate():\n    assert compute_tax(100) == 22.0\n```",
+      "steps": 13,
+      "tool_calls": [
+        "grep",
+        "read_file",
+        "grep",
+        "read_file",
+        "read_file",
+        "grep",
+        "read_file",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "STANDARD_RATE"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "test_standard_rate"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "tests/test_tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 49.5
+    },
+    {
+      "research": {
+        "plan_source": "model",
+        "subtasks": [
+          {
+            "id": "S1",
+            "question": "find where API_ENDPOINT is defined",
+            "grep": "API_ENDPOINT",
+            "grounded": false
+          },
+          {
+            "id": "S2",
+            "question": "find where InvoiceBuilder is constructed",
+            "grep": "InvoiceBuilder",
+            "grounded": false
+          },
+          {
+            "id": "S3",
+            "question": "find where the endpoint is passed to InvoiceBuilder",
+            "grep": "build",
+            "grounded": false
+          }
+        ],
+        "grounded_hints": 0,
+        "verified_facts": 4,
+        "dropped_claims": 2,
+        "dropped": [
+          "API_ENDPOINT is defined in core/config.py  [unsupported: core/config.py]",
+          "In src/core/config.py line 3, API_ENDPOINT is defined as \"https://api.example.com/invoice\"  [unsupported: src/core/config.py]"
+        ],
+        "model_calls": 10,
+        "dossier_chars": 1773,
+        "dossier": "[S0] what this workspace contains (from list_files, not from a model)\n    ./ (11 entries, depth 2):\n    data/\n    data/sample.bin  31B\n    docs/\n    docs/architecture.md  286B\n    src/\n    src/billing/\n    src/core/\n    src/cli.py  432B\n    tests/\n    tests/test_tax.py  177B\n    README.md  138B\n\n[S1] find where API_ENDPOINT is defined\n  FACT: API_ENDPOINT is defined in src/core/config.py:5\n  from grep(pattern='API_ENDPOINT'):\n    src/cli.py:6: from core.config import API_ENDPOINT\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/core/config.py:5: API_ENDPOINT = \"https://api.example.com/v2\"\n\n[S2] find where InvoiceBuilder is constructed\n  FACT: InvoiceBuilder is constructed in src/cli.py:14\n  FACT: API_ENDPOINT is imported in src/cli.py:6\n  from grep(pattern='InvoiceBuilder'):\n    src/cli.py:5: from billing.invoice import InvoiceBuilder\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/billing/invoice.py:6: class InvoiceBuilder:\n  from read_file(path='src/cli.py'):\n     5| from billing.invoice import InvoiceBuilder\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n\n[S3] find where the endpoint is passed to InvoiceBuilder\n  FACT: In src/cli.py line 14, InvoiceBuilder is constructed with endpoint=API_ENDPOINT\n  from grep(pattern='InvoiceBuilder', file_glob='*.py'):\n    src/cli.py:5: from billing.invoice import InvoiceBuilder\n    src/cli.py:14:     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    src/billing/invoice.py:6: class InvoiceBuilder:\n  from read_file(path='src/cli.py'):\n     5| from billing.invoice import InvoiceBuilder\n     6| from core.config import API_ENDPOINT\n    14|     builder = InvoiceBuilder(endpoint=API_ENDPOINT)\n    15|     print(builder.build(args.amount))"
+      },
+      "case": "endpoint-origin",
+      "tags": [
+        "understand",
+        "multi-hop"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The value for the endpoint comes from `src/core/config.py`, where `API_ENDPOINT` is defined. This value is then passed to `InvoiceBuilder` in `src/cli.py`.\n\nTo break it down:\n\n1. **File that defines the endpoint**: `src/core/config.py`\n   - Line 5: `API_ENDPOINT = \"https://api.example.com/v2\"`\n\n2. **File that passes the endpoint to InvoiceBuilder**: `src/cli.py`\n   - Line 6: `from core.config import API_ENDPOINT`\n   - Line 14: `builder = InvoiceBuilder(endpoint=API_ENDPOINT)`\n\nThus, the endpoint is defined in `src/core/config.py` and passed to `InvoiceBuilder` in `src/cli.py`.",
+      "steps": 10,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "read_file",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "API_ENDPOINT"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "InvoiceBuilder"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "InvoiceBuilder",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "fabrications": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 33.5
+    }
+  ]
+}

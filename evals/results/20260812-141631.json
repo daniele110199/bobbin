@@ -1,0 +1,333 @@
+{
+  "timestamp": "20260812-141631",
+  "models": [
+    "qwen3-coder:30b",
+    "qwen2.5-coder:7b"
+  ],
+  "max_steps": 12,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 3,
+      "passed": 3,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 5.333333333333333,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 0,
+      "challenges": 0,
+      "exhausted": 1,
+      "avg_s": 20.733333333333334
+    },
+    "qwen2.5-coder:7b": {
+      "cases": 3,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 1.3333333333333333,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 4,
+      "challenges": 1,
+      "exhausted": 0,
+      "avg_s": 3.266666666666667
+    }
+  },
+  "rows": [
+    {
+      "case": "vocab-normalise",
+      "tags": [
+        "vocab",
+        "near-miss"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The function that normalizes a monetary amount is `normalise_amount`, and it is defined in the file `src/billing/amounts.py`. \n\nThis function takes a value as input, converts it to a float, and rounds it to two decimal places, which is the standard way to handle monetary amounts.",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalize.*amount"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 18.3
+    },
+    {
+      "case": "vocab-signin",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "Based on the files I've examined, the function that authenticates a user is `sign_in` located in the file `src/core/session.py`.\n\nThis function takes a username and secret as parameters and returns a session token with the user information and time-to-live (ttl) value, which serves as the authentication mechanism in this system.",
+      "steps": 12,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "list_files",
+        "read_file",
+        "read_file",
+        "list_files",
+        "read_file",
+        "read_file",
+        "read_file",
+        "grep",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "authenticate"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "auth"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/billing"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/tax.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/amounts.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def .*login"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "user"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 35.2
+    },
+    {
+      "case": "vocab-session-expiry",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen3-coder:30b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "Based on my investigation, I found that user sessions stay valid for 900 seconds. This is defined in the file `src/core/session.py` where `SESSION_TTL = 900` is set.",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "session.*timeout|timeout.*session"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 8.7
+    },
+    {
+      "case": "vocab-normalise",
+      "tags": [
+        "vocab",
+        "near-miss"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "normalise_amount",
+        "amounts\\.py"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The term \"normalize\" was not found in the workspace. Did you mean something else?",
+      "steps": 3,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "normalize",
+            "files_only": true
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "absence_challenges": 1,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 5.0
+    },
+    {
+      "case": "vocab-signin",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "sign_in",
+        "session\\.py"
+      ],
+      "forbidden": [],
+      "answer": "It appears that the term \"authenticate\" is not used in any of the files within the `src` directory. If you have specific functions or methods related to authentication, they might be named differently. You can try searching for common authentication-related terms like `login`, `auth`, or `user_authenticate`.",
+      "steps": 4,
+      "tool_calls": [
+        "grep",
+        "list_files",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "authenticate|login|auth",
+            "files_only": true,
+            "path": "."
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "files_only": true,
+            "path": "src",
+            "pattern": "authenticate"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 3,
+      "absence_challenges": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 4.2
+    },
+    {
+      "case": "vocab-session-expiry",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "\\b900\\b"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The pattern 'user session' was too specific. Retry with a shorter pattern or use ignore_case=true.",
+      "steps": 1,
+      "tool_calls": [],
+      "tool_calls_detail": [],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 0.6
+    }
+  ]
+}

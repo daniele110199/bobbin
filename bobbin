@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+"""`bobbin` — the command form of main.py.
+
+A launcher rather than a package: it puts its own directory on `sys.path` and
+calls `main()`. That is what keeps the project's one promise — no `pip install`,
+no venv, no packaging metadata to drift out of date with the code — while still
+giving people a real command instead of a path to a script.
+
+Symlink-safe: `install.sh` links this into ~/.local/bin, so the path that
+matters is the one this file really lives at, not the link that invoked it.
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from main import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

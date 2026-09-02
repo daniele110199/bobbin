@@ -1,0 +1,149 @@
+{
+  "timestamp": "20260812-132935",
+  "models": [
+    "qwen2.5-coder:7b"
+  ],
+  "max_steps": 12,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen2.5-coder:7b": {
+      "cases": 3,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 2.3333333333333335,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 7,
+      "exhausted": 0,
+      "avg_s": 4.666666666666667
+    }
+  },
+  "rows": [
+    {
+      "case": "api-endpoint",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "https://api\\.example\\.com/v2"
+      ],
+      "forbidden": [],
+      "answer": "The API endpoint is not configured in this project. The README.md file provides an overview of the project, including its license and layout, but does not mention any specific API endpoints.",
+      "steps": 3,
+      "tool_calls": [
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 6.6
+    },
+    {
+      "case": "tax-rate",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "0\\.22|22\\s*%"
+      ],
+      "forbidden": [],
+      "answer": "The standard tax rate used by this project is not defined in any Python files.",
+      "steps": 4,
+      "tool_calls": [
+        "list_files",
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "tax rate",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "file_glob": "*.py",
+            "pattern": "tax rate",
+            "ignore_case": true
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 3,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 3.9
+    },
+    {
+      "case": "entry-point",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "cli\\.py",
+        "--amount"
+      ],
+      "forbidden": [],
+      "answer": "The command-line entry point file is not explicitly mentioned in the README.md. The project appears to have a layout as described, but no specific entry point is highlighted.",
+      "steps": 3,
+      "tool_calls": [
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 1
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 3.5
+    }
+  ]
+}

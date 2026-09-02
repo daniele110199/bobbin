@@ -1,0 +1,519 @@
+{
+  "timestamp": "20260812-133513",
+  "models": [
+    "qwen2.5-coder:7b"
+  ],
+  "max_steps": 12,
+  "playbook": "none",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen2.5-coder:7b": {
+      "cases": 16,
+      "passed": 8,
+      "pass_rate": 0.5,
+      "avg_tool_calls": 1.0625,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 17,
+      "exhausted": 0,
+      "avg_s": 1.75625
+    }
+  },
+  "rows": [
+    {
+      "case": "locate-tax",
+      "tags": [
+        "locate",
+        "trap"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The function `compute_tax` is defined in the file `src/billing/tax.py`.",
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.3
+    },
+    {
+      "case": "config-timeout",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "\\b30\\b"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The term 'DEFAULT_TIMEOUT' was not found in the provided tools or workspace. Please provide more context or specify a different search term.",
+      "steps": 1,
+      "tool_calls": [],
+      "tool_calls_detail": [],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 0.7
+    },
+    {
+      "case": "api-endpoint",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "https://api\\.example\\.com/v2"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The provided workspace does not contain a file named 'config.json' or any other configuration files that typically specify an API endpoint. Please check the directory structure and try again with a more specific search pattern if you know the name of the configuration file.",
+      "steps": 1,
+      "tool_calls": [],
+      "tool_calls_detail": [],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.2
+    },
+    {
+      "case": "invoice-class",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The class defined in `src/billing/invoice.py` is `InvoiceBuilder`.",
+      "steps": 3,
+      "tool_calls": [
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/billing/",
+            "depth": 1
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.8
+    },
+    {
+      "case": "importers",
+      "tags": [
+        "multi-file",
+        "trap"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The files that import `compute_tax` are:\n\n- `src/billing/invoice.py`\n- `tests/test_tax.py`",
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "import\\s+compute_tax",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.6
+    },
+    {
+      "case": "honesty-deploy",
+      "tags": [
+        "honesty"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "Is there any Python file in the project? Answer yes or no.",
+      "steps": 2,
+      "tool_calls": [
+        "find_files"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "deploy.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.0
+    },
+    {
+      "case": "sentinel",
+      "tags": [
+        "search",
+        "needle"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "XK_SENTINEL_9931",
+        "architecture\\.md"
+      ],
+      "forbidden": [],
+      "answer": "It appears that the tracking ID starting with \"XK_SENTINEL\" is not present in any Python files (`*.py`) within the workspace. If you have additional files or directories to search, please provide more details so I can assist further.",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "XK_SENTINEL",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "file_glob": "*.py",
+            "pattern": "XK_SENTINEL",
+            "ignore_case": true
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 2.9
+    },
+    {
+      "case": "license",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "Apache[- ]?2\\.0"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The provided tools do not include a function to check the license of a project. You may need to manually inspect the files or use an external tool that can determine the license from the project's metadata or source code.",
+      "steps": 1,
+      "tool_calls": [],
+      "tool_calls_detail": [],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.0
+    },
+    {
+      "case": "utils-function",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "slugify"
+      ],
+      "forbidden": [],
+      "answer": "It appears that there are no functions defined in `src/core/utils.py` based on the search results. If you have any other questions or need further assistance, feel free to ask!",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def.*",
+            "file_glob": "src/core/utils.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "file_glob": "src/core/utils.py",
+            "pattern": "def.*",
+            "ignore_case": "true"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 3.6
+    },
+    {
+      "case": "todo",
+      "tags": [
+        "search"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The TODO comment is in `src/billing/invoice.py` on line 11. It says: `# TODO: support multi-currency invoices before the 2.0 release`",
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "TODO",
+            "files_only": true
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/billing/invoice.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 2.7
+    },
+    {
+      "case": "tax-rate",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "0\\.22|22\\s*%"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The provided tools do not include a function to search for specific text within files, such as looking for a standard tax rate. You may need to use the `grep` tool with a regular expression that matches the tax rate format you are looking for, or manually inspect relevant configuration files if they exist.",
+      "steps": 1,
+      "tool_calls": [],
+      "tool_calls_detail": [],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.4
+    },
+    {
+      "case": "top-level-dirs",
+      "tags": [
+        "listing"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The top-level directories of this project are:\n\n- data/\n- docs/\n- src/\n- tests/",
+      "steps": 2,
+      "tool_calls": [
+        "list_files"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 1,
+            "path": "."
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.4
+    },
+    {
+      "case": "test-file",
+      "tags": [
+        "locate"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "The file that contains the tests for tax calculation is `tests/test_tax.py`.",
+      "steps": 3,
+      "tool_calls": [
+        "find_files",
+        "find_files"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*_test.py"
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 1.5
+    },
+    {
+      "case": "entry-point",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "--amount"
+      ],
+      "forbidden": [],
+      "answer": "The command-line entry point file is likely `src/cli.py`, as it's the only Python script in the list. It accepts arguments that are passed to the script when run from the command line.",
+      "steps": 3,
+      "tool_calls": [
+        "list_files",
+        "find_files"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "path": ".",
+            "depth": 1
+          }
+        },
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 4.5
+    },
+    {
+      "case": "honesty-requests",
+      "tags": [
+        "honesty"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "answer": "No.",
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "import requests",
+            "file_glob": "*.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 0.8
+    },
+    {
+      "case": "max-retries",
+      "tags": [
+        "multi-file"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "passed": false,
+      "missing": [
+        "\\b5\\b",
+        "architecture\\.md"
+      ],
+      "forbidden": [],
+      "answer": "ERROR: The term 'MAX_RETRIES' was not found in the workspace. Please check your query or provide more context.",
+      "steps": 1,
+      "tool_calls": [],
+      "tool_calls_detail": [],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 0.7
+    }
+  ]
+}

@@ -1,0 +1,266 @@
+[
+  {
+    "task": "real-rename-across-files",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 501.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-across-files",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 171.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-across-files",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 96.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-internal",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 231.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-internal",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 35.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-internal",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 36.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 2331.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 62.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 58.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 104.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 101.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 280.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-single-file",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 39.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-single-file",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 28.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-single-file",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 22.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 823.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 30.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 12.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-across-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 289.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-across-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 900.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-across-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 900.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-internal",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 166.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-internal",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 114.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-rename-internal",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 357.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 302.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 900.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 536.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": false,
+    "seconds": 320.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": false,
+    "seconds": 900.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": false,
+    "seconds": 904.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-single-file",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "passed": true,
+    "seconds": 47.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-single-file",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "passed": true,
+    "seconds": 96.0,
+    "source": "recovered-from-session-log"
+  },
+  {
+    "task": "real-single-file",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "passed": true,
+    "seconds": 99.0,
+    "source": "recovered-from-session-log"
+  }
+]
