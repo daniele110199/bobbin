@@ -1,7 +1,16 @@
-# A small local-model coding agent
+# bobbin
 
-A dependency-free agent runtime for local models via Ollama. Stdlib only:
-no `pip install`, no `requests`, no `ollama` package, no ripgrep.
+**A small coding agent for small local models.** A dependency-free agent
+runtime for local models via Ollama. Stdlib only: no `pip install`, no
+`requests`, no `ollama` package, no ripgrep.
+
+![bobbin renaming a function across four files](media/demo.gif)
+
+*A real run, unedited: `qwen3-coder:30b` renaming `slugify` to `make_slug`
+across four files, then leaving the vendored copy in `node_modules/` alone.
+90 seconds of real time, played at 2.6x with long pauses clipped. The frames
+are the bytes the agent actually wrote ([how it was made](media/README.md)).
+It does not pass every time; the rates are in the tables below.*
 
 It is one loop:
 
