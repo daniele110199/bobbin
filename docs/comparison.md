@@ -19,7 +19,7 @@ rather than in a footnote.
 | **timeout** | **900s** per run on the real repo, 420s on the fixtures. **7 of the 24 aider runs on the real repo hit it**, all on nemotron. A longer ceiling would change aider's column |
 | models | `qwen3-coder:30b` and `nemotron-3.5-lightning` (32.9B), Ollama, one RTX 4060 (8GB) — so the 32B runs partly on CPU for both tools |
 | step budget (ours) | 40 on the real repo; the case's own pin on fixtures |
-| reps | **one sample per cell**, except the budget experiment below. This matters — see [what the numbers do not carry](#what-the-numbers-do-not-carry) |
+| reps | **3 per cell on the real repo** (108 runs); the fixture table below is still one sample per cell |
 
 Three arms, because how you invoke aider is most of what it scores:
 
@@ -59,28 +59,46 @@ passes only if the change is on disk (a grep-level assertion, no regexes over
 prose) *and* `pytest` is still green. Neither half of that oracle was written by
 this project or by aider, which is the point.
 
+Three reps per cell, 108 runs:
+
 | | ours | aider-told | aider-find |
 |---|---|---|---|
-| qwen3-coder:30b | 2/6 | 3/6 | 3/6 |
-| nemotron 32.9B | **4/6** | 1/6 | 1/6 |
-| **both** | **6/12** | 4/12 | 4/12 |
+| qwen3-coder:30b | 6/18 | **9/18** | **9/18** |
+| nemotron 32.9B | **12/18** | 3/18 | 4/18 |
+| **both** | **18/36** | 12/36 | 13/36 |
 
-**The fixture advantage does not transfer.** Four-to-one on our own cases
-becomes 6-to-4 on real code, which on twelve cells is inside the noise.
-Everyone passes the single-file edit. Cross-file renames succeed roughly once in
-six attempts across both tools.
+**The fixture advantage does not transfer, and the result splits by model.**
+Four-to-one on our own cases becomes 50% against 33% on real code, and that
+aggregate hides two opposite rows: on qwen3-coder aider is ahead 9/18 to 6/18,
+while on nemotron we are ahead 12/18 to 3/18.
+
+Per task, of the 12 cells we win 4, aider wins 1, and 7 are ties. The one aider
+win is `real-move-function` on qwen, which it does 3/3 and we fail 3/3: worth
+saying plainly, because it is the clearest thing either tool does that the other
+cannot.
+
+**The cells are stable.** 33 of 36 were unanimous across all three reps, so
+these are capability differences rather than sampling noise. Only three cells
+were mixed, all on nemotron, all ours: `real-rename-across-files` (1/3),
+`real-rename-internal` (2/3), and aider-find on `real-nonexistent` (1/3).
+
+That stability is itself a result. It means the earlier single-sample table was
+representative, which could not have been known without running the reps, and
+it is the opposite of what the budget probe found for the same tasks under a
+changed step budget.
 
 Two things in that table are real rather than noise:
 
 - **The do-nothing task.** Asked to change `MAX_ARGUMENT_COUNT`, a constant that
-  does not exist in click, our agent explored and left the tree untouched on
-  both models. aider timed out at 900s in both arms **with `src/` modified and
-  the test suite red** — on a task whose correct answer is to change nothing.
-  This is the fixture suite's `edit-nonexistent` shape reproducing on code
-  nobody wrote for us.
-- **Speed, the other way.** aider is faster with qwen (median 108s against our
-  296s). With the 32B model it is the one that becomes impractical: 7 of its 12
-  nemotron runs never finished inside 900 seconds.
+  does not exist in click, our agent left the tree untouched in **6 runs out of
+  6**, on both models. On nemotron, aider modified `src/` and left the suite red
+  in **5 of its 6** runs, on a task whose correct answer is to change nothing.
+  (On qwen, aider gets this right 6/6 too.) This is the fixture suite's
+  `edit-nonexistent` shape reproducing on code nobody wrote for us.
+- **Speed, and it cuts both ways.** With qwen aider is 4x faster than us (median
+  43-48s against our 208s). With the 32B model it is the one that becomes
+  impractical: **19 of its 36 nemotron runs** never finished inside 900 seconds,
+  making its median there the timeout itself.
 
 ## Was 40 steps the constraint? No.
 
@@ -122,10 +140,10 @@ for us at any budget tried, and for aider at any invocation tried.
 ## What the numbers do not carry
 
 - **General superiority.** They do not show it and we do not claim it.
-- **Statistical weight per cell.** The fixture table and 8 of the 12 real-repo
-  cells are **one sample each**. The budget experiment above is exactly why that
-  caveat is not boilerplate: a single sample pointed at the wrong conclusion
-  until three reps overturned it.
+- **Statistical weight on the fixtures.** The real-repo table is 3 reps per
+  cell, but the 38-cell fixture table is still **one sample each**. The budget
+  experiment above is why that caveat is not boilerplate: a single sample
+  pointed at the wrong conclusion there until three reps overturned it.
 - **A verdict on aider tuned by someone who uses it daily.** These are default
   invocations by someone who does not. The harness ships so that can be
   corrected — if a cell is misconfigured, change it and re-run.

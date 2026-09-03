@@ -42,6 +42,7 @@ MODELS = (os.environ.get("REALREPO_MODELS") or
 ONLY = set(filter(None, (os.environ.get("REALREPO_ONLY") or "").split(",")))
 AIDER_TIMEOUT = 900
 STEPS = int(os.environ.get("REALREPO_STEPS", 40))   # generous and equal
+REP = int(os.environ.get("REALREPO_REP", 1))       # which repetition this is
 
 
 def hits(root: Path, pattern: str, where: str = "src tests") -> int:
@@ -206,6 +207,7 @@ def main() -> int:
                 except Exception:
                     green = False
                 rows.append({"task": task["id"], "model": model, "arm": arm,
+                             "rep": REP,
                              "change_made": did_it, "tests_pass": green,
                              "passed": did_it and green, "touched_src": changed,
                              "seconds": round(time.monotonic() - started, 1), **extra})

@@ -22,27 +22,45 @@ def load(*names, key):
 
 
 def table(title, rows, order=None):
-    cells = {(r["model"], r["_key"], r["arm"]): r for r in rows}
+    """One line per cell, showing passes over reps rather than a single verdict.
+
+    A cell that reads 2/3 is the honest rendering of what these runs are: one
+    sample per rep, and this project has already been misled once by treating a
+    single sample as an answer.
+    """
+    cells = defaultdict(list)
+    for r in rows:
+        cells[(r["model"], r["_key"], r["arm"])].append(r)
     keys = order or sorted({r["_key"] for r in rows})
     tally = defaultdict(lambda: [0, 0])
+    reps = sorted({r.get("rep", 1) for r in rows})
     print(f"\n########## {title}")
+    if len(reps) > 1:
+        print(f"  {len(reps)} reps per cell; a cell shows passes/reps")
     for model in MODELS:
         print(f"\n=== {model}")
-        print(f"  {'':26} {'ours':>7} {'told':>7} {'find':>7}   seconds")
+        print(f"  {'':26} {'ours':>7} {'told':>7} {'find':>7}   median seconds")
         for k in keys:
             marks, secs = [], []
             for arm in ARMS:
-                r = cells.get((model, k, arm))
-                marks.append("  ok   " if r and r["passed"] else ("   --  " if not r else " fail  "))
-                secs.append(f"{r['seconds']:.0f}" if r else "-")
-                if r:
-                    tally[(model, arm)][0] += bool(r["passed"]); tally[(model, arm)][1] += 1
-                    tally[("BOTH", arm)][0] += bool(r["passed"]); tally[("BOTH", arm)][1] += 1
+                got = cells.get((model, k, arm), [])
+                passes = sum(bool(r["passed"]) for r in got)
+                if not got:
+                    marks.append("   --  "); secs.append("-")
+                elif len(got) == 1:
+                    marks.append("  ok   " if passes else " fail  ")
+                else:
+                    marks.append(f" {passes}/{len(got)}   ")
+                if got:
+                    secs.append(f"{sorted(r['seconds'] for r in got)[len(got)//2]:.0f}")
+                    tally[(model, arm)][0] += passes; tally[(model, arm)][1] += len(got)
+                    tally[("BOTH", arm)][0] += passes; tally[("BOTH", arm)][1] += len(got)
             print(f"  {k:26} {''.join(marks)}   {'/'.join(secs)}")
         print(f"  {'TOTAL':26} " + "".join(
             f"{tally[(model, a)][0]:>4}/{tally[(model, a)][1]:<3}" for a in ARMS))
     print("\n  both models: " + "   ".join(
-        f"{a}: {tally[('BOTH', a)][0]}/{tally[('BOTH', a)][1]}" for a in ARMS))
+        f"{a}: {tally[('BOTH', a)][0]}/{tally[('BOTH', a)][1]}"
+        f" ({100*tally[('BOTH', a)][0]/max(tally[('BOTH', a)][1],1):.0f}%)" for a in ARMS))
     return {a: tuple(tally[("BOTH", a)]) for a in ARMS}
 
 
@@ -51,7 +69,9 @@ REAL_ORDER = ["real-rename-across-files", "real-rename-internal", "real-move-fun
 
 fix = table("fixtures — 19 cases", load("fixtures_recovered.json", key="case"))
 real = table("real repo — pallets/click @36baa15, judged by its own 1991 tests",
-             load("realrepo_recovered.json", "realrepo_last.json", key="task"),
+             load("realrepo_recovered.json", "realrepo_last.json",
+                  "realrepo_rep2.json", "realrepo_rep2_tail.json",
+                  "realrepo_rep3.json", key="task"),
              REAL_ORDER)
 
 matched = R / "budget_matched.json"

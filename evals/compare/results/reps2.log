@@ -1,0 +1,43 @@
+=== rep2 tail: nemotron x real-nonexistent 00:12:54
+PASS  nemotron-3.5 ours        real-nonexistent           change=True  tests=True    1020s
+fail  nemotron-3.5 aider-told  real-nonexistent           change=False tests=False    900s
+fail  nemotron-3.5 aider-find  real-nonexistent           change=False tests=False    793s
+=== rep2 complete 00:58:08
+=== rep3 starting 00:58:08
+fail  qwen3-coder  ours        real-rename-across-files   change=False tests=False    253s
+fail  qwen3-coder  aider-told  real-rename-across-files   change=False tests=False     80s
+fail  qwen3-coder  aider-find  real-rename-across-files   change=False tests=False    216s
+fail  qwen3-coder  ours        real-rename-internal       change=False tests=True     210s
+fail  qwen3-coder  aider-told  real-rename-internal       change=False tests=False     34s
+fail  qwen3-coder  aider-find  real-rename-internal       change=False tests=True      38s
+fail  qwen3-coder  ours        real-move-function         change=False tests=True     652s
+PASS  qwen3-coder  aider-told  real-move-function         change=True  tests=True      62s
+PASS  qwen3-coder  aider-find  real-move-function         change=True  tests=True      56s
+fail  qwen3-coder  ours        real-signature             change=True  tests=False    197s
+fail  qwen3-coder  aider-told  real-signature             change=False tests=True      91s
+fail  qwen3-coder  aider-find  real-signature             change=False tests=False     41s
+PASS  qwen3-coder  ours        real-single-file           change=True  tests=True      36s
+PASS  qwen3-coder  aider-told  real-single-file           change=True  tests=True      27s
+PASS  qwen3-coder  aider-find  real-single-file           change=True  tests=True      23s
+PASS  qwen3-coder  ours        real-nonexistent           change=True  tests=True     204s
+PASS  qwen3-coder  aider-told  real-nonexistent           change=True  tests=True      20s
+PASS  qwen3-coder  aider-find  real-nonexistent           change=True  tests=True      12s
+fail  nemotron-3.5 ours        real-rename-across-files   change=False tests=False    328s
+fail  nemotron-3.5 aider-told  real-rename-across-files   change=False tests=False    900s
+fail  nemotron-3.5 aider-find  real-rename-across-files   change=False tests=False    346s
+PASS  nemotron-3.5 ours        real-rename-internal       change=True  tests=True     159s
+fail  nemotron-3.5 aider-told  real-rename-internal       change=False tests=False    111s
+fail  nemotron-3.5 aider-find  real-rename-internal       change=False tests=False    252s
+PASS  nemotron-3.5 ours        real-move-function         change=True  tests=True     526s
+fail  nemotron-3.5 aider-told  real-move-function         change=True  tests=False    900s
+fail  nemotron-3.5 aider-find  real-move-function         change=False tests=True     903s
+fail  nemotron-3.5 ours        real-signature             change=False tests=True     228s
+fail  nemotron-3.5 aider-told  real-signature             change=False tests=False    903s
+fail  nemotron-3.5 aider-find  real-signature             change=False tests=True     903s
+PASS  nemotron-3.5 ours        real-single-file           change=True  tests=True      45s
+PASS  nemotron-3.5 aider-told  real-single-file           change=True  tests=True      95s
+PASS  nemotron-3.5 aider-find  real-single-file           change=True  tests=True      93s
+PASS  nemotron-3.5 ours        real-nonexistent           change=True  tests=True    1182s
+fail  nemotron-3.5 aider-told  real-nonexistent           change=False tests=False    900s
+PASS  nemotron-3.5 aider-find  real-nonexistent           change=True  tests=True     281s
+=== ALL REPS COMPLETE 04:06:37

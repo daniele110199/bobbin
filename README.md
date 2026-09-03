@@ -52,37 +52,52 @@ On this project's own fixtures, 19 cases × 2 models:
 | cascades + repair | **19/22** | 5/22 | 4/22 |
 | **all** | **34/38** | 20/38 | 18/38 |
 
-On `pallets/click` at 12,674 lines, judged by its own 1991 tests:
+On `pallets/click` at 12,674 lines, judged by its own 1991 tests. **Three reps
+per cell, 108 runs:**
 
 | | ours | aider-told | aider-find |
 |---|---|---|---|
-| qwen3-coder:30b | 2/6 | 3/6 | 3/6 |
-| nemotron 32.9B | **4/6** | 1/6 | 1/6 |
-| **both** | **6/12** | 4/12 | 4/12 |
+| qwen3-coder:30b | 6/18 | **9/18** | **9/18** |
+| nemotron 32.9B | **12/18** | 3/18 | 4/18 |
+| **both** | **18/36** | 12/36 | 13/36 |
 
-**Read the second table before the first.** The fixture advantage does not
-transfer: four-to-one on our own cases becomes 6-to-4 on real code, which on
-twelve cells is inside the noise. Cross-file renames succeed about once in six
-attempts *for both tools*. We tested the flattering explanation, that our step
-budgets were sized on 24-file fixtures, with a matched 3-rep experiment, and it
-is false: doubling the budget changed nothing, and the agent stops on its own
-well short of the larger ceiling.
+**Read the second table before the first, and read it by row.** The fixture
+advantage does not transfer, and on real code the answer depends on which model
+you run:
+
+- **On qwen3-coder, aider wins.** 9/18 against our 6/18, entirely on one task:
+  moving a function between modules, which aider does 3 times out of 3 and we
+  fail 3 times out of 3.
+- **On nemotron, we win by a lot.** 12/18 against 3/18, and aider hit the
+  900-second ceiling on 19 of its 36 runs with that model.
+
+Aggregated, that is 50% against 33%, which is parity with a wide spread, not a
+lead. At the level of individual tasks: of 12 cells, we win 4, aider wins 1,
+and 7 are ties (mostly tasks neither tool can do).
+
+**These outcomes are stable, not noisy.** 33 of the 36 cells were unanimous
+across all three reps, so the failures are capability, not luck. That also
+means the earlier single-sample table happened to be right, which we could not
+have known without paying for the reps.
 
 So the claim this project makes is narrow and specific:
 
-- **parity with aider on real code with small local models**, not superiority;
-- **a large, reproducible advantage on multi-file refactors at fixture scale**;
+- **parity with aider on real code with small local models**, not superiority,
+  and behind it on one of the two models tested;
+- **a large advantage on multi-file refactors at fixture scale** (34/38 against
+  20/38), which does not survive the jump to 12k lines;
 - **a specific advantage on not doing the wrong thing**: asked to change a
-  constant that does not exist in click, this agent left the tree untouched on
-  both models, while aider timed out with `src/` modified and the test suite
-  red;
+  constant that does not exist in click, this agent left the tree untouched in
+  all 6 runs across both models, while on nemotron aider modified `src/` and
+  left the suite red in 5 of 6;
 - and a documented method **with its negative results attached**, which is the
   part that is usually missing.
 
 Caveats belong next to the numbers, not under them: aider 0.86.2 at default
-settings by someone who does not use it daily, a 900s timeout that 7 of 24 aider
-runs hit, and **one sample per cell** everywhere except the budget experiment.
-The harness ships so any of that can be corrected and re-run.
+settings by someone who does not use it daily, and a 900s timeout that 19 of its
+72 real-repo runs hit, all on nemotron. The real-repo table is 3 reps per cell;
+the fixture table above is still **one sample per cell**. The harness ships so
+any of that can be corrected and re-run.
 
 ## What you need
 
