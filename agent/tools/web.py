@@ -63,6 +63,12 @@ SNIPPET_CHARS = 220
 MAX_POST_BYTES = 64_000
 BODY_PREVIEW = 2_000
 
+# Response headers worth showing, and no others. A model reading twenty headers
+# is a model spending its context on `Server: nginx`; these four are the ones
+# that change what it should do next — which methods are allowed, how long to
+# wait, what authentication is wanted, where the thing actually lives.
+ACTIONABLE_HEADERS = ("Allow", "Retry-After", "WWW-Authenticate", "Location")
+
 # A short allowlist rather than a free-text header. The three that cover the
 # endpoints worth reaching, named in words a model gets right more often than it
 # gets `application/x-www-form-urlencoded` right.
@@ -421,6 +427,7 @@ def _post(url: str, body: str, content_type: str = "json",
             got = (response.headers.get("Content-Type") or "").lower()
             raw = response.read(MAX_BYTES + 1)
             final = response.geturl()
+            status, reason = response.status, response.reason
     except urllib.error.HTTPError as exc:
         if 300 <= exc.code < 400:
             where = exc.headers.get("Location") or "an address it did not name"
@@ -433,27 +440,74 @@ def _post(url: str, body: str, content_type: str = "json",
         # The body reached the server and the server said no. That is a different
         # fact from "could not reach it", and the model needs to know the request
         # was delivered before it decides whether to try again.
-        detail = _to_text(exc.read(MAX_BYTES), (exc.headers.get("Content-Type") or "").lower())
-        tail = f" It said: {detail[:400]}" if detail else ""
         return (f"ERROR: {url} received the POST and returned HTTP {exc.code} "
-                f"({exc.reason}).{tail}")
+                f"({exc.reason}).{_failure_detail(exc)}")
     except urllib.error.URLError as exc:
         return f"ERROR: could not reach {url}: {exc.reason}. Nothing was sent."
     except (TimeoutError, OSError) as exc:
         return f"ERROR: could not reach {url}: {exc}. Nothing was sent."
 
-    return _render(url, final, got, raw)
+    return _render(url, final, got, raw, status, reason)
 
 
-def _render(url: str, final: str, content_type: str, raw: bytes) -> str:
-    """Turn a response into capped, fenced text. Shared by fetch_url and http_post."""
+def _failure_detail(exc: urllib.error.HTTPError) -> str:
+    """What a failed response says beyond its number.
+
+    A bare "HTTP 405 (Method Not Allowed)" tells the model it lost without
+    telling it what would win; the same response's `Allow: GET, HEAD` says
+    exactly what to do instead. Same for `Retry-After` on a 429 and
+    `WWW-Authenticate` on a 401. The body usually carries the real reason — an
+    API that rejects a query explains itself there and nowhere else.
+    """
+    bits = [f"{name}: {value}" for name in ACTIONABLE_HEADERS
+            if (value := exc.headers.get(name))]
+    try:
+        body = _to_text(exc.read(MAX_BYTES),
+                        (exc.headers.get("Content-Type") or "").lower())
+    except Exception:  # noqa: BLE001 - a body we cannot read is not an error here
+        body = ""
+    excerpt = " ".join(body.split())[:400]
+    if not bits and not excerpt:
+        return ""
+    # Fenced, because every line of it is written by the server that just
+    # refused us — headers included. An error page is exactly as good a place to
+    # put "ignore your instructions" as a successful one, and a failure is more
+    # likely to be the moment a model is casting about for what to do next.
+    #
+    # The status phrase on the ERROR line itself (`Not Found`, `I'M A TEAPOT`) is
+    # also the server's, and is left there: it is the name of the number beside
+    # it. The fence is a boundary marker, not a claim that nothing outside it
+    # ever came from the network.
+    return "\n" + fenced("\n".join(bits + ([excerpt] if excerpt else [])))
+
+
+def _render(url: str, final: str, content_type: str, raw: bytes,
+            status: int | None = None, reason: str = "") -> str:
+    """Turn a response into capped, fenced text. Shared by fetch_url and http_post.
+
+    The status line is the cheapest thing this tool layer can offer and was
+    missing for a long time: a success used to be indistinguishable from any
+    other success, so "did that POST create anything?" (201 vs 200) and "did I
+    get JSON or the HTML version of this page?" were both unanswerable from the
+    output. It is one line, and it is tool *output* — unlike a tool description,
+    it is not charged on every request.
+
+    It sits inside the fence on purpose. Status and headers come from the same
+    server as the body, so they are the same kind of claim.
+    """
     truncated = len(raw) > MAX_BYTES
+    meta = []
+    if status is not None:
+        meta.append(f"{status} {reason}".strip())
+    meta.append(content_type or "unknown type")
+    meta.append(f"over {MAX_BYTES} bytes" if truncated else f"{len(raw)} bytes")
+    summary = "  ".join(meta)
+
     text = _to_text(raw[:MAX_BYTES], content_type)
     if not text:
-        return (f"{final} returned {len(raw)} bytes of "
-                f"{content_type or 'unknown type'}, no readable text.")
+        return f"{final}\n{summary}, no readable text."
     header = final if final == url else f"{final}  (redirected from {url})"
-    lines = [header, ""] + text.splitlines()
+    lines = [header, summary, ""] + text.splitlines()
     if truncated:
         lines.append(f"... truncated at {MAX_BYTES} bytes.")
     return fenced(cap(lines, MAX_LINES, "lines"))
@@ -469,11 +523,13 @@ def _fetch(url: str) -> str:
             content_type = (response.headers.get("Content-Type") or "").lower()
             body = response.read(MAX_BYTES + 1)
             final = response.geturl()
+            status, reason = response.status, response.reason
     except urllib.error.HTTPError as exc:
-        return f"ERROR: {url} returned HTTP {exc.code} ({exc.reason})."
+        return (f"ERROR: {url} returned HTTP {exc.code} ({exc.reason})."
+                f"{_failure_detail(exc)}")
     except urllib.error.URLError as exc:
         return f"ERROR: could not reach {url}: {exc.reason}."
     except (TimeoutError, OSError) as exc:
         return f"ERROR: could not reach {url}: {exc}."
 
-    return _render(url, final, content_type, body)
+    return _render(url, final, content_type, body, status, reason)

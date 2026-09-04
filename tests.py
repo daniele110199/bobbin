@@ -2995,6 +2995,136 @@ def test_http_post_is_gated_and_sends_nothing_until_approved() -> None:
               "http_post" not in build_registry(ws, EditSession()).tools)
 
 
+def test_response_metadata_is_reported_on_success_and_failure() -> None:
+    """What came back, not just what it said.
+
+    A success used to be indistinguishable from any other success: no status, no
+    content type, no size. So "did that POST create something?" (201 against 200)
+    and "did I get JSON or the HTML version of this page?" could not be answered
+    from the output at all.
+
+    The failure half is the one that pays. A bare "HTTP 405 (Method Not Allowed)"
+    tells the model it lost without telling it what would have won — the same
+    response's `Allow` header says exactly that. `fetch_url` used to throw the
+    whole failed response away, headers and body both, while `http_post` read the
+    body; they now share `_failure_detail`.
+
+    All of this is tool *output*, not tool description, so unlike a schema it
+    costs nothing on every request.
+    """
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from agent.tools import web
+
+    big = b"x" * (web.MAX_BYTES + 500)
+
+    class Handler(BaseHTTPRequestHandler):
+        def _send(self, code, body=b"", ctype="text/plain; charset=utf-8", extra=()):
+            self.send_response(code)
+            if ctype:
+                self.send_header("Content-Type", ctype)
+            for name, value in extra:
+                self.send_header(name, value)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body:
+                self.wfile.write(body)
+
+        def do_GET(self):
+            if self.path == "/json":
+                return self._send(200, b'{"ok": true}', "application/json")
+            if self.path == "/big":
+                return self._send(200, big)
+            if self.path == "/methodnotallowed":
+                return self._send(405, b"use GET", extra=[("Allow", "GET, HEAD")])
+            if self.path == "/slowdown":
+                return self._send(429, b"", extra=[("Retry-After", "30")])
+            if self.path == "/private":
+                return self._send(401, b"token required",
+                                  extra=[("WWW-Authenticate", 'Bearer realm="api"')])
+            return self._send(200, b"plain words here")
+
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length") or 0)
+            self.rfile.read(length)
+            if self.path == "/created":
+                return self._send(201, b'{"id": 7}', "application/json")
+            if self.path == "/empty":
+                return self._send(204, b"", ctype="")
+            if self.path == "/rejected":
+                return self._send(422, b'{"error": "field q is required"}',
+                                  "application/json")
+            return self._send(200, b'{"ok": true}', "application/json")
+
+        def log_message(self, *args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    blocked = web.BLOCKED_HOSTS
+    try:
+        web.BLOCKED_HOSTS = set()
+        base = f"http://127.0.0.1:{server.server_port}"
+        allow = lambda *a: True                                    # noqa: E731
+
+        out = _fetch_bypassing_guard(web, f"{base}/json")
+        check("metadata: a success reports its status",
+              "200 OK" in out, out[:200])
+        check("metadata: and its content type",
+              "application/json" in out, out[:200])
+        check("metadata: and how many bytes came back",
+              "12 bytes" in out, out[:200])
+
+        out = _fetch_bypassing_guard(web, f"{base}/big")
+        check("metadata: a truncated body reports a bound, not a wrong number",
+              f"over {web.MAX_BYTES} bytes" in out
+              and f"{web.MAX_BYTES + 1} bytes" not in out, out[:200])
+
+        # -- the failure half ------------------------------------------------
+        out = _fetch_bypassing_guard(web, f"{base}/methodnotallowed")
+        check("metadata: a 405 names the methods that would have worked",
+              "405" in out and "Allow: GET, HEAD" in out, out)
+        check("metadata: and passes on what the server said",
+              "use GET" in out, out)
+
+        out = _fetch_bypassing_guard(web, f"{base}/slowdown")
+        check("metadata: a 429 reports how long to wait",
+              "Retry-After: 30" in out, out)
+
+        out = _fetch_bypassing_guard(web, f"{base}/private")
+        check("metadata: a 401 reports what authentication is wanted",
+              "WWW-Authenticate" in out and "Bearer" in out, out)
+
+        # Everything quoted from a failed response is the server's own writing,
+        # headers included, so it goes inside the fence. A refusal is if anything
+        # a better place to plant an instruction than a success: it is the moment
+        # a model is casting about for what to do next.
+        check("metadata: quoted failure text is fenced as untrusted",
+              web.FENCE_OPEN in out and out.rstrip().endswith(web.FENCE_CLOSE), out)
+        check("metadata: the ERROR line itself stays ours",
+              out.startswith("ERROR:") and "401" in out.split(chr(10))[0], out)
+
+        # -- POST, where the status is load-bearing ---------------------------
+        out = web._post(f"{base}/created", '{"a": 1}', "json", approve=allow)
+        check("metadata: a POST that creates something says 201, not just 200",
+              "201 Created" in out, out[:200])
+
+        out = web._post(f"{base}/empty", '{"a": 1}', "json", approve=allow)
+        check("metadata: an empty response still reports its status",
+              "204" in out and "no readable text" in out, out)
+
+        out = web._post(f"{base}/rejected", '{"a": 1}', "json", approve=allow)
+        check("metadata: a rejected POST carries the server's own reason",
+              "422" in out and "field q is required" in out, out)
+        check("metadata: and still says the request was delivered",
+              "received the POST" in out, out)
+    finally:
+        web.BLOCKED_HOSTS = blocked
+        server.shutdown()
+        server.server_close()
+
+
 def test_post_approval_can_stand_for_one_origin_per_session() -> None:
     """Answering `a` grants one origin for the session, and nothing wider.
 
@@ -3182,18 +3312,14 @@ def _fetch_bypassing_guard(web, url: str) -> str:
             content_type = (response.headers.get("Content-Type") or "").lower()
             raw = response.read(web.MAX_BYTES + 1)
             final = response.geturl()
+            status, reason = response.status, response.reason
     except Exception as exc:  # noqa: BLE001 - mirrors the tool's own contract
         import urllib.error
         if isinstance(exc, urllib.error.HTTPError):
-            return f"ERROR: {url} returned HTTP {exc.code} ({exc.reason})."
+            return (f"ERROR: {url} returned HTTP {exc.code} ({exc.reason})."
+                    f"{web._failure_detail(exc)}")
         return f"ERROR: could not reach {url}: {exc}."
-    truncated = len(raw) > web.MAX_BYTES
-    text = web._to_text(raw[:web.MAX_BYTES], content_type)
-    lines = [final, ""] + text.splitlines()
-    if truncated:
-        lines.append(f"... truncated at {web.MAX_BYTES} bytes.")
-    from agent.output import cap
-    return cap(lines, web.MAX_LINES, "lines")
+    return web._render(url, final, content_type, raw, status, reason)
 
 
 def test_rename_case_catches_every_leftover() -> None:
@@ -5525,6 +5651,7 @@ def main() -> int:
                test_http_post_is_gated_and_sends_nothing_until_approved,
                test_post_body_hint_names_the_defect,
                test_post_approval_can_stand_for_one_origin_per_session,
+               test_response_metadata_is_reported_on_success_and_failure,
                test_honesty_case_two_renames,
                test_rescore_over_stored_results,
                test_context_tally_over_stored_sessions,
