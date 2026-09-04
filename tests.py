@@ -3108,8 +3108,9 @@ def test_web_cases_are_opt_in_per_case() -> None:
           all("web" in c.tags for c in WEB_CASES))
     check("web cases: no other case has quietly acquired the web tools",
           [c.id for c in ALL_CASES if c.allow_web and c.id not in web_ids] == [])
-    check("web cases: only the POST case asks for http_post",
-          [c.id for c in ALL_CASES if c.allow_post] == ["web-post-only"])
+    check("web cases: only the POST cases ask for http_post",
+          [c.id for c in ALL_CASES if c.allow_post]
+          == ["web-post-only", "web-post-escaped"])
 
     # The measurement each case is actually for, pinned so a later edit cannot
     # quietly turn the suite into six variations of "fetch a page".
@@ -3218,6 +3219,21 @@ def test_response_metadata_is_reported_on_success_and_failure() -> None:
         out = _fetch_bypassing_guard(web, f"{base}/slowdown")
         check("metadata: a 429 reports how long to wait",
               "Retry-After: 30" in out, out)
+
+        # The off arm, so the whole feature can be scored rather than assumed.
+        # One switch covers both halves because they shipped as one change.
+        import os
+        os.environ["AGENT_NO_HTTP_META"] = "1"
+        try:
+            bare = _fetch_bypassing_guard(web, f"{base}/json")
+            check("metadata: the off arm drops the status line",
+                  "200 OK" not in bare and "ok" in bare, bare[:200])
+            bare = _fetch_bypassing_guard(web, f"{base}/methodnotallowed")
+            check("metadata: and drops the failure detail with it",
+                  "Allow:" not in bare and bare.startswith("ERROR:"), bare)
+        finally:
+            del os.environ["AGENT_NO_HTTP_META"]
+        check("metadata: on by default", web.metadata_enabled())
 
         out = _fetch_bypassing_guard(web, f"{base}/private")
         check("metadata: a 401 reports what authentication is wanted",
@@ -4594,7 +4610,7 @@ def test_stated_fact_case_is_a_matched_pair() -> None:
 
     # Suite stability, same rule as every case added since `repair-half-deleted`.
     for tag, size in (("edit", 8), ("honesty", 3), ("multi-turn", 9),
-                      ("cascade", 10), ("web", 6)):
+                      ("cascade", 10), ("web", 7)):
         check(f"stated-fact: tag:{tag} is still {size} cases",
               len([c for c in ALL_CASES if tag in c.tags]) == size)
 

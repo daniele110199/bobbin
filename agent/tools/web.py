@@ -113,6 +113,18 @@ def fence_enabled() -> bool:
     return not os.environ.get("AGENT_NO_FENCE")
 
 
+def metadata_enabled() -> bool:
+    """On by default; `AGENT_NO_HTTP_META=1` is the off arm.
+
+    Covers both halves of what "report what came back" added, because they
+    shipped as one change and are one idea: the status line on a success, and the
+    actionable headers plus server explanation on a failure. Splitting them into
+    two switches would double the arms to separate mechanisms that were never
+    argued for separately.
+    """
+    return not os.environ.get("AGENT_NO_HTTP_META")
+
+
 def fenced(body: str) -> str:
     """Mark web text as data rather than instruction.
 
@@ -473,6 +485,8 @@ def _failure_detail(exc: urllib.error.HTTPError) -> str:
     `WWW-Authenticate` on a 401. The body usually carries the real reason — an
     API that rejects a query explains itself there and nowhere else.
     """
+    if not metadata_enabled():
+        return ""
     bits = [f"{name}: {value}" for name in ACTIONABLE_HEADERS
             if (value := exc.headers.get(name))]
     try:
@@ -516,12 +530,14 @@ def _render(url: str, final: str, content_type: str, raw: bytes,
     meta.append(content_type or "unknown type")
     meta.append(f"over {MAX_BYTES} bytes" if truncated else f"{len(raw)} bytes")
     summary = "  ".join(meta)
+    show_meta = metadata_enabled()
 
     text = _to_text(raw[:MAX_BYTES], content_type)
     if not text:
-        return f"{final}\n{summary}, no readable text."
+        return (f"{final}\n{summary}, no readable text." if show_meta
+                else f"{final} returned no readable text.")
     header = final if final == url else f"{final}  (redirected from {url})"
-    lines = [header, summary, ""] + text.splitlines()
+    lines = ([header, summary, ""] if show_meta else [header, ""]) + text.splitlines()
     if truncated:
         lines.append(f"... truncated at {MAX_BYTES} bytes.")
     return fenced(cap(lines, MAX_LINES, "lines"))

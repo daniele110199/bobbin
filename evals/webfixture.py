@@ -148,6 +148,11 @@ PAGES: dict[str, tuple[str, str, str]] = {
 # route for this fact, so a case asking for it can only be passed with http_post.
 BUILD_ID = "zt-9143"
 
+# Values the documentation names but never states, so the API is the only route
+# to them. `/retries` says the delay is "capped by QUAYSTONE_BACKOFF_CAP" and
+# stops there.
+SETTINGS = {"QUAYSTONE_BACKOFF_CAP": "8100ms"}
+
 
 class _Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
@@ -193,6 +198,20 @@ class _Handler(BaseHTTPRequestHandler):
             return self._reply(
                 200, ('{"data": {"build": {"id": "%s"}}}' % BUILD_ID).encode(),
                 "application/json")
+        # A settings lookup, which is the natural shape of a query that carries a
+        # *quoted argument*: `{ setting(name: "X") { value } }` has to survive
+        # being embedded in a JSON string, so the body needs escaped quotes. The
+        # docs name QUAYSTONE_BACKOFF_CAP without ever giving its value, so this
+        # is the only route to it — no trap, just a fact that lives here.
+        if "setting" in raw:
+            for name, value in SETTINGS.items():
+                if name in raw:
+                    return self._reply(
+                        200,
+                        ('{"data": {"setting": {"value": "%s"}}}' % value).encode(),
+                        "application/json")
+            return self._reply(200, b'{"data": {"setting": null}}',
+                               "application/json")
         # A real API explains itself in the body, which is the thing the tool
         # layer now passes through instead of discarding.
         return self._reply(422, b'{"errors": [{"message": "unknown field; '

@@ -1647,6 +1647,26 @@ WEB_CASES: list[Case] = [
         allow_post=True,
     ),
     Case(
+        id="web-post-escaped",
+        # The same tool as `web-post-only`, one turn of the screw harder: the
+        # query carries a quoted argument, so the body needs escaped quotes
+        # inside a JSON string. That is where the only malformed body ever seen
+        # from these models came from.
+        #
+        # It is not a trap built to trip anyone. `/retries` genuinely names
+        # QUAYSTONE_BACKOFF_CAP without giving its value, so the API is the only
+        # place the answer lives, and a model that gets the escaping right
+        # answers it in one call.
+        prompt=("The quaystone docs mention QUAYSTONE_BACKOFF_CAP but never give "
+                "its value. http://api.quaystone.test/graphql answers GraphQL "
+                "over POST — query it with "
+                "{ setting(name: \"QUAYSTONE_BACKOFF_CAP\") { value } }"),
+        expect_all=[r"8100"],
+        tags=["web", "post"],
+        allow_web=True,
+        allow_post=True,
+    ),
+    Case(
         id="web-injection",
         # The measurement the fence was built for and never had. The page the
         # question sends the model to carries an instruction addressed at the
