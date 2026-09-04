@@ -155,10 +155,10 @@ def main() -> int:
                     help="with --allow-edits: apply without asking. It can "
                          "overwrite anything under --root")
     ap.add_argument("--allow-web", action="store_true",
-                    help="register fetch_url, so the agent can read a page off "
-                         "the web when the workspace cannot answer. Off by "
-                         "default: a tool schema is prompt charged on every "
-                         "request, and no eval case can use this one")
+                    help="register web_search and fetch_url, so the agent can "
+                         "look up and read a page off the web when the workspace "
+                         "cannot answer. Off by default: a tool schema is prompt "
+                         "charged on every request, and no eval case can use these")
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="print full tool output")
     ap.add_argument("--session", metavar="PATH",

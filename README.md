@@ -124,7 +124,7 @@ Then clone and run. There is no build step and nothing to compile:
 
 ```bash
 git clone <this repo> && cd llm-agent-project
-python3 tests.py        # 755 tests, no network, no model needed
+python3 tests.py        # 771 tests, no network, no model needed
 ./install.sh            # symlinks `bobbin` into ~/.local/bin
 bobbin qwen2.5-coder:7b
 ```
@@ -159,7 +159,7 @@ tool layer or the model?":
 ```
 
 ```bash
-python3 tests.py                            # 755 tests, no network
+python3 tests.py                            # 771 tests, no network
 python3 -m evals.run --cases tag:edit       # score a suite
 ```
 
@@ -197,7 +197,7 @@ evals/compare/   the aider head-to-head and its real-repo oracle
 bobbin         the command (a symlinked launcher; `install.sh` links it)
 main.py      chat REPL
 tools_cli.py run tools without a model
-tests.py     755 tests, no network
+tests.py     771 tests, no network
 ```
 
 ## Licence

@@ -26,13 +26,13 @@ def build_registry(ws: Workspace, session: EditSession | None = None,
     and adding a schema to the 22-case prompt would invalidate every number this
     project has quoted.
 
-    `fetch_url` is the third opt-in for the same arithmetic, and the starkest
-    case of it: **no eval case can use it.** The fixtures are offline,
-    self-contained repos, so adding its schema to the default set would be pure
-    prompt cost against zero benefit, charged on all 40-odd cases — the exact
-    shape that cost four cases the last time a description grew. It appears only
-    when the caller asks for it with `--allow-web`, and `evals/run.py` never
-    does, so no number on record moves.
+    The web tools — `web_search` and `fetch_url` — are the third opt-in for the
+    same arithmetic, and the starkest case of it: **no eval case can use them.**
+    The fixtures are offline, self-contained repos, so adding their schemas to
+    the default set would be pure prompt cost against zero benefit, charged on
+    all 40-odd cases — the exact shape that cost four cases the last time a
+    description grew. They appear only when the caller asks with `--allow-web`,
+    and `evals/run.py` never does, so no number on record moves.
     """
     tools = [*fs.build(ws, session), *search.build(ws)]
     if session is not None:

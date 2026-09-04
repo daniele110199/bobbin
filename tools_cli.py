@@ -9,6 +9,15 @@ question "was it the tool layer or the model?" in one command:
     ./tools_cli.py find_files pattern=*.py
     ./tools_cli.py grep pattern="def build" file_glob=*.py
     ./tools_cli.py --schemas
+
+The web tools need `--allow-web`, exactly as the agent does:
+
+    ./tools_cli.py --allow-web web_search query="argparse add_argument"
+    ./tools_cli.py --allow-web fetch_url url=https://docs.python.org/3/
+
+`web_search` scrapes a page it does not control, so it is the tool most likely
+to break on its own one day. This is where you find out, without a model in the
+way: if the search works here, the problem is the model.
 """
 
 from __future__ import annotations
@@ -29,10 +38,12 @@ def main() -> int:
     ap.add_argument("--root", default=".", help="workspace root (default: cwd)")
     ap.add_argument("--schemas", action="store_true",
                     help="print the JSON schemas sent to the model")
+    ap.add_argument("--allow-web", action="store_true",
+                    help="also register web_search and fetch_url")
     opts = ap.parse_args()
 
     ws = Workspace(opts.root)
-    registry = build_registry(ws)
+    registry = build_registry(ws, allow_web=opts.allow_web)
 
     if opts.schemas:
         print(json.dumps(registry.schemas(), indent=2))
