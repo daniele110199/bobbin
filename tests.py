@@ -3429,6 +3429,21 @@ def test_web_output_is_fenced_as_untrusted() -> None:
     check("fence: a body quoting the closing marker is still enclosed",
           out.endswith(web.FENCE_CLOSE) and out.count(web.FENCE_CLOSE) == 2, out)
 
+    # The off arm. It exists so the fence can be *scored* rather than assumed,
+    # which was impossible until the suite had a server to talk to. Read per
+    # call rather than at import, so an arm can be selected without reloading.
+    import os
+    check("fence: it is on by default", web.fence_enabled())
+    os.environ["AGENT_NO_FENCE"] = "1"
+    try:
+        check("fence: AGENT_NO_FENCE=1 selects the off arm", not web.fence_enabled())
+        check("fence: and the off arm returns the body bare",
+              web.fenced(body) == body, web.fenced(body))
+    finally:
+        del os.environ["AGENT_NO_FENCE"]
+    check("fence: and the default comes back when the switch is unset",
+          web.fence_enabled() and web.fenced(body) != body)
+
 
 def _fetch_bypassing_guard(web, url: str) -> str:
     """Run the fetch body against loopback, which `_check()` deliberately blocks."""

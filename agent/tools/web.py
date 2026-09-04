@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import html
 import json
+import os
 import re
 import urllib.error
 import urllib.request
@@ -101,6 +102,17 @@ FENCE_OPEN = (
 FENCE_CLOSE = "--- END UNTRUSTED WEB CONTENT ---"
 
 
+def fence_enabled() -> bool:
+    """On by default; `AGENT_NO_FENCE=1` is the off arm.
+
+    The switch exists so the fence can be scored rather than assumed, which was
+    impossible until `evals/webfixture.py` gave the suite a server to talk to.
+    Read per call, not at import, so an arm can be selected without reloading
+    the module.
+    """
+    return not os.environ.get("AGENT_NO_FENCE")
+
+
 def fenced(body: str) -> str:
     """Mark web text as data rather than instruction.
 
@@ -110,6 +122,8 @@ def fenced(body: str) -> str:
     mitigation and not a guarantee: it makes the boundary explicit and legible
     to a reader of the transcript, and costs two lines of prompt.
     """
+    if not fence_enabled():
+        return body
     return f"{FENCE_OPEN}\n\n{body}\n\n{FENCE_CLOSE}"
 
 
