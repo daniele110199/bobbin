@@ -19,7 +19,7 @@ rather than in a footnote.
 | **timeout** | **900s** per run on the real repo, 420s on the fixtures. **7 of the 24 aider runs on the real repo hit it**, all on nemotron. A longer ceiling would change aider's column |
 | models | `qwen3-coder:30b` and `nemotron-3.5-lightning` (32.9B), Ollama, one RTX 4060 (8GB) — so the 32B runs partly on CPU for both tools |
 | step budget (ours) | 40 on the real repo; the case's own pin on fixtures |
-| reps | **3 per cell on the real repo** (108 runs); the fixture table below is still one sample per cell |
+| reps | **3 per cell on both tables**: 342 fixture runs and 108 real-repo runs |
 
 Three arms, because how you invoke aider is most of what it scores:
 
@@ -39,18 +39,25 @@ Scored **on disk only**, for both tools: the case's file checks plus
 dropped, because those regexes were written against our agent's answers and
 would score style rather than work.
 
+Three reps per cell, 342 runs:
+
 | shape | ours | aider-told | aider-find |
 |---|---|---|---|
-| single-file edits | 15/16 | 15/16 | 14/16 |
-| cascades + repair | **19/22** | 5/22 | 4/22 |
-| **all** | **34/38** | 20/38 | 18/38 |
+| single-file edits | 46/48 | 45/48 | 42/48 |
+| cascades + repair | **61/66** | 11/66 | 10/66 |
+| **all** | **107/114** | 56/114 | 52/114 |
 
-Per model, ours / told / find: qwen3-coder **17/19** / 11/19 / 9/19; nemotron
-**17/19** / 9/19 / 9/19.
+Per model, ours / told / find: qwen3-coder **53/57** / 29/57 / 26/57; nemotron
+**54/57** / 27/57 / 26/57. The two models land in almost the same place, which
+the single-sample table also showed.
 
 The margin is entirely cascades. On single-file edits the three arms are the
-same tool. That is the expected shape — a multi-file refactor is exactly the
-work a loop does and a single patch round does not.
+same tool. That is the expected shape: a multi-file refactor is exactly the work
+a loop does and a single patch round does not.
+
+Per case/model pair, of the 38 we win 19, aider wins 1, and 18 are ties. The
+one aider win is `cascade-signature` on qwen, where its find arm goes 3/3 and we
+go 2/3. 102 of the 114 cells were unanimous across the three reps.
 
 ## Real repo: `pallets/click` @36baa15
 
@@ -123,7 +130,7 @@ sample: `real-rename-across-files` is 0/7, `real-rename-internal` 3/7.
 
 The finding underneath it is the uncomfortable one: across those 12 runs the
 agent modified `src/` in 11 and turned click's suite **red in 8**, while
-reporting success. The same shape of task is 19/22 on 24-file fixtures.
+reporting success. The same shape of task is 61/66 on 24-file fixtures.
 
 So the honest headline is not "our budgets don't transfer", which was fixable.
 It is: **cascade competence at 24-file scale does not survive at 12k lines** —
@@ -140,9 +147,9 @@ for us at any budget tried, and for aider at any invocation tried.
 ## What the numbers do not carry
 
 - **General superiority.** They do not show it and we do not claim it.
-- **Statistical weight on the fixtures.** The real-repo table is 3 reps per
-  cell, but the 38-cell fixture table is still **one sample each**. The budget
-  experiment above is why that caveat is not boilerplate: a single sample
+- **Weight beyond three reps.** Both tables are now 3 reps per cell, which is
+  enough to separate 94% from 49% and not enough to split 33% from 36%. The
+  budget experiment above is why that distinction matters: a single sample
   pointed at the wrong conclusion there until three reps overturned it.
 - **A verdict on aider tuned by someone who uses it daily.** These are default
   invocations by someone who does not. The harness ships so that can be

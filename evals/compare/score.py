@@ -67,7 +67,9 @@ def table(title, rows, order=None):
 REAL_ORDER = ["real-rename-across-files", "real-rename-internal", "real-move-function",
               "real-signature", "real-single-file", "real-nonexistent"]
 
-fix = table("fixtures — 19 cases", load("fixtures_recovered.json", key="case"))
+fix = table("fixtures — 19 cases",
+            load("fixtures_recovered.json", "versus_rep2.json",
+                 "versus_rep3.json", key="case"))
 real = table("real repo — pallets/click @36baa15, judged by its own 1991 tests",
              load("realrepo_recovered.json", "realrepo_last.json",
                   "realrepo_rep2.json", "realrepo_rep2_tail.json",

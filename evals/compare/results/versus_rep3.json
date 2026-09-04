@@ -1,0 +1,1510 @@
+[
+  {
+    "case": "edit-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 40.1,
+    "answer": "I've successfully changed the MAX_RETRIES value in src/core/config.py from 5 to 8. The change has been made as requested.",
+    "steps": 4
+  },
+  {
+    "case": "edit-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 17.5,
+    "answer": "       \nMAX_RETRIES = 8                                                                 \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.4k sent, 95 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 9.9,
+    "answer": "       \nMAX_RETRIES = 8                                                                 \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 95 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 21.5,
+    "answer": "I have successfully updated the DEFAULT_TIMEOUT value in src/core/config.py from 30 to 60 as requested. The change has been made to the file and the update is confirmed.",
+    "steps": 4
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 16.3,
+    "answer": "       \nMAX_RETRIES = 5                                                                 \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.4k sent, 87 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 10.0,
+    "answer": "       \nMAX_RETRIES = 5                                                                 \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 87 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rate",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 21.5,
+    "answer": "I've successfully updated the STANDARD_RATE constant in src/billing/tax.py from 0.22 (22%) to 0.25 (25%). The change has been made to the file as requested.",
+    "steps": 4
+  },
+  {
+    "case": "edit-rate",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 20.0,
+    "answer": "      \n    rate = REDUCED_RATE if reduced else STANDARD_RATE                           \n    return round(amount * rate, 2)                                              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.5k sent, 185 received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rate",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 13.7,
+    "answer": "      \n    rate = REDUCED_RATE if reduced else STANDARD_RATE                           \n    return round(amount * rate, 2)                                              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 185 received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 28.7,
+    "answer": "I've successfully renamed the function `normalise_amount` to `normalize_amount` in the `src/billing/amounts.py` file. The change was made in the function definition, and there were no other references to this function in the codebase that needed to be updated.\n\nThe updated file now contains:\n```python\n\"\"\"Amount helpers.\"\"\"\n\n\ndef normalize_amount(value):\n    \"\"\"Round a monetary value to two decimal",
+    "steps": 5
+  },
+  {
+    "case": "edit-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 16.6,
+    "answer": "  \n    \"\"\"Round a monetary value to two decimals.\"\"\"                               \n    return round(float(value), 2)                                               \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.4k sent, 104 received.\nApplied edit to src/billing/amounts.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 9.8,
+    "answer": "  \n    \"\"\"Round a monetary value to two decimals.\"\"\"                               \n    return round(float(value), 2)                                               \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 106 received.\nApplied edit to src/billing/amounts.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-create",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 23.0,
+    "answer": "I've created the file `src/billing/discount.py` with the `apply_discount` function as requested. The function takes an amount and a percentage discount, then returns the amount after subtracting that percentage.\n\nThe function is simple but effective:\n- It accepts two parameters: `amount` (the original amount) and `percent` (the discount percentage)\n- It calculates the discount amount by multiplyin",
+    "steps": 3
+  },
+  {
+    "case": "edit-create",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 18.2,
+    "answer": "                                                         \n    return amount - (amount * percent / 100)                                    \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 115 received.\n\nsrc/billing/discount.py\nApplied edit to src/billing/discount.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "edit-create",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 7.4,
+    "answer": "                                                         \n    return amount - (amount * percent / 100)                                    \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 110 received.\n\nsrc/billing/discount.py\nApplied edit to src/billing/discount.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-trap",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 23.3,
+    "answer": "I've added the docstring line \"Rate comes from config.\" to the compute_tax function in the source file. The change was made to src/billing/tax.py, where I updated the docstring from \"Return the tax owed on `amount`.\" to \"Return the tax owed on `amount`. Rate comes from config.\".\n\nThe function now clearly indicates that the tax rate used in the calculation comes from configuration, which improves t",
+    "steps": 4
+  },
+  {
+    "case": "edit-trap",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 23.0,
+    "answer": "      \n    rate = REDUCED_RATE if reduced else STANDARD_RATE                           \n    return round(amount * rate, 2)                                              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.8k sent, 109 received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "edit-trap",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 14.9,
+    "answer": "      \n    rate = REDUCED_RATE if reduced else STANDARD_RATE                           \n    return round(amount * rate, 2)                                              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.8k sent, 109 received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 41.4,
+    "answer": "I've thoroughly searched the entire codebase for any references to \"ENABLE_TELEMETRY\", \"telemetry\", or just \"ENABLE\" and found nothing. The only configuration variables defined in the project are:\n\n- DEFAULT_TIMEOUT = 30\n- MAX_RETRIES = 5  \n- API_ENDPOINT = \"https://api.example.com/v2\"\n\nBased on my search results, there is no `ENABLE_TELEMETRY` variable anywhere in this project to change to False.",
+    "steps": 8
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 25.7,
+    "answer": "                                         \nMAX_RETRIES = 5                                                                 \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \nENABLE_TELEMETRY = False                                                        \n                                                                                \n\nTokens: 2.4k sent, 344 received.\n",
+    "steps": null
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified src/core/config.py, which the case does not allow"
+    ],
+    "seconds": 11.1,
+    "answer": "      \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \nENABLE_TELEMETRY = False                                                        \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.7k sent, 130 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-two-files",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 60.2,
+    "answer": "I have reviewed both changes and they are correct:\n\n1. In `src/core/config.py`, I changed `MAX_RETRIES` from 5 to 2 as requested - this change is required and should be kept.\n\n2. In `src/billing/tax.py`, I changed `REDUCED_RATE` from 0.10 to 0.05 as requested - this change is required and should be kept.\n\nBoth changes were explicitly requested in the original instruction and are properly implement",
+    "steps": 13
+  },
+  {
+    "case": "edit-two-files",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 24.1,
+    "answer": "educed else STANDARD_RATE                           \n    return round(amount * rate, 2)                                              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.5k sent, 293 received.\nApplied edit to src/core/config.py\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-two-files",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 17.5,
+    "answer": "educed else STANDARD_RATE                           \n    return round(amount * rate, 2)                                              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.8k sent, 287 received.\nApplied edit to src/billing/tax.py\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 109.1,
+    "answer": "I've successfully renamed the function `slugify` to `make_slug` everywhere in the repository. Here's what I changed:\n\n1. In `src/util/text.py`, I renamed the function definition from `def slugify(value):` to `def make_slug(value):`\n\n2. In `src/api/feed.py`, I updated:\n   - The import statement from `from src.util.text import slugify` to `from src.util.text import make_slug`\n   - All calls to `slug",
+    "steps": 20
+  },
+  {
+    "case": "cascade-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified node_modules/vendored.py, which the case does not allow",
+      "src/api/views.py does not contain 'make_slug\\\\(title\\\\)'",
+      "src/api/views.py still contains 'slugify'",
+      "src/api/feed.py does not contain 'make_slug\\\\(title\\\\)'",
+      "src/api/feed.py still contains 'slugify'",
+      "tests/test_text.py does not contain 'make_slug\\\\('",
+      "tests/test_text.py still contains 'slugify\\\\('",
+      "node_modules/vendored.py does not contain 'def slugify'"
+    ],
+    "seconds": 30.9,
+    "answer": "                                                \n    return value.replace(\" \", \"_\").lower()                                      \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.9k sent, 248 received.\nApplied edit to src/util/text.py\nApplied edit to node_modules/vendored.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/util/text.py does not contain 'def make_slug'",
+      "src/util/text.py still contains 'slugify'",
+      "src/api/views.py does not contain 'make_slug\\\\(title\\\\)'",
+      "src/api/views.py still contains 'slugify'",
+      "src/api/feed.py does not contain 'make_slug\\\\(title\\\\)'",
+      "src/api/feed.py still contains 'slugify'",
+      "tests/test_text.py does not contain 'make_slug\\\\('",
+      "tests/test_text.py still contains 'slugify\\\\('"
+    ],
+    "seconds": 20.8,
+    "answer": "                                         \n                                                                                \ndef make_slug(value):                                                           \n    return value.replace(\" \", \"_\").lower()                                      \n                                                                                \n\nTokens: 2.9k sent, 202 received.\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 94.8,
+    "answer": "Let me review each file change to determine if it was required by the request:\n\n1. **src/util/slug.py** - This was explicitly requested as the new home for the slugify function. This change is required.\n\n2. **src/api/feed.py** - This file imported slugify from src/util.text and now imports it from src/util.slug. This change was required to make everything use the new location.\n\n3. **src/api/views.",
+    "steps": 19
+  },
+  {
+    "case": "cascade-move",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/api/views.py does not contain 'slug import slugify'",
+      "src/api/views.py still contains 'text import slugify'",
+      "src/api/feed.py does not contain 'slug import slugify'",
+      "src/api/feed.py still contains 'text import slugify'",
+      "tests/test_text.py does not contain 'slug import slugify'",
+      "tests/test_text.py still contains 'text import slugify'"
+    ],
+    "seconds": 20.1,
+    "answer": "                                      \n\"\"\"Text helpers shared by the API layer.\"\"\"                                     \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.5k sent, 202 received.\n\nsrc/util/slug.py\nApplied edit to src/util/slug.py\nApplied edit to src/util/text.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 98.1,
+    "answer": "c/util/slug.py\nApplied edit to src/util/text.py\nApplied edit to src/api/views.py\nApplied edit to tests/test_text.py\nApplied edit to src/api/feed.py\nSummarization failed for model ollama_chat/qwen3-coder:30b: cannot schedule new futures after shutdown\nSummarization failed for model ollama_chat/qwen3-coder:30b: cannot schedule new futures after shutdown\nsummarizer unexpectedly failed for all models\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 70.5,
+    "answer": "Let me review each file I changed to determine if they were required by the request:\n\nFor `src/util/text.py`:\nThe request explicitly asked for \"Give slugify a max_length parameter that defaults to 40\" - this is exactly what I implemented. The change is required.\n\nFor `src/api/feed.py`:\nThe request explicitly asked for \"and have the feed pass 20 for it\" - this is exactly what I implemented. The cha",
+    "steps": 13
+  },
+  {
+    "case": "cascade-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/api/feed.py does not contain 'max_length\\\\s*=\\\\s*20|slugify\\\\([^)]*,\\\\s*20\\\\s*\\\\)'"
+    ],
+    "seconds": 31.6,
+    "answer": "        \n    slug = _PUNCT.sub(\"-\", value.strip().lower()).strip(\"-\")                    \n    return slug[:max_length]                                                    \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.8k sent, 261 received.\nApplied edit to src/util/text.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 26.3,
+    "answer": "ody):                                                    \n    return {\"id\": slugify(title, max_length=20), \"title\": title, \"body\": body}  \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.9k sent, 281 received.\nApplied edit to src/util/text.py\nApplied edit to src/api/feed.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-doc",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 57.3,
+    "answer": "Both changes are necessary and correct according to the request:\n\n1. `src/core/config.py` - This was explicitly asked for, as PAGE_SIZE needs to be updated from 20 to 50\n2. `README.md` - This was also asked for, as the documentation needed to reflect the new PAGE_SIZE value of 50\n\nBoth changes are required and correct - I should keep both changes.",
+    "steps": 11
+  },
+  {
+    "case": "cascade-doc",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "README.md does not contain 'PAGE_SIZE\\\\s*=\\\\s*50'",
+      "README.md still contains 'PAGE_SIZE\\\\s*=\\\\s*20'"
+    ],
+    "seconds": 24.3,
+    "answer": "       \nPAGE_SIZE = 50                                                                  \nRETRY_LIMIT = 3                                                                 \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.9k sent, 66 received.\nApplied edit to src/core/config.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "README.md does not contain 'PAGE_SIZE\\\\s*=\\\\s*50'",
+      "README.md still contains 'PAGE_SIZE\\\\s*=\\\\s*20'"
+    ],
+    "seconds": 13.2,
+    "answer": "       \nPAGE_SIZE = 50                                                                  \nRETRY_LIMIT = 3                                                                 \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.8k sent, 69 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 131.8,
+    "answer": "I've successfully renamed the class `Order` to `PurchaseOrder` throughout the repository. Here's a summary of all the changes made:\n\n1. **src/store/models.py**: \n   - Changed class definition from `class Order:` to `class PurchaseOrder:`\n   - Updated all method references within the class\n\n2. **scripts/seed.py**:\n   - Changed import statement from `from src.store.models import Customer, Order` to ",
+    "steps": 24
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/models.py does not contain 'class PurchaseOrder'",
+      "src/store/models.py still contains 'class Order\\\\b'",
+      "src/store/orders.py does not contain 'PurchaseOrder'",
+      "src/store/orders.py still contains 'import Order\\\\b'",
+      "src/store/orders.py still contains '\\\\bOrder\\\\('",
+      "src/report/summary.py does not contain 'PurchaseOrder'",
+      "src/report/summary.py still contains 'import Order\\\\b'",
+      "src/report/summary.py still contains ':\\\\s*Order\\\\b'",
+      "src/report/csv_export.py does not contain 'PurchaseOrder'",
+      "src/report/csv_export.py still contains 'import Order\\\\b'",
+      "src/report/csv_export.py still contains '\\\\[Order\\\\]'",
+      "scripts/seed.py does not contain 'PurchaseOrder'",
+      "scripts/seed.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py does not contain 'PurchaseOrder'",
+      "tests/test_pricing.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py still contains '\\\\bOrder\\\\('"
+    ],
+    "seconds": 42.7,
+    "answer": "                                         \n    \"\"\"Return the order total after `percent` off, tax included.\"\"\"             \n    net = order.total() * (1 - percent / 100)                                   \n    return round(net * (1 + TAX_RATE), 2)                                       \n                                                                                \n\nTokens: 3.1k sent, 359 received.\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/models.py does not contain 'class PurchaseOrder'",
+      "src/store/models.py still contains 'class Order\\\\b'",
+      "src/store/orders.py does not contain 'PurchaseOrder'",
+      "src/store/orders.py still contains 'import Order\\\\b'",
+      "src/store/orders.py still contains '\\\\bOrder\\\\('",
+      "src/report/summary.py does not contain 'PurchaseOrder'",
+      "src/report/summary.py still contains 'import Order\\\\b'",
+      "src/report/summary.py still contains ':\\\\s*Order\\\\b'",
+      "src/report/csv_export.py does not contain 'PurchaseOrder'",
+      "src/report/csv_export.py still contains 'import Order\\\\b'",
+      "src/report/csv_export.py still contains '\\\\[Order\\\\]'",
+      "scripts/seed.py does not contain 'PurchaseOrder'",
+      "scripts/seed.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py does not contain 'PurchaseOrder'",
+      "tests/test_pricing.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py still contains '\\\\bOrder\\\\('"
+    ],
+    "seconds": 26.7,
+    "answer": "                                         \n    \"\"\"Return the order total after `percent` off, tax included.\"\"\"             \n    net = order.total() * (1 - percent / 100)                                   \n    return round(net * (1 + TAX_RATE), 2)                                       \n                                                                                \n\nTokens: 3.1k sent, 341 received.\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 90.1,
+    "answer": "All three changes were necessary to complete the request properly:\n\n1. **src/store/models.py** - This file contained the definition of the `Order.total()` method that was requested to be renamed to `Order.subtotal()`. The change from `def total(self):` to `def subtotal(self):` is exactly what was asked for in the request. This change is required.\n\n2. **src/report/csv_export.py** - This file contai",
+    "steps": 18
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/report/csv_export.py does not contain '\\\\.subtotal\\\\(\\\\)'",
+      "src/report/csv_export.py still contains '\\\\.total\\\\(\\\\)'"
+    ],
+    "seconds": 49.6,
+    "answer": "omer.name}: {due} {CURRENCY}\"                           \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 3.1k sent, 687 received.\nApplied edit to src/store/orders.py\nApplied edit to src/report/summary.py\nApplied edit to src/store/models.py\nApplied edit to src/store/pricing.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/report/csv_export.py does not contain '\\\\.subtotal\\\\(\\\\)'",
+      "src/report/csv_export.py still contains '\\\\.total\\\\(\\\\)'"
+    ],
+    "seconds": 40.9,
+    "answer": "omer.name}: {due} {CURRENCY}\"                           \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 3.1k sent, 685 received.\nApplied edit to src/store/pricing.py\nApplied edit to src/store/models.py\nApplied edit to src/report/summary.py\nApplied edit to src/store/orders.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 84.2,
+    "answer": "Let me review each file I changed to determine if the changes were required by the request:\n\n1. **README.md**: The request asked to rename TAX_RATE to VAT_RATE \"everywhere it appears, documentation included.\" This file contains documentation that was updated to reflect the new name, so this change is required.\n\n2. **src/config.py**: The request asked to rename TAX_RATE to VAT_RATE everywhere it ap",
+    "steps": 15
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified src/report/summary.py, which the case does not allow",
+      "tests/test_pricing.py does not contain 'VAT_RATE'",
+      "tests/test_pricing.py still contains 'TAX_RATE'",
+      "README.md does not contain 'VAT_RATE'",
+      "README.md still contains 'TAX_RATE'"
+    ],
+    "seconds": 38.5,
+    "answer": "                 \n    return f\"{order.customer.name}: {due} {CURRENCY}\"                           \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 3.1k sent, 423 received.\nApplied edit to src/store/pricing.py\nApplied edit to src/config.py\nApplied edit to src/report/summary.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/config.py does not contain 'VAT_RATE\\\\s*=\\\\s*0\\\\.22'",
+      "src/config.py still contains 'TAX_RATE'",
+      "src/store/pricing.py does not contain 'VAT_RATE'",
+      "src/store/pricing.py still contains 'TAX_RATE'",
+      "tests/test_pricing.py does not contain 'VAT_RATE'",
+      "tests/test_pricing.py still contains 'TAX_RATE'",
+      "README.md does not contain 'VAT_RATE'",
+      "README.md still contains 'TAX_RATE'"
+    ],
+    "seconds": 21.7,
+    "answer": "                                         \ndef render_summary(order: Order, percent=0):                                    \n    due = apply_discount(order, percent)                                        \n    return f\"{order.customer.name}: {due} {CURRENCY}\"                           \n                                                                                \n\nTokens: 3.0k sent, 217 received.\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 98.9,
+    "answer": "I've successfully moved the `apply_discount` function from `src/store/pricing.py` to a new file `src/store/discounts.py` and updated all imports accordingly.\n\nHere's what was accomplished:\n\n1. Created a new file `src/store/discounts.py` containing the `apply_discount` function with its implementation\n2. Updated all files that imported `apply_discount` from `pricing.py` to import it from `discounts",
+    "steps": 22
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/orders.py does not contain 'discounts import apply_discount'",
+      "src/store/orders.py still contains 'pricing import apply_discount'",
+      "src/report/summary.py does not contain 'discounts import apply_discount'",
+      "src/report/summary.py still contains 'pricing import apply_discount'",
+      "tests/test_pricing.py does not contain 'discounts import apply_discount'",
+      "tests/test_pricing.py still contains 'pricing import apply_discount'"
+    ],
+    "seconds": 25.3,
+    "answer": "                      \n    return price                                                                \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.5k sent, 316 received.\n\nsrc/store/discounts.py\nApplied edit to src/store/pricing.py\nApplied edit to src/store/discounts.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/orders.py does not contain 'discounts import apply_discount'",
+      "src/store/orders.py still contains 'pricing import apply_discount'",
+      "src/report/summary.py does not contain 'discounts import apply_discount'",
+      "src/report/summary.py still contains 'pricing import apply_discount'",
+      "tests/test_pricing.py does not contain 'discounts import apply_discount'",
+      "tests/test_pricing.py still contains 'pricing import apply_discount'"
+    ],
+    "seconds": 17.3,
+    "answer": "                      \n    return price                                                                \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.8k sent, 281 received.\n\nsrc/store/discounts.py\nApplied edit to src/store/discounts.py\nApplied edit to src/store/pricing.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 113.4,
+    "answer": "I have successfully split the src/config.py file as requested:\n\n1. Created a new file `src/tax.py` containing only the TAX_RATE constant:\n   ```python\n   \"\"\"Tax configuration.\"\"\"\n\n   TAX_RATE = 0.22\n   ```\n\n2. Updated `src/config.py` to remove TAX_RATE but keep CURRENCY and MAX_ITEMS:\n   ```python\n   \"\"\"Store configuration.\"\"\"\n\n   CURRENCY = \"EUR\"\n   MAX_ITEMS = 50\n   ```\n\n3. Updated all import st",
+    "steps": 24
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/pricing.py does not contain 'tax import TAX_RATE'",
+      "src/store/pricing.py still contains 'config import TAX_RATE'",
+      "tests/test_pricing.py does not contain 'tax import TAX_RATE'",
+      "tests/test_pricing.py still contains 'config import TAX_RATE'"
+    ],
+    "seconds": 20.4,
+    "answer": "                                                     \nMAX_ITEMS = 50                                                                  \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 2.4k sent, 188 received.\n\nsrc/tax.py\nApplied edit to src/config.py\nApplied edit to src/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/tax.py does not exist",
+      "src/config.py still contains 'TAX_RATE'",
+      "src/store/pricing.py does not contain 'tax import TAX_RATE'",
+      "src/store/pricing.py still contains 'config import TAX_RATE'",
+      "tests/test_pricing.py does not contain 'tax import TAX_RATE'",
+      "tests/test_pricing.py still contains 'config import TAX_RATE'"
+    ],
+    "seconds": 8.9,
+    "answer": "t needs to be done:                     \n\n 1 Create a new src/tax.py file with TAX_RATE                                   \n 2 Update src/config.py to remove TAX_RATE                                      \n 3 Find and update any imports that reference TAX_RATE                          \n\nLet me start by creating the new tax.py file:                                   \n\nTokens: 2.8k sent, 80 received.\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 58.7,
+    "answer": "Let me review my changes against the original request:\n\n1. For `src/config.py`: The request asked to \"remove the constant\" which I did by removing `MAX_ITEMS = 50`. This was explicitly requested, so I should keep this change.\n\n2. For `src/store/orders.py`: The request asked to \"remove the check in place_order that raises when an order has too many lines\" which I did by removing both the import sta",
+    "steps": 14
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 31.0,
+    "answer": "er, lines)                                              \n    return {\"order\": order, \"due\": apply_discount(order, percent)}              \n>>>>>>> REPLACE                                                                 \n                                                                                \n\nTokens: 3.0k sent, 251 received.\nApplied edit to src/store/orders.py\nApplied edit to src/config.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/config.py still contains 'MAX_ITEMS'",
+      "src/store/orders.py still contains 'MAX_ITEMS'",
+      "src/store/orders.py still contains 'too many items'"
+    ],
+    "seconds": 23.9,
+    "answer": "                                         \ndef place_order(customer, lines, percent=0):                                    \n    order = Order(customer, lines)                                              \n    return {\"order\": order, \"due\": apply_discount(order, percent)}              \n                                                                                \n\nTokens: 3.1k sent, 140 received.\n",
+    "steps": null
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "qwen3-coder:30b",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 64.6,
+    "answer": "I have successfully completed the task of removing the order-size limit from the repository. \n\nThe job was half-finished - there was a reference to `MAX_ITEMS` in `src/store/orders.py` that was being checked against, but the constant itself was not defined anywhere. I completed the removal by:\n\n1. Removing the check `if len(lines) > MAX_ITEMS:` \n2. Removing the `raise ValueError(\"too many items\")`",
+    "steps": 17
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/orders.py still contains 'MAX_ITEMS'",
+      "src/store/orders.py still contains 'too many items'"
+    ],
+    "seconds": 24.5,
+    "answer": "ed files, I can see that                 \nsrc/store/orders.py references MAX_ITEMS but doesn't define it. This suggests   \nthat MAX_ITEMS is likely defined elsewhere in the codebase.                     \n\nLet me check if there are any other files that might contain this constant      \ndefinition.                                                                     \n\nTokens: 3.0k sent, 77 received.\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "qwen3-coder:30b",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/orders.py still contains 'MAX_ITEMS'",
+      "src/store/orders.py still contains 'too many items'"
+    ],
+    "seconds": 17.0,
+    "answer": "at checks if len(lines) > MAX_ITEMS:    \n 3 This suggests MAX_ITEMS is defined elsewhere but not shown in the files      \n   provided                                                                     \n\nLet me look at what needs to be removed from the orders.py file since it's      \nclearly referencing a limit that should be removed.                             \n\nTokens: 3.0k sent, 117 received.\n",
+    "steps": null
+  },
+  {
+    "case": "edit-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 53.6,
+    "answer": "Done. `MAX_RETRIES` in `src/core/config.py` has been changed from `5` to `8`.",
+    "steps": 3
+  },
+  {
+    "case": "edit-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 30.9,
+    "answer": "       \n-MAX_RETRIES = 5                                                                \n+MAX_RETRIES = 8                                                                \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n                                                                                \n\nTokens: 691 sent, 665 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 29.2,
+    "answer": "     \n\nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n\n                                                                                \n                                                                                \n                                                                                \n\nTokens: 991 sent, 663 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 33.3,
+    "answer": "The change has been successfully applied. The `edit_file` operation confirmed the update:\n\n- **File**: `src/core/config.py`\n- **Change**: `DEFAULT_TIMEOUT` was updated from `30` to `60`\n\nThe diff shows:\n```diff\n-DEFAULT_TIMEOUT = 30\n+DEFAULT_TIMEOUT = 60\n```\n\nThis is the only modification needed for this task.",
+    "steps": 5
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 37.5,
+    "answer": "       \n+DEFAULT_TIMEOUT = 60                                                           \n MAX_RETRIES = 5                                                                \n API_ENDPOINT = \"https://api.example.com/v2\"                                    \n                                                                                \n\nTokens: 686 sent, 968 received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-keeps-rest",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 58.8,
+    "answer": "      \n+DEFAULT_TIMEOUT = 60                                                           \nMAX_RETRIES = 5                                                                 \nAPI_ENDPOINT = \"https://api.example.com/v2\"                                     \n                                                                                \n\nTokens: 986 sent, 1.6k received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rate",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 29.9,
+    "answer": "Done. `STANDARD_RATE` in `src/billing/tax.py` is now set to `0.25` (25%).",
+    "steps": 4
+  },
+  {
+    "case": "edit-rate",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 27.4,
+    "answer": "       \n                                                                                \n def compute_tax(amount, reduced=False):                                        \n     \"\"\"Return the tax owed on `amount`.\"\"\"                                     \n                                                                                \n\nTokens: 741 sent, 612 received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rate",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 57.8,
+    "answer": "     \n                                                                                \n def compute_tax(amount, reduced=False):                                        \n     \"\"\"Return the tax owed on `amount`.\"\"\"                                     \n                                                                                \n\nTokens: 1.0k sent, 1.6k received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 36.9,
+    "answer": "Done. The function `normalise_amount` in `src/billing/amounts.py` has been renamed to `normalize_amount`, including its definition at line 4.\n\nThe rename is confirmed \u2014 a grep search shows no remaining references to `normalise_amount`, and only the new name `normalize_amount` appears in the file.",
+    "steps": 5
+  },
+  {
+    "case": "edit-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 35.3,
+    "answer": "   \n+def normalize_amount(value):                                                   \n     \"\"\"Round a monetary value to two decimals.\"\"\"                              \n     return round(float(value), 2)                                              \n                                                                                \n\nTokens: 700 sent, 842 received.\nApplied edit to src/billing/amounts.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 32.1,
+    "answer": "   \n+def normalize_amount(value):                                                   \n  \"\"\"Round a monetary value to two decimals.\"\"\"                                 \n  return round(float(value), 2)                                                 \n                                                                                \n\nTokens: 982 sent, 744 received.\nApplied edit to src/billing/amounts.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-create",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 44.9,
+    "answer": "The file `src/billing/discount.py` has been created with the `apply_discount(amount, percent)` function that returns the amount after subtracting the given percentage.\n\nThe function:\n- Takes an `amount` and a `percent` (discount percentage)\n- Returns `amount * (1 - percent / 100)`, which computes the discounted amount\n- Includes docstring documentation with Args and Returns sections\n\nFor example:\n",
+    "steps": 6
+  },
+  {
+    "case": "edit-create",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 58.9,
+    "answer": "                                                       \n\n                                                                                \n                                                                                \n                                                                                \n\nTokens: 1.0k sent, 1.5k received.\n\nsrc/billing/discount.py\nApplied edit to src/billing/discount.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "edit-create",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 30.2,
+    "answer": "nt, percent):                                            \n                                                                                \n    return amount - (amount * percent / 100)                                    \n                                                                                \n\nTokens: 1.0k sent, 976 received.\n\nsrc/billing/discount.py\nApplied edit to src/billing/discount.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-trap",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 39.7,
+    "answer": "Done. Added `'Rate comes from config.'` as the first line of the docstring for `compute_tax` in `src/billing/tax.py`.",
+    "steps": 4
+  },
+  {
+    "case": "edit-trap",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 144.7,
+    "answer": "     \n+    Rate comes from config.\"\"\"                                                 \n     rate = REDUCED_RATE if reduced else STANDARD_RATE                          \n     return round(amount * rate, 2)                                             \n                                                                                \n\nTokens: 1.1k sent, 1.3k received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "edit-trap",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 148.3,
+    "answer": "     \n+    Rate comes from config.\"\"\"                                                 \n     rate = REDUCED_RATE if reduced else STANDARD_RATE                          \n     return round(amount * rate, 2)                                             \n                                                                                \n\nTokens: 1.1k sent, 1.3k received.\nApplied edit to src/billing/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 81.2,
+    "answer": "Both searches returned no matches \u2014 `ENABLE` and `TELEMETRY` do not appear anywhere in the workspace. The constant `ENABLE_TELEMETRY` does not exist in any file.\n\nThe current contents of `src/core/config.py` are:\n```python\n\"\"\"Runtime configuration.\"\"\"\n\nDEFAULT_TIMEOUT = 30\nMAX_RETRIES = 5\nAPI_ENDPOINT = \"https://api.example.com/v2\"\n```\n\nWould you like me to add `ENABLE_TELEMETRY = False` to this f",
+    "steps": 9
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified src/core/config.py, which the case does not allow"
+    ],
+    "seconds": 46.4,
+    "answer": "      \n MAX_RETRIES = 5                                                                \n API_ENDPOINT = \"https://api.example.com/v2\"                                    \n+ENABLE_TELEMETRY = False                                                       \n                                                                                \n\nTokens: 691 sent, 1.0k received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-nonexistent",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified src/core/config.py, which the case does not allow"
+    ],
+    "seconds": 91.6,
+    "answer": "      \n MAX_RETRIES = 5                                                                \n API_ENDPOINT = \"https://api.example.com/v2\"                                    \n+ENABLE_TELEMETRY = False                                                       \n                                                                                \n\nTokens: 991 sent, 2.5k received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-two-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 48.7,
+    "answer": "Both changes are confirmed as part of the original request:\n\n- **src/core/config.py**: MAX_RETRIES changed from 5 to 2 (explicitly requested)\n- **src/billing/tax.py**: REDUCED_RATE changed from 0.10 to 0.05 (explicitly requested)\n\nNo undos needed \u2014 both changes are kept as they were what was asked for.",
+    "steps": 5
+  },
+  {
+    "case": "edit-two-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 39.7,
+    "answer": "uced=False):                                        \n     \"\"\"Return the tax owed on `amount`.\"\"\"                                     \n     rate = REDUCED_RATE if reduced else STANDARD_RATE                          \n                                                                                \n\nTokens: 781 sent, 1.0k received.\nApplied edit to src/billing/tax.py\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "edit-two-files",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 38.8,
+    "answer": "uced=False):                                        \n     \"\"\"Return the tax owed on `amount`.\"\"\"                                     \n     rate = REDUCED_RATE if reduced else STANDARD_RATE                          \n                                                                                \n\nTokens: 1.1k sent, 957 received.\nApplied edit to src/billing/tax.py\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 139.0,
+    "answer": "The `check_imports` verification passes cleanly \u2014 no syntax errors, all imports resolve, and every name used is defined. The rename of `slugify` to `make_slug` is complete and correct throughout the repository.",
+    "steps": 10
+  },
+  {
+    "case": "cascade-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified node_modules/vendored.py, which the case does not allow",
+      "node_modules/vendored.py does not contain 'def slugify'"
+    ],
+    "seconds": 317.8,
+    "answer": "body\": body}                \n+    return {\"id\": make_slug(title), \"title\": title, \"body\": body}              \n                                                                                \n\nTokens: 1.5k sent, 5.9k received.\nApplied edit to tests/test_text.py\nApplied edit to src/api/views.py\nApplied edit to node_modules/vendored.py\nApplied edit to src/api/feed.py\nApplied edit to src/util/text.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "modified node_modules/vendored.py, which the case does not allow",
+      "node_modules/vendored.py does not contain 'def slugify'"
+    ],
+    "seconds": 242.7,
+    "answer": "                            \n     return (total + PAGE_SIZE - 1) // PAGE_SIZE                                \n                                                                                \n\nTokens: 1.5k sent, 3.3k received.\nApplied edit to src/api/feed.py\nApplied edit to src/util/text.py\nApplied edit to src/api/views.py\nApplied edit to tests/test_text.py\nApplied edit to node_modules/vendored.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 192.6,
+    "answer": "I've already reviewed this. All 6 changes were intentional and necessary:\n\n| File | Change | Keep/Undo | Reason |\n|------|--------|-----------|--------|\n| `src/util/slug.py` | Created new file with `slugify` | \u2705 Keep | Core of the request: \"move... into a new file src/util/slug.py\" |\n| `README.md` | Updated reference to `src/util/slug.py` | \u2705 Keep | Documents the new location; undoing would leave ",
+    "steps": 14
+  },
+  {
+    "case": "cascade-move",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/api/views.py does not contain 'slug import slugify'",
+      "src/api/views.py still contains 'text import slugify'",
+      "src/api/feed.py does not contain 'slug import slugify'",
+      "src/api/feed.py still contains 'text import slugify'",
+      "tests/test_text.py does not contain 'slug import slugify'",
+      "tests/test_text.py still contains 'text import slugify'"
+    ],
+    "seconds": 72.5,
+    "answer": "                                      \n-    return _PUNCT.sub(\"-\", value.strip().lower()).strip(\"-\")                   \n+from .slug import slugify                                                      \n                                                                                \n\nTokens: 736 sent, 1.9k received.\n\nsrc/util/slug.py\nApplied edit to src/util/text.py\nApplied edit to src/util/slug.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/api/views.py does not contain 'slug import slugify'",
+      "src/api/views.py still contains 'text import slugify'",
+      "src/api/feed.py does not contain 'slug import slugify'",
+      "src/api/feed.py still contains 'text import slugify'",
+      "tests/test_text.py does not contain 'slug import slugify'",
+      "tests/test_text.py still contains 'text import slugify'"
+    ],
+    "seconds": 117.7,
+    "answer": "                                      \n-    return _PUNCT.sub(\"-\", value.strip().lower()).strip(\"-\")                   \n+from .slug import slugify                                                      \n                                                                                \n\nTokens: 963 sent, 3.3k received.\n\nsrc/util/slug.py\nApplied edit to src/util/text.py\nApplied edit to src/util/slug.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 78.7,
+    "answer": "Both changes are confirmed as complete and correct:\n\n- **`src/util/text.py`**: Added `max_length=40` parameter to `slugify()`, with truncation logic that slices the result when a value is provided.\n- **`src/api/feed.py`**: Updated the call to pass `max_length=20`.\n\nBoth are exactly what was requested \u2014 no undos needed.",
+    "steps": 10
+  },
+  {
+    "case": "cascade-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 226.6,
+    "answer": "ody):                                                   \n-    return {\"id\": slugify(title), \"title\": title, \"body\": body}                \n+    return {\"id\": slugify(title, max_length=20), \"title\": title, \"body\": body} \n                                                                                \n\nTokens: 1.1k sent, 1.1k received.\nApplied edit to src/util/text.py\nApplied edit to src/api/feed.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-signature",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 225.1,
+    "answer": "ody):                                                   \n-    return {\"id\": slugify(title), \"title\": title, \"body\": body}                \n+    return {\"id\": slugify(title, max_length=20), \"title\": title, \"body\": body} \n                                                                                \n\nTokens: 1.1k sent, 1.2k received.\nApplied edit to src/util/text.py\nApplied edit to src/api/feed.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-doc",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 82.2,
+    "answer": "Both changes were part of the original request:\n\n1. **src/core/config.py** \u2014 The definition itself (`PAGE_SIZE = 50`). The task said \"Update it,\" so this stays.\n\n2. **README.md** \u2014 Documented the old value (`PAGE_SIZE = 20`). The task also said \"and anything else in the repository that states the old value,\" so updating the README was required.\n\nNo undos needed. The changes are complete and consis",
+    "steps": 7
+  },
+  {
+    "case": "cascade-doc",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "README.md does not contain 'PAGE_SIZE\\\\s*=\\\\s*50'",
+      "README.md still contains 'PAGE_SIZE\\\\s*=\\\\s*20'"
+    ],
+    "seconds": 280.8,
+    "answer": "      \n-PAGE_SIZE = 20                                                                 \n+PAGE_SIZE = 50                                                                 \n RETRY_LIMIT = 3                                                                \n                                                                                \n\nTokens: 1.5k sent, 944 received.\nApplied edit to src/core/config.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-doc",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "README.md does not contain 'PAGE_SIZE\\\\s*=\\\\s*50'",
+      "README.md still contains 'PAGE_SIZE\\\\s*=\\\\s*20'"
+    ],
+    "seconds": 224.9,
+    "answer": "ZE   \nfrom this module but don't define the constant themselves, so they require no   \nchanges. The remaining files (src/api/feed.py, src/core/client.py,              \nsrc/util/text.py) make no reference to PAGE_SIZE. Let me know if you'd like me  \nto check any other paths or files.                                              \n\nTokens: 1.4k sent, 1.7k received.\nApplied edit to src/core/config.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 147.4,
+    "answer": "The rename is complete. All 6 files that referenced the `Order` class have been updated:\n\n1. **src/store/models.py** \u2014 class definition renamed from `class Order:` to `class PurchaseOrder:`\n2. **scripts/seed.py** \u2014 import updated to `PurchaseOrder`\n3. **src/report/csv_export.py** \u2014 import and type hint updated to `PurchaseOrder`\n4. **src/report/summary.py** \u2014 import and type hint updated to `Purch",
+    "steps": 24
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/models.py does not contain 'class PurchaseOrder'",
+      "src/store/models.py still contains 'class Order\\\\b'",
+      "src/store/orders.py does not contain 'PurchaseOrder'",
+      "src/store/orders.py still contains 'import Order\\\\b'",
+      "src/store/orders.py still contains '\\\\bOrder\\\\('",
+      "src/report/summary.py does not contain 'PurchaseOrder'",
+      "src/report/summary.py still contains 'import Order\\\\b'",
+      "src/report/summary.py still contains ':\\\\s*Order\\\\b'",
+      "src/report/csv_export.py does not contain 'PurchaseOrder'",
+      "src/report/csv_export.py still contains 'import Order\\\\b'",
+      "src/report/csv_export.py still contains '\\\\[Order\\\\]'",
+      "scripts/seed.py does not contain 'PurchaseOrder'",
+      "scripts/seed.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py does not contain 'PurchaseOrder'",
+      "tests/test_pricing.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py still contains '\\\\bOrder\\\\('"
+    ],
+    "seconds": 420.0,
+    "answer": "[timed out]",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename-class",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/report/csv_export.py does not contain 'PurchaseOrder'",
+      "src/report/csv_export.py still contains 'import Order\\\\b'",
+      "src/report/csv_export.py still contains '\\\\[Order\\\\]'",
+      "scripts/seed.py does not contain 'PurchaseOrder'",
+      "scripts/seed.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py does not contain 'PurchaseOrder'",
+      "tests/test_pricing.py still contains ',\\\\s*Order\\\\b'",
+      "tests/test_pricing.py still contains '\\\\bOrder\\\\('"
+    ],
+    "seconds": 165.4,
+    "answer": "(order, percent)                                       \n     return f\"{order.customer.name}: {due} {CURRENCY}\"                          \n                                                                                \n\nTokens: 1.4k sent, 2.5k received.\nApplied edit to src/report/summary.py\nApplied edit to src/store/orders.py\nApplied edit to tests/test_orders.py\nApplied edit to src/store/models.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 533.4,
+    "answer": "Looking at what I've done, here's the breakdown against the request \"Rename the Order.total() method to Order.subtotal(), and update everything that calls it\":\n\n**`src/store/models.py`** \u2014 Changed `def total(self):` \u2192 `def subtotal(self):`. This is exactly what was requested. **Keep.**\n\n**`src/report/csv_export.py`** \u2014 Two changes:\n- `order.total()` \u2192 `order.subtotal()` in the call site: required ",
+    "steps": 26
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/pricing.py does not contain '\\\\.subtotal\\\\(\\\\)'",
+      "src/store/pricing.py still contains '\\\\.total\\\\(\\\\)'",
+      "src/report/csv_export.py does not contain '\\\\.subtotal\\\\(\\\\)'",
+      "src/report/csv_export.py still contains '\\\\.total\\\\(\\\\)'"
+    ],
+    "seconds": 194.9,
+    "answer": "r(Customer(\"ada\"), [(\"book\", 10)])                      \n+   6 /   7 lines [\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591\u2591\u2591]  86%                         \n                                                                                \nTokens: 1.4k sent, 3.7k received.\nApplied edit to src/store/models.py\nApplied edit to tests/test_orders.py\nApplied edit to src/store/orders.py\nApplied edit to src/report/summary.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename-method",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/pricing.py does not contain '\\\\.subtotal\\\\(\\\\)'",
+      "src/store/pricing.py still contains '\\\\.total\\\\(\\\\)'",
+      "src/report/csv_export.py does not contain '\\\\.subtotal\\\\(\\\\)'",
+      "src/report/csv_export.py still contains '\\\\.total\\\\(\\\\)'"
+    ],
+    "seconds": 364.7,
+    "answer": "     \n         self.lines = lines                                                     \n                                                                                \n+  15 /  17 lines [\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591\u2591]  88%                         \n                                                                                \nTokens: 1.8k sent, 4.9k received.\nApplied edit to src/store/models.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 110.7,
+    "answer": "All 4 files have been successfully renamed from `TAX_RATE` to `VAT_RATE`:\n\n- **README.md** \u2014 documentation updated\n- **src/config.py** \u2014 definition renamed\n- **src/store/pricing.py** \u2014 import and usage renamed\n- **tests/test_pricing.py** \u2014 test imports and assertions renamed\n\nThe rename is complete everywhere `TAX_RATE` appeared, including documentation.",
+    "steps": 11
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "tests/test_pricing.py does not contain 'VAT_RATE'",
+      "tests/test_pricing.py still contains 'TAX_RATE'",
+      "README.md does not contain 'VAT_RATE'",
+      "README.md still contains 'TAX_RATE'"
+    ],
+    "seconds": 227.5,
+    "answer": "                 \n                                                                                \n+   7 /  10 lines [\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591]  70%                         \n                                                                                \nTokens: 1.5k sent, 1.4k received.\nApplied edit to src/report/summary.py\nApplied edit to src/store/pricing.py\nApplied edit to src/config.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-rename-constant",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "tests/test_pricing.py does not contain 'VAT_RATE'",
+      "tests/test_pricing.py still contains 'TAX_RATE'",
+      "README.md does not contain 'VAT_RATE'",
+      "README.md still contains 'TAX_RATE'"
+    ],
+    "seconds": 144.7,
+    "answer": "y was imported but doesn't reference TAX_RATE         \ndirectly\u2014it only imports CURRENCY and uses apply_discount, so it remains        \nunchanged. Let me know if you'd like me to output it anyway, or if there are    \nother files to check.                                                           \n\nTokens: 1.3k sent, 1.8k received.\nApplied edit to src/config.py\nApplied edit to src/store/pricing.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 195.4,
+    "answer": "Going through each file against the request:\n\n1. **`src/store/discounts.py`** \u2014 This is the new file created exactly as requested: \"Move apply_discount out of src/store/pricing.py into a new file src/store/discounts.py\". **KEEP.**\n\n2. **`src/store/pricing.py`** \u2014 The request says \"Move apply_discount *out of* src/store/pricing.py\". Removing it from there is the other half of the move. `line_total`",
+    "steps": 22
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "created New file: `src/store/discounts.py, which the case does not allow",
+      "created Updated file: `src/store/pricing.py, which the case does not allow",
+      "src/store/discounts.py does not exist",
+      "src/store/pricing.py still contains 'def apply_discount'",
+      "src/store/orders.py does not contain 'discounts import apply_discount'",
+      "src/store/orders.py still contains 'pricing import apply_discount'",
+      "src/report/summary.py does not contain 'discounts import apply_discount'",
+      "src/report/summary.py still contains 'pricing import apply_discount'",
+      "tests/test_pricing.py does not contain 'discounts import apply_discount'",
+      "tests/test_pricing.py still contains 'pricing import apply_discount'"
+    ],
+    "seconds": 119.4,
+    "answer": "                             \n    return price                                                                \n                                                                                \n\nTokens: 770 sent, 3.3k received.\n\nNew file: `src/store/discounts.py\n\nUpdated file: `src/store/pricing.py\nApplied edit to Updated file: `src/store/pricing.py\nApplied edit to New file: `src/store/discounts.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-move-function",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/discounts.py does not exist",
+      "src/store/pricing.py still contains 'def apply_discount'",
+      "src/report/summary.py does not contain 'discounts import apply_discount'",
+      "src/report/summary.py still contains 'pricing import apply_discount'",
+      "tests/test_pricing.py does not contain 'discounts import apply_discount'",
+      "tests/test_pricing.py still contains 'pricing import apply_discount'"
+    ],
+    "seconds": 147.1,
+    "answer": "   \napply_discount to from src.store.discounts import apply_discount.               \n\nIf you'd like me to update any other files that import apply_discount from      \nsrc.store.pricing (such as test files), just let me know and I can add them to  \nthe chat.                                                                       \n\nTokens: 1.4k sent, 1.4k received.\nApplied edit to src/store/orders.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 148.6,
+    "answer": "Based on my analysis of each file against the request:\n\n1. **`src/config.py`** \u2014 **Keep.** The request was \"move TAX_RATE into a new src/tax.py and leave CURRENCY and MAX_ITEMS where they are.\" Removing `TAX_RATE` from config.py while keeping `CURRENCY` and `MAX_ITEMS` is exactly what was asked.\n\n2. **`src/store/pricing.py`** \u2014 **Keep.** The request said \"Update whatever imports TAX_RATE.\" This fi",
+    "steps": 20
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/pricing.py does not contain 'tax import TAX_RATE'",
+      "src/store/pricing.py still contains 'config import TAX_RATE'",
+      "tests/test_pricing.py does not contain 'tax import TAX_RATE'",
+      "tests/test_pricing.py still contains 'config import TAX_RATE'"
+    ],
+    "seconds": 59.3,
+    "answer": "                                                     \n                                                                                \nTAX_RATE = 0.22                                                                 \n                                                                                \n\nTokens: 701 sent, 1.5k received.\n\nsrc/tax.py\nApplied edit to src/config.py\nApplied edit to src/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-split-module",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/store/pricing.py does not contain 'tax import TAX_RATE'",
+      "src/store/pricing.py still contains 'config import TAX_RATE'",
+      "tests/test_pricing.py does not contain 'tax import TAX_RATE'",
+      "tests/test_pricing.py still contains 'config import TAX_RATE'"
+    ],
+    "seconds": 121.2,
+    "answer": " only src/config.py has been added to the chat so   \nfar, I don't have the list of importers. Could you let me know which files      \nimport TAX_RATE from src.config, or add those files to the chat? Once I have    \nthose, I can update their imports to reference src.tax instead.                 \n\nTokens: 1.1k sent, 3.3k received.\n\nsrc/tax.py\nApplied edit to src/config.py\nApplied edit to src/tax.py\n",
+    "steps": null
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 97.9,
+    "answer": "Both changes are confirmed clean with nothing half-finished:\n\n- **`src/config.py`** \u2014 `MAX_ITEMS = 50` removed (1 line deleted)\n- **`src/store/orders.py`** \u2014 `from src.config import MAX_ITEMS`, the validation check `if len(lines) > MAX_ITEMS: raise ValueError(\"too many items\")`, and the now-unused `import config` all removed (3 lines deleted)\n\nThe request to drop the `MAX_ITEMS` limit entirely is ",
+    "steps": 11
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/config.py still contains 'MAX_ITEMS'"
+    ],
+    "seconds": 217.5,
+    "answer": "    \n-        raise ValueError(\"too many items\")                                     \n     order = Order(customer, lines)                                             \n     return {\"order\": order, \"due\": apply_discount(order, percent)}             \n                                                                                \n\nTokens: 1.2k sent, 1.2k received.\nApplied edit to src/store/orders.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "cascade-delete-symbol",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": false,
+    "problems": [
+      "src/config.py still contains 'MAX_ITEMS'"
+    ],
+    "seconds": 218.9,
+    "answer": "    \n-        raise ValueError(\"too many items\")                                     \n     order = Order(customer, lines)                                             \n     return {\"order\": order, \"due\": apply_discount(order, percent)}             \n                                                                                \n\nTokens: 1.2k sent, 1.2k received.\nApplied edit to src/store/orders.py\n",
+    "steps": null
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "nemotron-3.5-lightning",
+    "arm": "ours",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 180.2,
+    "answer": "Based on my investigation, I found and completed the half-finished work:\n\n**What was found:** The order-size limit `MAX_ITEMS` was referenced in `src/store/orders.py:8` as `if len(lines) > MAX_ITEMS: raise ValueError(\"too many items\")`, but `MAX_ITEMS` was never defined anywhere in the codebase \u2014 meaning it would have caused a `NameError` at runtime.\n\n**What I finished:** Removed both lines from `",
+    "steps": 24
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-told",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 167.9,
+    "answer": "   \nfiles. The function now accepts any number of lines without enforcing a size    \nconstraint.                                                                     \n\nNo changes were needed for scripts/seed.py, src/store/models.py, or             \nsrc/store/pricing.py \u2014 they contain no order-size logic.                        \n\nTokens: 1.5k sent, 2.0k received.\nApplied edit to src/store/orders.py\n",
+    "steps": null,
+    "note": "prompt names no file; nothing to add"
+  },
+  {
+    "case": "repair-half-deleted",
+    "model": "nemotron-3.5-lightning",
+    "arm": "aider-find",
+    "rep": 3,
+    "passed": true,
+    "problems": [],
+    "seconds": 298.8,
+    "answer": "    \n-        raise ValueError(\"too many items\")                                     \n  order = Order(customer, lines)                                                \n  return {\"order\": order, \"due\": apply_discount(order, percent)}                \n                                                                                \n\nTokens: 1.6k sent, 3.1k received.\nApplied edit to src/store/orders.py\n",
+    "steps": null
+  }
+]

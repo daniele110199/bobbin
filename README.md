@@ -44,13 +44,17 @@ are written down next to the things that worked.
 Same tasks, same local models, one harness, scored on disk. Full method,
 disclosures and caveats: **[docs/comparison.md](docs/comparison.md)**.
 
-On this project's own fixtures, 19 cases × 2 models:
+On this project's own fixtures, 19 cases × 2 models, **three reps per cell,
+342 runs:**
 
 | shape | ours | aider-told | aider-find |
 |---|---|---|---|
-| single-file edits | 15/16 | 15/16 | 14/16 |
-| cascades + repair | **19/22** | 5/22 | 4/22 |
-| **all** | **34/38** | 20/38 | 18/38 |
+| single-file edits | 46/48 | 45/48 | 42/48 |
+| cascades + repair | **61/66** | 11/66 | 10/66 |
+| **all** | **107/114** | 56/114 | 52/114 |
+
+On single-file edits the three arms are the same tool. The entire margin is
+cascades, where it is close to six to one.
 
 On `pallets/click` at 12,674 lines, judged by its own 1991 tests. **Three reps
 per cell, 108 runs:**
@@ -84,8 +88,8 @@ So the claim this project makes is narrow and specific:
 
 - **parity with aider on real code with small local models**, not superiority,
   and behind it on one of the two models tested;
-- **a large advantage on multi-file refactors at fixture scale** (34/38 against
-  20/38), which does not survive the jump to 12k lines;
+- **a large advantage on multi-file refactors at fixture scale** (107/114
+  against 56/114), which does not survive the jump to 12k lines;
 - **a specific advantage on not doing the wrong thing**: asked to change a
   constant that does not exist in click, this agent left the tree untouched in
   all 6 runs across both models, while on nemotron aider modified `src/` and
@@ -95,9 +99,8 @@ So the claim this project makes is narrow and specific:
 
 Caveats belong next to the numbers, not under them: aider 0.86.2 at default
 settings by someone who does not use it daily, and a 900s timeout that 19 of its
-72 real-repo runs hit, all on nemotron. The real-repo table is 3 reps per cell;
-the fixture table above is still **one sample per cell**. The harness ships so
-any of that can be corrected and re-run.
+72 real-repo runs hit, all on nemotron. Both tables are **3 reps per cell**, 450
+runs in total. The harness ships so any of that can be corrected and re-run.
 
 ## What you need
 
