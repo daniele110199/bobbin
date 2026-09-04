@@ -26,6 +26,7 @@ from agent.persist import load_session, restore_session, save_session
 from agent.research import ResearchAgent
 from agent.sandbox import Workspace
 from agent.tools import build_registry
+from agent.tools.web import origin
 
 DIM = "\033[2m"
 CYAN = "\033[36m"
@@ -79,7 +80,7 @@ def make_approver(dry_run: bool, assume_yes: bool):
     return approve
 
 
-def make_post_approver(dry_run: bool, assume_yes: bool):
+def make_post_approver(dry_run: bool, assume_yes: bool, ask=None):
     """The human gate for `http_post`, and the same bargain as the write gate.
 
     The model composes the address and the body; the user is the one who decides
@@ -90,8 +91,40 @@ def make_post_approver(dry_run: bool, assume_yes: bool):
     On a non-tty it refuses, exactly as the write gate does. That is the whole
     difference from `fetch_url`, which deliberately has no gate: a GET can be
     repeated and walked page by page, and a POST cannot be taken back.
+
+    **Answering `a` grants the origin for the rest of the session**, which is
+    what makes an iterate-on-an-API loop usable: an agent querying one GraphQL
+    endpoint five times should not ask five times. The grant is per *origin* and
+    not per host, so a yes to `https://api.example.com` is not a yes to the
+    cleartext version of it, and it is held in memory only — a resumed session
+    starts with nothing granted, because an approval given days ago in another
+    sitting is not consent for this one.
+
+    It is narrower than `--yes`, which is the point: `--yes` approves everything,
+    including an address the model just invented. A standing grant approves the
+    one endpoint the user has actually looked at. A request that rides a standing
+    grant still prints in full — a POST nobody can see is worse than a prompt.
+
+    `ask` is injectable so the policy can be tested without a terminal.
     """
+    standing: set[str] = set()
+
+    def prompt(where: str) -> str:
+        if not sys.stdin.isatty():
+            print(f"{DIM}not a terminal, cannot confirm: not sent{RESET}", flush=True)
+            return "n"
+        try:
+            return input(f"{BOLD}send this request? "
+                         f"[y = once / a = always to {where} / N = no] "
+                         f"{RESET}").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return "n"
+
+    ask_user = prompt if ask is None else ask
+
     def approve(url: str, body: str, content_type: str) -> bool:
+        where = origin(url)
         shown = body if len(body) <= 2000 else body[:2000] + "\n... (truncated for display)"
         print(f"\n{BOLD}proposed POST to {url}{RESET}")
         print(f"{DIM}{content_type}, {len(body.encode('utf-8'))} bytes{RESET}")
@@ -102,14 +135,14 @@ def make_post_approver(dry_run: bool, assume_yes: bool):
         if assume_yes:
             print(f"{DIM}--yes: sent{RESET}", flush=True)
             return True
-        if not sys.stdin.isatty():
-            print(f"{DIM}not a terminal, cannot confirm: not sent{RESET}", flush=True)
-            return False
-        try:
-            reply = input(f"{BOLD}send this request? [y/N] {RESET}").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            return False
+        if where in standing:
+            print(f"{DIM}{where} approved earlier this session: sent{RESET}", flush=True)
+            return True
+        reply = ask_user(where)
+        if reply in ("a", "always"):
+            standing.add(where)
+            print(f"{DIM}{where} approved for the rest of this session{RESET}", flush=True)
+            return True
         return reply in ("y", "yes")
 
     return approve
@@ -199,7 +232,8 @@ def main() -> int:
                     help="additionally register http_post, for data behind an "
                          "endpoint that only answers POST. Implies --allow-web. "
                          "Every request is shown to you in full and sent only if "
-                         "you approve it")
+                         "you approve it; answer 'a' to allow that one endpoint "
+                         "for the rest of the session")
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="print full tool output")
     ap.add_argument("--session", metavar="PATH",

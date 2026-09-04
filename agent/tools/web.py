@@ -182,6 +182,21 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
     return tools
 
 
+def origin(url: str) -> str:
+    """`scheme://host[:port]` — the unit a standing approval applies to.
+
+    Deliberately not the bare hostname. Approving `https://api.example.com` must
+    not also approve `http://api.example.com`: the body would then go out in
+    cleartext to anyone in the middle, on the strength of a yes the user gave to
+    the encrypted address. A different port is a different service for the same
+    reason.
+    """
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    port = f":{parsed.port}" if parsed.port else ""
+    return f"{parsed.scheme}://{host}{port}"
+
+
 def _check(url: str, tool: str = "fetch_url") -> str:
     """Validate before opening anything. Raises ToolError the model can act on.
 

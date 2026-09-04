@@ -2995,6 +2995,105 @@ def test_http_post_is_gated_and_sends_nothing_until_approved() -> None:
               "http_post" not in build_registry(ws, EditSession()).tools)
 
 
+def test_post_approval_can_stand_for_one_origin_per_session() -> None:
+    """Answering `a` grants one origin for the session, and nothing wider.
+
+    This is what makes an iterate-on-an-API loop usable: a model querying one
+    GraphQL endpoint five times should not produce five identical prompts. The
+    risk it introduces is that a grant leaks — to a host the user never saw, or
+    to the cleartext version of the one they did — so every assertion below is
+    about how *narrow* the grant is.
+
+    `main.py`'s gate takes an injected `ask` precisely so the policy can be
+    tested without a terminal. The I/O is not the interesting part; which
+    addresses get remembered is.
+    """
+    import io
+    from contextlib import redirect_stdout
+
+    import main
+    from agent.tools.web import origin
+
+    check("origin: scheme and host, no path",
+          origin("https://api.example.com/graphql?x=1") == "https://api.example.com",
+          origin("https://api.example.com/graphql?x=1"))
+    check("origin: the host is lowercased",
+          origin("https://API.Example.COM/x") == "https://api.example.com")
+    check("origin: a port is part of it",
+          origin("https://api.example.com:8443/x") == "https://api.example.com:8443")
+    check("origin: http and https are different origins",
+          origin("http://api.example.com/x") != origin("https://api.example.com/x"))
+
+    def approver(replies, dry_run=False, assume_yes=False):
+        """An approver wired to a scripted user, recording what it was asked."""
+        asked: list[str] = []
+        it = iter(replies)
+
+        def ask(where: str) -> str:
+            asked.append(where)
+            return next(it)
+
+        return main.make_post_approver(dry_run, assume_yes, ask=ask), asked
+
+    # -- `a` grants the origin, and only that origin ------------------------
+    approve, asked = approver(["a", "n", "n", "n"])
+    out = io.StringIO()
+    with redirect_stdout(out):
+        first = approve("https://api.example.com/graphql", '{"q": 1}', "application/json")
+        again = approve("https://api.example.com/other/path", '{"q": 2}', "application/json")
+        cleartext = approve("http://api.example.com/graphql", '{"q": 3}', "application/json")
+        other_port = approve("https://api.example.com:8443/graphql", '{"q": 4}', "application/json")
+        other_host = approve("https://elsewhere.example/collect", '{"q": 5}', "application/json")
+
+    check("standing grant: the granting request is sent", first)
+    check("standing grant: a later request to the same origin is sent", again)
+    check("standing grant: and it is not asked about a second time",
+          asked.count("https://api.example.com") == 1, asked)
+    check("standing grant: it does NOT cover the cleartext version of the host",
+          "http://api.example.com" in asked and cleartext is False, asked)
+    check("standing grant: it does NOT cover another port",
+          "https://api.example.com:8443" in asked and other_port is False, asked)
+    check("standing grant: it does NOT cover another host",
+          "https://elsewhere.example" in asked and other_host is False, asked)
+
+    # A granted POST is still printed. A request nobody can see is worse than a
+    # prompt, so the grant buys silence from the *prompt*, not from the log.
+    printed = out.getvalue()
+    check("standing grant: a granted request still shows its address and body",
+          "api.example.com/other/path" in printed and '{"q": 2}' in printed, printed)
+    check("standing grant: and says why it was not asked about",
+          "approved earlier this session" in printed, printed)
+
+    # -- `y` is once, and means once ----------------------------------------
+    approve, asked = approver(["y", "y"])
+    with redirect_stdout(io.StringIO()):
+        approve("https://api.example.com/graphql", "{}", "application/json")
+        approve("https://api.example.com/graphql", "{}", "application/json")
+    check("standing grant: plain yes does not grant anything standing",
+          asked == ["https://api.example.com", "https://api.example.com"], asked)
+
+    # -- refusal grants nothing either ---------------------------------------
+    approve, asked = approver(["n", "n"])
+    with redirect_stdout(io.StringIO()):
+        one = approve("https://api.example.com/graphql", "{}", "application/json")
+        two = approve("https://api.example.com/graphql", "{}", "application/json")
+    check("standing grant: a refusal is a refusal, twice",
+          one is False and two is False and len(asked) == 2, asked)
+
+    # -- the flags still win -------------------------------------------------
+    approve, asked = approver([], assume_yes=True)
+    with redirect_stdout(io.StringIO()):
+        check("standing grant: --yes never reaches the question",
+              approve("https://anything.example/x", "{}", "application/json")
+              and asked == [], asked)
+
+    approve, asked = approver(["a"], dry_run=True)
+    with redirect_stdout(io.StringIO()):
+        check("standing grant: --dry-run sends nothing and grants nothing",
+              approve("https://api.example.com/x", "{}", "application/json") is False
+              and asked == [], asked)
+
+
 def test_post_body_hint_names_the_defect() -> None:
     """A JSON error the model can act on, rather than one it can only re-read.
 
@@ -5425,6 +5524,7 @@ def main() -> int:
                test_web_output_is_fenced_as_untrusted,
                test_http_post_is_gated_and_sends_nothing_until_approved,
                test_post_body_hint_names_the_defect,
+               test_post_approval_can_stand_for_one_origin_per_session,
                test_honesty_case_two_renames,
                test_rescore_over_stored_results,
                test_context_tally_over_stored_sessions,
