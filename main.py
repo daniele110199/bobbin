@@ -79,6 +79,42 @@ def make_approver(dry_run: bool, assume_yes: bool):
     return approve
 
 
+def make_post_approver(dry_run: bool, assume_yes: bool):
+    """The human gate for `http_post`, and the same bargain as the write gate.
+
+    The model composes the address and the body; the user is the one who decides
+    whether it leaves the machine. Both are printed in full (the body truncated
+    only for display) because "approve a POST" means nothing if you cannot see
+    what is being posted.
+
+    On a non-tty it refuses, exactly as the write gate does. That is the whole
+    difference from `fetch_url`, which deliberately has no gate: a GET can be
+    repeated and walked page by page, and a POST cannot be taken back.
+    """
+    def approve(url: str, body: str, content_type: str) -> bool:
+        shown = body if len(body) <= 2000 else body[:2000] + "\n... (truncated for display)"
+        print(f"\n{BOLD}proposed POST to {url}{RESET}")
+        print(f"{DIM}{content_type}, {len(body.encode('utf-8'))} bytes{RESET}")
+        print(shown)
+        if dry_run:
+            print(f"{DIM}--dry-run: not sent{RESET}", flush=True)
+            return False
+        if assume_yes:
+            print(f"{DIM}--yes: sent{RESET}", flush=True)
+            return True
+        if not sys.stdin.isatty():
+            print(f"{DIM}not a terminal, cannot confirm: not sent{RESET}", flush=True)
+            return False
+        try:
+            reply = input(f"{BOLD}send this request? [y/N] {RESET}").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return False
+        return reply in ("y", "yes")
+
+    return approve
+
+
 def make_steer_poll():
     """Hand the loop anything the user typed while the model was working.
 
@@ -159,6 +195,11 @@ def main() -> int:
                          "look up and read a page off the web when the workspace "
                          "cannot answer. Off by default: a tool schema is prompt "
                          "charged on every request, and no eval case can use these")
+    ap.add_argument("--allow-post", action="store_true",
+                    help="additionally register http_post, for data behind an "
+                         "endpoint that only answers POST. Implies --allow-web. "
+                         "Every request is shown to you in full and sent only if "
+                         "you approve it")
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="print full tool output")
     ap.add_argument("--session", metavar="PATH",
@@ -171,8 +212,9 @@ def main() -> int:
                     help="research mode: print the verified evidence pack after each answer")
     opts = ap.parse_args()
 
-    if (opts.dry_run or opts.yes) and not opts.allow_edits:
-        raise SystemExit("--dry-run and --yes only mean anything with --allow-edits")
+    if (opts.dry_run or opts.yes) and not (opts.allow_edits or opts.allow_post):
+        raise SystemExit("--dry-run and --yes only mean anything with "
+                         "--allow-edits or --allow-post")
     if opts.dry_run and opts.yes:
         raise SystemExit("--dry-run and --yes contradict each other")
     if opts.allow_edits and opts.mode == "research":
@@ -194,7 +236,11 @@ def main() -> int:
     ws = Workspace(opts.root)
     session = EditSession(approve=make_approver(opts.dry_run, opts.yes)) \
         if opts.allow_edits else None
-    registry = build_registry(ws, session, allow_web=opts.allow_web)
+    registry = build_registry(
+        ws, session,
+        allow_web=opts.allow_web or opts.allow_post,
+        post_approve=make_post_approver(opts.dry_run, opts.yes) if opts.allow_post
+        else None)
     client = OllamaClient(opts.model, host=opts.host, num_ctx=opts.num_ctx)
     trace = make_trace(opts.verbose)
     if opts.mode == "research":

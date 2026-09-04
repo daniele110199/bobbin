@@ -1,9 +1,25 @@
-"""The web tools: search for a page, read a page. Opt-in, never in the eval registry.
+"""The web tools: search for a page, read a page, post to an endpoint.
 
-`web_search` finds an address, `fetch_url` reads one. They are separate tools
-rather than one because they fail differently and are useful apart: a search that
-returns nothing is a bad query, a fetch that returns nothing is a bad URL, and a
-model that already knows the address should not pay for a search to reach it.
+Opt-in, never in the eval registry.
+
+`web_search` finds an address, `fetch_url` reads one, `http_post` sends a body to
+one. The first two are separate tools rather than one because they fail
+differently and are useful apart: a search that returns nothing is a bad query, a
+fetch that returns nothing is a bad URL, and a model that already knows the
+address should not pay for a search to reach it.
+
+`http_post` is separate for a stronger reason, and rides its own flag. It exists
+because a real fraction of the documentation and data this agent wants is behind
+an endpoint that only answers POST — GraphQL, JSON-RPC, a search API. But the
+verb that fetches those is the same verb that files an issue or sends a webhook,
+and the tool cannot tell the two apart: `POST /graphql` is a read, `POST /issues`
+is not, and they are the same shape. So it is the one web tool with a human gate.
+
+**That gate is not the one that was overruled in 2026-08-21.** That decision
+removed the gate from `fetch_url`, on the argument that a prompt per request is
+unusable against a docs site walked page by page. The reasoning does not carry:
+a POST is not walked page by page, it is occasional, and there is no `undo_edit`
+for it. GET asks the world a question; POST tells it something.
 
 Registered only when the caller passes `--allow-web`, and *not* part of either
 default registry. That is not caution about the network, it is the project's own
@@ -17,17 +33,20 @@ The narrow-affordance pattern, for the same reason `check_imports` replaced
 `run_command`: one parameter each, no shell, no interpreter, no redirect chain
 into another scheme, and a hard cap on what comes back.
 
-Both return their text inside an untrusted-content fence. `fetch_url` alone could
-argue the user named the URL; the moment `web_search` exists the agent picks its
-own links, and the page it lands on is written by whoever ranked for the query.
+All three return their text inside an untrusted-content fence. `fetch_url` alone
+could argue the user named the URL; the moment `web_search` exists the agent picks
+its own links, and the page it lands on is written by whoever ranked for the query.
 """
 
 from __future__ import annotations
 
 import html
+import json
 import re
 import urllib.error
 import urllib.request
+from functools import partial
+from typing import Callable
 from urllib.parse import quote_plus, unquote, urlparse
 
 from ..output import cap
@@ -39,6 +58,19 @@ MAX_BYTES = 512_000
 MAX_LINES = 200
 MAX_RESULTS = 8
 SNIPPET_CHARS = 220
+# Outbound, not inbound. A GraphQL query or an RPC call is a few hundred bytes;
+# anything approaching this cap is not the use this tool was built for.
+MAX_POST_BYTES = 64_000
+BODY_PREVIEW = 2_000
+
+# A short allowlist rather than a free-text header. The three that cover the
+# endpoints worth reaching, named in words a model gets right more often than it
+# gets `application/x-www-form-urlencoded` right.
+POST_TYPES = {
+    "json": "application/json",
+    "form": "application/x-www-form-urlencoded",
+    "text": "text/plain; charset=utf-8",
+}
 
 # `html.duckduckgo.com` answers a scripted request with a bot challenge ("select
 # all squares containing a duck"); the lite endpoint answers with results. No key,
@@ -81,8 +113,14 @@ _BLANK = re.compile(r"\n\s*\n\s*\n+")
 _SPACES = re.compile(r"[ \t]{2,}")
 
 
-def build() -> list[Tool]:
-    return [
+def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[Tool]:
+    """The web tools. `http_post` appears only when a human gate is supplied.
+
+    Same shape as the write tools: the model makes the call, the *user* decides.
+    No approver, no POST tool — there is no unattended mode for it, because the
+    thing it does cannot be taken back.
+    """
+    tools = [
         Tool(
             name="web_search",
             description=(
@@ -115,17 +153,49 @@ def build() -> list[Tool]:
             fn=_fetch,
         ),
     ]
+    if post_approve is not None:
+        tools.append(Tool(
+            name="http_post",
+            description=(
+                "Send a POST request to an http(s) endpoint and return the "
+                "response as text. Use it for data behind an endpoint that only "
+                "answers POST — GraphQL, JSON-RPC, a query API. The user is shown "
+                "the address and the exact body and has to approve it before "
+                "anything is sent. A POST can change something on the far end and "
+                "cannot be undone, so never use it to retry a failed fetch_url."
+            ),
+            params=[
+                Param("url", "string",
+                      "Absolute http:// or https:// URL to post to.",
+                      required=True),
+                Param("body", "string",
+                      "The exact request body to send, as a string.",
+                      required=True),
+                Param("content_type", "string",
+                      "How to label the body. 'json' is the default and is "
+                      "checked for validity before anything is sent.",
+                      required=False, default="json",
+                      enum=sorted(POST_TYPES)),
+            ],
+            fn=partial(_post, approve=post_approve),
+        ))
+    return tools
 
 
-def _check(url: str) -> str:
-    """Validate before opening anything. Raises ToolError the model can act on."""
+def _check(url: str, tool: str = "fetch_url") -> str:
+    """Validate before opening anything. Raises ToolError the model can act on.
+
+    Shared by the read tools and `http_post`, and it matters more for the latter:
+    the loopback and metadata entries stop a GET from *reading* what is not the
+    public web, but they stop a POST from *acting* on it.
+    """
     url = (url or "").strip()
     if not url:
-        raise ToolError("fetch_url needs a url, e.g. 'https://docs.python.org/3/'.")
+        raise ToolError(f"{tool} needs a url, e.g. 'https://docs.python.org/3/'.")
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise ToolError(
-            f"fetch_url only speaks http and https, not {parsed.scheme or 'a bare path'!r}. "
+            f"{tool} only speaks http and https, not {parsed.scheme or 'a bare path'!r}. "
             "Pass an absolute URL like 'https://example.com/page'."
         )
     host = (parsed.hostname or "").lower()
@@ -225,6 +295,155 @@ def _search(query: str) -> str:
     return fenced("\n".join([header, ""] + lines))
 
 
+def _json_hint(body: str) -> str:
+    """Name the likely defect, since 'Expecting , delimiter' rarely locates it.
+
+    Counting brackets outside string literals catches the one failure that
+    actually shows up: a body that stops early. It is a hint and says so — it
+    does not try to repair the body, because a tool that guesses at what the
+    model meant to send is a tool that sends something nobody approved.
+    """
+    depth = {"{": 0, "[": 0}
+    pairs = {"}": "{", "]": "["}
+    in_string = escaped = False
+    for ch in body:
+        if escaped:
+            escaped = False
+            continue
+        if ch == "\\" and in_string:
+            escaped = True
+        elif ch == '"':
+            in_string = not in_string
+        elif not in_string:
+            if ch in depth:
+                depth[ch] += 1
+            elif ch in pairs:
+                depth[pairs[ch]] -= 1
+    if in_string:
+        return "The body ends inside an unterminated string — a quote is missing."
+    missing = [f"{n} {c}" for c, n in
+               (("}", depth["{"]), ("]", depth["["])) if n > 0]
+    if missing:
+        return (f"It looks truncated: {' and '.join(missing)} still need closing. "
+                "Write the whole body out to the end.")
+    if any(n < 0 for n in depth.values()):
+        return "There are more closing brackets than opening ones."
+    return "Check the quoting and commas."
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse every redirect on a POST, rather than chasing it.
+
+    Measured, not assumed. urllib's default handler already refuses 307 and 308,
+    the two that preserve the method, so a body is never silently re-posted to
+    another host. But it *follows* a 302 by downgrading to GET — which means the
+    address the user approved is not necessarily the address that gets contacted.
+
+    A gate whose approval can be redirected elsewhere is not a gate. So a 3xx is
+    handed back to the model as text naming the new location: it can call again,
+    and the user approves the address that will actually be used.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_POST_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
+def _post(url: str, body: str, content_type: str = "json",
+          *, approve: Callable[[str, str, str], bool]) -> str:
+    url = _check(url, tool="http_post")
+    kind = (content_type or "json").strip().lower()
+    if kind not in POST_TYPES:
+        raise ToolError(
+            f"content_type must be one of {', '.join(sorted(POST_TYPES))}, "
+            f"not {content_type!r}."
+        )
+    body = body if body is not None else ""
+    encoded = body.encode("utf-8")
+    if len(encoded) > MAX_POST_BYTES:
+        raise ToolError(
+            f"that body is {len(encoded)} bytes, over the {MAX_POST_BYTES} byte "
+            "limit for a request. This tool is for queries, not uploads."
+        )
+    # Checked here rather than discovered as a 400 three seconds later. A small
+    # model gets JSON shape right and JSON syntax wrong, and the round trip
+    # costs it a step it does not have to spare.
+    #
+    # The wording earns its length. The first live run of this tool had qwen emit
+    # a body one closing brace short, then retry the *identical* body until the
+    # repeat guard stopped it — because the message said "or pass
+    # content_type='text' if it is not JSON", which is an escape hatch from the
+    # check rather than a fix for the body. Naming the specific defect, and what
+    # a truncated body looks like, is the difference between a model that repairs
+    # and a model that loops.
+    if kind == "json" and body.strip():
+        try:
+            json.loads(body)
+        except ValueError as exc:
+            raise ToolError(
+                f"the body is not valid JSON: {exc}. {_json_hint(body)} Send the "
+                "same request again with the body corrected. Only use "
+                "content_type='text' if the body was never meant to be JSON."
+            ) from None
+
+    # The gate. Everything above this line is checking; nothing has left the
+    # machine yet, and nothing does unless the user says so.
+    if not approve(url, body, POST_TYPES[kind]):
+        return (
+            f"REJECTED: the user declined this POST to {url}. Nothing was sent. "
+            "Do not retry the same request — explain what you wanted to do and "
+            "wait for instructions."
+        )
+
+    request = urllib.request.Request(
+        url, data=encoded, method="POST",
+        headers={"User-Agent": USER_AGENT, "Content-Type": POST_TYPES[kind]},
+    )
+    try:
+        with _POST_OPENER.open(request, timeout=TIMEOUT_S) as response:
+            got = (response.headers.get("Content-Type") or "").lower()
+            raw = response.read(MAX_BYTES + 1)
+            final = response.geturl()
+    except urllib.error.HTTPError as exc:
+        if 300 <= exc.code < 400:
+            where = exc.headers.get("Location") or "an address it did not name"
+            return (
+                f"ERROR: {url} answered {exc.code} and redirected to {where}. "
+                "The body was NOT sent on, because the user approved this address "
+                "and not that one. Call http_post again with the new address if "
+                "that is where it should go."
+            )
+        # The body reached the server and the server said no. That is a different
+        # fact from "could not reach it", and the model needs to know the request
+        # was delivered before it decides whether to try again.
+        detail = _to_text(exc.read(MAX_BYTES), (exc.headers.get("Content-Type") or "").lower())
+        tail = f" It said: {detail[:400]}" if detail else ""
+        return (f"ERROR: {url} received the POST and returned HTTP {exc.code} "
+                f"({exc.reason}).{tail}")
+    except urllib.error.URLError as exc:
+        return f"ERROR: could not reach {url}: {exc.reason}. Nothing was sent."
+    except (TimeoutError, OSError) as exc:
+        return f"ERROR: could not reach {url}: {exc}. Nothing was sent."
+
+    return _render(url, final, got, raw)
+
+
+def _render(url: str, final: str, content_type: str, raw: bytes) -> str:
+    """Turn a response into capped, fenced text. Shared by fetch_url and http_post."""
+    truncated = len(raw) > MAX_BYTES
+    text = _to_text(raw[:MAX_BYTES], content_type)
+    if not text:
+        return (f"{final} returned {len(raw)} bytes of "
+                f"{content_type or 'unknown type'}, no readable text.")
+    header = final if final == url else f"{final}  (redirected from {url})"
+    lines = [header, ""] + text.splitlines()
+    if truncated:
+        lines.append(f"... truncated at {MAX_BYTES} bytes.")
+    return fenced(cap(lines, MAX_LINES, "lines"))
+
+
 def _fetch(url: str) -> str:
     url = _check(url)
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
@@ -242,12 +461,4 @@ def _fetch(url: str) -> str:
     except (TimeoutError, OSError) as exc:
         return f"ERROR: could not reach {url}: {exc}."
 
-    truncated = len(body) > MAX_BYTES
-    text = _to_text(body[:MAX_BYTES], content_type)
-    if not text:
-        return f"{final} returned {len(body)} bytes of {content_type or 'unknown type'}, no readable text."
-    header = final if final == url else f"{final}  (redirected from {url})"
-    lines = [header, ""] + text.splitlines()
-    if truncated:
-        lines.append(f"... truncated at {MAX_BYTES} bytes.")
-    return fenced(cap(lines, MAX_LINES, "lines"))
+    return _render(url, final, content_type, body)

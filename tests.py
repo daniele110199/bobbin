@@ -2808,6 +2808,241 @@ def test_web_search_parses_results_and_fences_them() -> None:
               "web_search" in build_registry(ws, EditSession(), allow_web=True).tools)
 
 
+def test_http_post_is_gated_and_sends_nothing_until_approved() -> None:
+    """`http_post` asks first, and every refusal path sends nothing at all.
+
+    The gate is the whole design, so the assertions are about the *server*, not
+    about the return string: a test that only checked the text would pass while
+    the body went out anyway. Each case below asks the receiving end what it
+    actually got.
+
+    Loopback is normally refused by `_check` — that is the point of the block
+    list, and it matters more for POST than for GET, since it stops the tool
+    acting on the local machine rather than merely reading it. The live half
+    clears the block list around a loopback server, having first asserted the
+    guard with it in place.
+    """
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from agent.sandbox import ToolError
+    from agent.tools import web
+
+    seen: list[tuple] = []          # what the server actually received
+    asked: list[tuple] = []         # what the user was actually shown
+
+    def yes(url, body, content_type):
+        asked.append((url, body, content_type))
+        return True
+
+    def no(url, body, content_type):
+        asked.append((url, body, content_type))
+        return False
+
+    # -- refused before the gate: bad address, bad body ----------------------
+    for bad, why in (
+        ("http://127.0.0.1:9/x", "loopback"),
+        ("http://169.254.169.254/latest/", "the cloud metadata endpoint"),
+        ("file:///etc/passwd", "a file:// url"),
+        ("", "no url at all"),
+    ):
+        try:
+            web._post(bad, '{"a": 1}', "json", approve=yes)
+            check(f"http_post: {why} is refused", False, bad)
+        except ToolError:
+            check(f"http_post: {why} is refused", True)
+
+    try:
+        web._post("https://example.com/api", "{not json", "json", approve=yes)
+        check("http_post: an invalid json body is refused before sending", False)
+    except ToolError as exc:
+        check("http_post: an invalid json body is refused before sending",
+              "not valid JSON" in str(exc), str(exc))
+
+    try:
+        web._post("https://example.com/api", "x", "xml", approve=yes)
+        check("http_post: an unknown content_type is refused", False)
+    except ToolError:
+        check("http_post: an unknown content_type is refused", True)
+
+    try:
+        web._post("https://example.com/api", "x" * (web.MAX_POST_BYTES + 1),
+                  "text", approve=yes)
+        check("http_post: an oversized body is refused", False)
+    except ToolError:
+        check("http_post: an oversized body is refused", True)
+
+    # Everything above failed a check, so the user was never asked to approve
+    # anything — which is also the proof that nothing was sent.
+    check("http_post: a request that fails a check never reaches the gate",
+          asked == [], asked)
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length") or 0)
+            seen.append((self.path, self.rfile.read(length),
+                         self.headers.get("Content-Type")))
+            if self.path == "/redirect":
+                self.send_response(302)
+                self.send_header("Location", "https://elsewhere.example/collect")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            if self.path == "/bad":
+                body = b"that field is required"
+                self.send_response(400)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            body = b'{"data": {"answer": 42}}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    blocked = web.BLOCKED_HOSTS
+    try:
+        web.BLOCKED_HOSTS = set()
+        base = f"http://127.0.0.1:{server.server_port}"
+
+        # -- declined at the gate --------------------------------------------
+        asked.clear(); seen.clear()
+        out = web._post(f"{base}/graphql", '{"query": "{ me }"}', "json", approve=no)
+        check("http_post: a declined request is reported as REJECTED",
+              out.startswith("REJECTED:"), out)
+        check("http_post: a declined request tells the model not to retry it",
+              "Do not retry" in out, out)
+        check("http_post: DECLINED MEANS NOTHING WAS SENT", seen == [], seen)
+
+        # -- approved ---------------------------------------------------------
+        asked.clear(); seen.clear()
+        out = web._post(f"{base}/graphql", '{"query": "{ me }"}', "json", approve=yes)
+        check("http_post: the user is shown the address and the exact body",
+              len(asked) == 1 and asked[0][1] == '{"query": "{ me }"}'
+              and asked[0][2] == "application/json", asked)
+        check("http_post: the approved body is what arrives, byte for byte",
+              len(seen) == 1 and seen[0][1] == b'{"query": "{ me }"}', seen)
+        check("http_post: the content type is sent as declared",
+              seen[0][2] == "application/json", seen)
+        check("http_post: the response comes back as text", "42" in out, out)
+        check("http_post: the response is fenced as untrusted",
+              out.startswith(web.FENCE_OPEN), out[:120])
+
+        # -- a redirect is not chased ----------------------------------------
+        # urllib refuses 307/308 on its own, but follows a 302 by downgrading to
+        # GET — so without the no-redirect opener the address the user approved
+        # is not the address contacted. Approval is per-address or it is nothing.
+        asked.clear(); seen.clear()
+        out = web._post(f"{base}/redirect", '{"a": 1}', "json", approve=yes)
+        check("http_post: a redirect is reported, not followed",
+              out.startswith("ERROR:") and "elsewhere.example" in out, out)
+        check("http_post: it says the body was not forwarded",
+              "NOT sent on" in out, out)
+        check("http_post: the redirect target is never contacted",
+              [path for path, _, _ in seen] == ["/redirect"], seen)
+
+        # -- an error response is distinguished from an unreachable server ----
+        asked.clear(); seen.clear()
+        out = web._post(f"{base}/bad", '{"a": 1}', "json", approve=yes)
+        check("http_post: a 4xx says the request was received, not that it failed to send",
+              "received the POST" in out and "400" in out, out)
+        check("http_post: the server's own explanation is passed through",
+              "that field is required" in out, out)
+
+        # -- form and text bodies ---------------------------------------------
+        asked.clear(); seen.clear()
+        web._post(f"{base}/form", "a=1&b=2", "form", approve=yes)
+        check("http_post: a form body is labelled form-encoded",
+              seen[0][2] == "application/x-www-form-urlencoded", seen)
+        check("http_post: a non-json body is not json-checked",
+              seen[0][1] == b"a=1&b=2", seen)
+    finally:
+        web.BLOCKED_HOSTS = blocked
+        server.shutdown()
+        server.server_close()
+
+    # -- there is no unattended POST -----------------------------------------
+    from agent.edits import EditSession
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        ws = Workspace(Path(tmpdir))
+        check("http_post: absent from the read-only registry",
+              "http_post" not in build_registry(ws).tools)
+        check("http_post: absent even with allow_web, when no approver is given",
+              "http_post" not in build_registry(ws, allow_web=True).tools)
+        check("http_post: present only when a human gate is supplied",
+              "http_post" in build_registry(ws, allow_web=True,
+                                            post_approve=yes).tools)
+        # An approver on its own is enough: being allowed to post implies being
+        # allowed to read, and --allow-post says so.
+        check("http_post: an approver alone brings the web tools with it",
+              "fetch_url" in build_registry(ws, post_approve=yes).tools)
+        check("http_post: the read-only tool set is still unchanged",
+              sorted(build_registry(ws).tools)
+              == ["find_files", "grep", "list_files", "read_file"])
+        check("http_post: the edit registry has not grown either",
+              "http_post" not in build_registry(ws, EditSession()).tools)
+
+
+def test_post_body_hint_names_the_defect() -> None:
+    """A JSON error the model can act on, rather than one it can only re-read.
+
+    Written after the first live run of `http_post`: qwen sent a body one closing
+    brace short, and retried the identical body until the repeat guard stopped
+    it. `json.loads`'s own message ("Expecting ',' delimiter: column 12") locates
+    a symptom, not the cause.
+
+    **The wording is not credited with fixing that.** A/B'd in one sitting, three
+    reps each on qwen3-coder:30b: both arms ran 3/3 clean with zero malformed
+    bodies, because the failure never reproduced. The case cannot referee the
+    change, so this test pins what the hints *say*, which is the part that is
+    actually checkable offline.
+    """
+    from agent.tools import web
+
+    check("json hint: a truncated object names the missing brace",
+          "1 }" in web._json_hint('{"query": "x"'), web._json_hint('{"query": "x"'))
+    check("json hint: a truncated array names the missing bracket",
+          "1 ]" in web._json_hint('{"a": [1, 2'), web._json_hint('{"a": [1, 2'))
+    check("json hint: an unterminated string is named as such",
+          "unterminated string" in web._json_hint('{"a": "oops'),
+          web._json_hint('{"a": "oops'))
+    check("json hint: a brace inside a string is not counted as structure",
+          web._json_hint('{"q": "a { b"') .startswith("It looks truncated: 1 }"),
+          web._json_hint('{"q": "a { b"'))
+    check("json hint: an escaped quote does not end the string",
+          "unterminated string" in web._json_hint('{"q": "say \\"hi'),
+          web._json_hint('{"q": "say \\"hi'))
+    check("json hint: too many closers is its own message",
+          "more closing brackets" in web._json_hint('{"a": 1}}'),
+          web._json_hint('{"a": 1}}'))
+    check("json hint: a balanced body falls back to quoting and commas",
+          "quoting and commas" in web._json_hint('{"a" 1}'),
+          web._json_hint('{"a" 1}'))
+
+    # The escape hatch is deliberately no longer offered first: the body above is
+    # meant to be JSON, and 'send it as text instead' is a way past the check
+    # rather than a way to fix it.
+    from agent.sandbox import ToolError
+    try:
+        web._post("https://example.com/", '{"a": 1', "json", approve=lambda *a: True)
+        check("json hint: the error tells the model to correct and resend", False)
+    except ToolError as exc:
+        check("json hint: the error tells the model to correct and resend",
+              "corrected" in str(exc), str(exc))
+
+
 def test_web_output_is_fenced_as_untrusted() -> None:
     """Fetched and searched text is marked as data, at the boundary it crosses.
 
@@ -5188,6 +5423,8 @@ def main() -> int:
                test_fetch_url_is_opt_in_and_bounded,
                test_web_search_parses_results_and_fences_them,
                test_web_output_is_fenced_as_untrusted,
+               test_http_post_is_gated_and_sends_nothing_until_approved,
+               test_post_body_hint_names_the_defect,
                test_honesty_case_two_renames,
                test_rescore_over_stored_results,
                test_context_tally_over_stored_sessions,

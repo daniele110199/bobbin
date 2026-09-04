@@ -30,6 +30,21 @@ from agent.sandbox import Workspace
 from agent.tools import build_registry
 
 
+def _terminal_approver():
+    """Ask on the terminal, refuse when there is nobody to ask."""
+    def approve(url: str, body: str, content_type: str) -> bool:
+        print(f"\nPOST {url}\n{content_type}, {len(body.encode('utf-8'))} bytes\n{body}")
+        if not sys.stdin.isatty():
+            print("not a terminal, cannot confirm: not sent")
+            return False
+        try:
+            return input("send this request? [y/N] ").strip().lower() in ("y", "yes")
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return False
+    return approve
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -40,10 +55,17 @@ def main() -> int:
                     help="print the JSON schemas sent to the model")
     ap.add_argument("--allow-web", action="store_true",
                     help="also register web_search and fetch_url")
+    ap.add_argument("--allow-post", action="store_true",
+                    help="also register http_post (asks before sending)")
     opts = ap.parse_args()
 
     ws = Workspace(opts.root)
-    registry = build_registry(ws, allow_web=opts.allow_web)
+    # The gate stays on even here. You are the one typing the request, so it is
+    # nearly redundant — but this script exists to reproduce what the agent does,
+    # and a POST that behaves differently under the debugger is not a reproduction.
+    registry = build_registry(
+        ws, allow_web=opts.allow_web or opts.allow_post,
+        post_approve=_terminal_approver() if opts.allow_post else None)
 
     if opts.schemas:
         print(json.dumps(registry.schemas(), indent=2))

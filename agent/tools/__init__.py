@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Callable
+
 from ..edits import EditSession
 from ..sandbox import Workspace
 from . import edit, fs, search, verify, web
@@ -11,7 +13,9 @@ __all__ = ["Param", "Registry", "Tool", "EditSession", "build_registry"]
 
 
 def build_registry(ws: Workspace, session: EditSession | None = None,
-                   allow_web: bool = False) -> Registry:
+                   allow_web: bool = False,
+                   post_approve: Callable[[str, str, str], bool] | None = None
+                   ) -> Registry:
     """The tool set. Write tools appear only when a session is supplied.
 
     Editing is opt-in so that the read-only registry stays byte-identical to the
@@ -33,12 +37,17 @@ def build_registry(ws: Workspace, session: EditSession | None = None,
     all 40-odd cases — the exact shape that cost four cases the last time a
     description grew. They appear only when the caller asks with `--allow-web`,
     and `evals/run.py` never does, so no number on record moves.
+
+    `http_post` is a fourth opt-in *inside* the third, because being allowed to
+    read the web and being allowed to act on it are different grants. It needs an
+    approver rather than a flag: there is no unattended POST, the same way there
+    is no unattended write.
     """
     tools = [*fs.build(ws, session), *search.build(ws)]
     if session is not None:
         tools += edit.build(ws, session) + verify.build(ws, session)
-    if allow_web:
-        tools += web.build()
+    if allow_web or post_approve is not None:
+        tools += web.build(post_approve)
 
     reg = Registry()
     for tool in tools:
