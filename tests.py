@@ -2995,6 +2995,133 @@ def test_http_post_is_gated_and_sends_nothing_until_approved() -> None:
               "http_post" not in build_registry(ws, EditSession()).tools)
 
 
+def test_offline_web_fixture_serves_the_real_tools() -> None:
+    """The offline web, and the two properties that make it worth trusting.
+
+    First: **the shipped guard runs, and passes for a real reason.** The obvious
+    way to point the agent at a local server is `http://127.0.0.1:PORT/`, and it
+    is wrong — `_check()` refuses loopback by design, so every web case would
+    either die at the guard or force it off for the run, and a suite that scores
+    the tools with their first line of defence disabled scores tools this project
+    does not ship. The corpus is served under `.test` names instead (RFC 2606
+    reserves them), resolved at the socket layer, so `BLOCKED_HOSTS` is untouched
+    and still refuses loopback *during* a web case.
+
+    Second: **nothing reaches the internet.** The suite has always been offline
+    and stays offline; a score that moved with a stranger's uptime, or with what
+    a search engine ranked this morning, would not be a measurement of this
+    agent.
+    """
+    from agent.sandbox import ToolError
+    from agent.tools import web
+    from evals.webfixture import API, BUILD_ID, DOCS, FixtureWeb
+
+    saved_search = web.SEARCH_URL
+    with FixtureWeb():
+        check("web fixture: it repoints web_search at itself",
+              web.SEARCH_URL != saved_search and ".test" in web.SEARCH_URL,
+              web.SEARCH_URL)
+
+        # The guard is live for the whole run, which is the point of not using
+        # loopback URLs in the cases.
+        for bad, why in (("http://127.0.0.1/x", "loopback"),
+                         ("http://169.254.169.254/", "the metadata endpoint")):
+            try:
+                web._check(bad)
+                check(f"web fixture: {why} is still refused while it runs", False)
+            except ToolError:
+                check(f"web fixture: {why} is still refused while it runs", True)
+
+        out = web._fetch(f"http://{DOCS}/config")
+        check("web fixture: a page comes back through the real fetch path",
+              "QUAYSTONE_RETRY_CEILING" in out and "200 OK" in out, out[:300])
+        check("web fixture: and is fenced like any other page",
+              out.startswith(web.FENCE_OPEN), out[:80])
+
+        out = web._search("retry ceiling")
+        check("web fixture: search returns parsed results, not raw markup",
+              "http://docs.quaystone.test/config" in out and "<a" not in out,
+              out[:300])
+        check("web fixture: results carry their own snippets",
+              "retry ceiling" in out.lower(), out[:300])
+
+        # "No results" has to be reachable, or `web-absent` means nothing: a
+        # corpus that matches every query can never fail to contain something.
+        # The first version of the ranking counted substrings, so `at` matched
+        # inside `batch` and this assertion was what caught it.
+        out = web._search("zzzz qqqq wwww")
+        check("web fixture: a query with no matches is distinguishable from a break",
+              out.startswith("ERROR:") and "no results parsed" in out, out)
+
+        # The fact with no GET route. This is what makes `web-post-only`
+        # unpassable without http_post rather than merely easier with it.
+        out = web._fetch(f"http://{API}/graphql")
+        check("web fixture: the API refuses GET and says what would work",
+              "405" in out and "Allow: POST" in out, out)
+
+        out = web._post(f"http://{API}/graphql", '{"query": "{ build { id } }"}',
+                        "json", approve=lambda *a: True)
+        check("web fixture: and answers the same query over POST",
+              BUILD_ID in out, out)
+
+        out = web._post(f"http://{API}/graphql", '{"query": "{ nope }"}', "json",
+                        approve=lambda *a: True)
+        check("web fixture: a rejected query explains itself in the body",
+              "422" in out and "unknown field" in out, out)
+
+        # The injected page is reachable exactly like any other, which is the
+        # only honest way to stage it: a case has to be able to land on it while
+        # doing ordinary work.
+        out = web._fetch(f"http://{DOCS}/notes")
+        check("web fixture: the injected page carries both a real fact and the bait",
+              "dead-letter" in out and "CUTTLEFISH" in out, out[:400])
+        check("web fixture: and the bait arrives inside the fence, not outside it",
+              out.index(web.FENCE_OPEN) < out.index("CUTTLEFISH"), out[:200])
+
+    check("web fixture: web_search is put back when it stops",
+          web.SEARCH_URL == saved_search, web.SEARCH_URL)
+
+    # Stopped means stopped: the names stop resolving, so a later case cannot
+    # quietly depend on a server that is no longer running.
+    import socket
+    try:
+        socket.getaddrinfo(DOCS, 80)
+        check("web fixture: its hostnames stop resolving once it stops", False)
+    except socket.gaierror:
+        check("web fixture: its hostnames stop resolving once it stops", True)
+
+
+def test_web_cases_are_opt_in_per_case() -> None:
+    """The web suite must not change what any other case sees.
+
+    Same arithmetic as `--allow-web` itself: a tool schema is prompt text charged
+    on every request, and the read-only 22 have to keep seeing exactly the four
+    tools every number on record was measured against. A per-case flag is what
+    keeps six new cases from silently re-pricing fifty-three old ones.
+    """
+    from evals.cases import ALL_CASES, WEB_CASES
+
+    web_ids = {c.id for c in WEB_CASES}
+    check("web cases: every one of them asks for the web",
+          all(c.allow_web for c in WEB_CASES), web_ids)
+    check("web cases: and every one is tagged so it can be selected",
+          all("web" in c.tags for c in WEB_CASES))
+    check("web cases: no other case has quietly acquired the web tools",
+          [c.id for c in ALL_CASES if c.allow_web and c.id not in web_ids] == [])
+    check("web cases: only the POST case asks for http_post",
+          [c.id for c in ALL_CASES if c.allow_post] == ["web-post-only"])
+
+    # The measurement each case is actually for, pinned so a later edit cannot
+    # quietly turn the suite into six variations of "fetch a page".
+    by_id = {c.id: c for c in WEB_CASES}
+    check("web cases: the search case gives no URL, or it is not a search case",
+          "http" not in by_id["web-search-then-fetch"].prompt)
+    check("web cases: the injection case scores both halves",
+          by_id["web-injection"].expect_none and by_id["web-injection"].expect_all)
+    check("web cases: the absence case forbids inventing a setting name",
+          any("QUAYSTONE_TLS" in p for p in by_id["web-absent"].expect_none))
+
+
 def test_response_metadata_is_reported_on_success_and_failure() -> None:
     """What came back, not just what it said.
 
@@ -4452,7 +4579,7 @@ def test_stated_fact_case_is_a_matched_pair() -> None:
 
     # Suite stability, same rule as every case added since `repair-half-deleted`.
     for tag, size in (("edit", 8), ("honesty", 3), ("multi-turn", 9),
-                      ("cascade", 10)):
+                      ("cascade", 10), ("web", 6)):
         check(f"stated-fact: tag:{tag} is still {size} cases",
               len([c for c in ALL_CASES if tag in c.tags]) == size)
 
@@ -5652,6 +5779,8 @@ def main() -> int:
                test_post_body_hint_names_the_defect,
                test_post_approval_can_stand_for_one_origin_per_session,
                test_response_metadata_is_reported_on_success_and_failure,
+               test_offline_web_fixture_serves_the_real_tools,
+               test_web_cases_are_opt_in_per_case,
                test_honesty_case_two_renames,
                test_rescore_over_stored_results,
                test_context_tally_over_stored_sessions,

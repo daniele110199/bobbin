@@ -34,6 +34,7 @@ from agent.sandbox import Workspace
 from agent.tools import build_registry
 
 from .cases import ALL_CASES, CASES, EDIT_CASES, Case
+from .webfixture import FixtureWeb
 from .score import (Score, diff_snapshots, honesty_problem,
                     honesty_problem_own_words, score_answer, score_workspace,
                     snapshot_tree, unfinished_problems)
@@ -93,7 +94,7 @@ def resolve_num_ctx(case: Case, opts, model: str = "") -> int:
 
 
 def build_agent(model: str, ws: Workspace, opts, max_steps: int | None = None,
-                num_ctx: int | None = None):
+                num_ctx: int | None = None, case: Case | None = None):
     client = OllamaClient(model, host=opts.host,
                           num_ctx=num_ctx or opts.num_ctx or DEFAULT_NUM_CTX)
     # Auto-approve: the human gate is a property of the REPL, not of the agent.
@@ -101,7 +102,19 @@ def build_agent(model: str, ws: Workspace, opts, max_steps: int | None = None,
     # prompt nobody is there to answer would measure nothing. Safe because the
     # workspace is a throwaway copy.
     session = EditSession() if opts.allow_edits else None
-    registry = build_registry(ws, session)
+    # The web tools are per case, never suite-wide. The read-only 22 must keep
+    # seeing exactly the four tools every number on record was measured against,
+    # and a schema is prompt text charged on every request — the same arithmetic
+    # that keeps them behind a flag in `main.py`.
+    #
+    # `http_post` is auto-approved for the same reason writes are: the human gate
+    # is a property of the REPL, and a prompt nobody is there to answer would
+    # measure nothing. The requests go to the offline fixture, not the internet.
+    registry = build_registry(
+        ws, session,
+        allow_web=bool(case and case.allow_web),
+        post_approve=(lambda url, body, ctype: True)
+        if (case and case.allow_post) else None)
     if opts.mode == "research":
         return ResearchAgent(
             client=client, registry=registry, workspace=ws,
@@ -248,7 +261,7 @@ def run_case(model: str, case: Case, opts) -> dict:
     ws = Workspace(root)
     num_ctx = resolve_num_ctx(case, opts, model)
     agent = build_agent(model, ws, opts, max_steps=case.budget_for_model(model),
-                        num_ctx=num_ctx)
+                        num_ctx=num_ctx, case=case)
 
     # One agent for every turn, which is the point of a multi-turn case: turn 2
     # is answered by something carrying turn 1's messages, its edit journal and
@@ -732,17 +745,30 @@ def main() -> int:
                 f"these cases need --allow-edits: {', '.join(needs_edits)}"
             )
 
+    # The offline web, started only if a selected case asks for it and stopped
+    # before the results are written. Nothing reaches the real internet: a score
+    # that depended on a stranger's uptime, or on what a search engine ranked
+    # this morning, would not be a measurement of this agent.
+    web_cases = [c for c in cases if c.allow_web]
+
     print(f"{BOLD}{len(cases)} case(s) x {len(models)} model(s){RESET}  "
           f"mode={opts.mode}  playbook={opts.playbook}  "
           f"edits={'on' if opts.allow_edits else 'off'}  "
-          f"fixture={FIXTURE}")
+          f"fixture={FIXTURE}"
+          + (f"  {DIM}offline web for {len(web_cases)} case(s){RESET}"
+             if web_cases else ""))
 
     all_rows: list[dict] = []
     started = time.monotonic()
-    for model in models:
-        print(f"\n{BOLD}{model}{RESET}"
-              + (f"  {DIM}({opts.jobs} at a time){RESET}" if opts.jobs > 1 else ""))
-        all_rows += run_model(model, cases, opts)
+    offline_web = FixtureWeb().start() if web_cases else None
+    try:
+        for model in models:
+            print(f"\n{BOLD}{model}{RESET}"
+                  + (f"  {DIM}({opts.jobs} at a time){RESET}" if opts.jobs > 1 else ""))
+            all_rows += run_model(model, cases, opts)
+    finally:
+        if offline_web is not None:
+            offline_web.stop()
 
     print_report(all_rows, models, cases, opts.show_fails)
     print(f"\n{DIM}total wall time {time.monotonic() - started:.0f}s{RESET}")
