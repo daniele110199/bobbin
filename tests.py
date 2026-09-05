@@ -3118,6 +3118,80 @@ def test_web_playbook_is_conditional_and_switchable() -> None:
         del os.environ["AGENT_WEB_PLAYBOOK"]
 
 
+def test_stability_survey_finds_near_ties_not_mere_variety() -> None:
+    """`evals/stability.py` has to separate a coin-flip from ordinary variation.
+
+    It exists because `web-search-then-fetch` failed 1/15 with a byte-identical
+    trajectory, then went 11/11 passing with no code change touching it, no
+    ollama restart and an identical recorded configuration — at temperature 0.0.
+    The failing and passing runs shared their first six tool calls and diverged at
+    the seventh. Greedy decoding is not reproducible decoding.
+
+    The measurement that matters is **where** runs stop agreeing, not that they
+    differ. Two runs that differ from the first call are merely varied; two runs
+    that agree for nineteen calls and then split are sitting on a near-tie, and
+    that is the shape that turns into an unreproducible "finding".
+    """
+    from evals.stability import config_key, divergence, survey
+
+    check("stability: identical sequences have no divergence",
+          divergence([("a", "b"), ("a", "b")]) is None)
+    check("stability: a single sequence has none either",
+          divergence([("a", "b")]) is None)
+    check("stability: differing at the first call is index 0",
+          divergence([("a", "b"), ("x", "b")]) == 0)
+    check("stability: a long agreed prefix reports its length",
+          divergence([("a",) * 6 + ("grep",), ("a",) * 6 + ("web_search",)]) == 6)
+    check("stability: a prefix that is simply shorter counts as its length",
+          divergence([("a", "b"), ("a", "b", "c")]) == 2)
+
+    # The config key must separate arms, or two arms of an A/B land in one group
+    # and the switch itself is reported as instability.
+    head_on = {"switches": {}, "mode": "direct", "allow_edits": False,
+               "playbook": "default"}
+    head_off = dict(head_on, switches={"AGENT_NO_FENCE": "1"})
+    row = {"case": "c", "model": "m", "num_ctx": 4096, "budget": 12,
+           "tools_available": ["grep"]}
+    check("stability: different switches are different configurations",
+          config_key(head_on, row) != config_key(head_off, row))
+    check("stability: `:latest` is the same model",
+          config_key(head_on, dict(row, model="m:latest"))
+          == config_key(head_on, row))
+    check("stability: a different tool set is a different configuration",
+          config_key(head_on, dict(row, tools_available=["grep", "web_search"]))
+          != config_key(head_on, row))
+
+    # A group that never varies must not be reported at all, or the survey drowns
+    # in the cases that are behaving.
+    steady = {("c", "m", "{}", 4096, 12, "direct", False, "default", "grep"):
+              [("20260101-0000", {"passed": True, "tool_calls": ["grep"]})] * 3}
+    check("stability: a steady group is not reported", survey(steady) == [])
+
+    flipping = {("c", "m", "{}", 4096, 12, "direct", False, "default", "grep"): [
+        ("20260101-0000", {"passed": True, "tool_calls": ["a", "b", "grep"]}),
+        ("20260101-0100", {"passed": False, "tool_calls": ["a", "b", "web_search"]}),
+        ("20260101-0200", {"passed": True, "tool_calls": ["a", "b", "grep"]}),
+    ]}
+    found = survey(flipping)
+    check("stability: a flipping group is reported", len(found) == 1, found)
+    check("stability: with the outcome split recorded",
+          found[0]["flips"] and found[0]["passes"] == 2, found)
+    check("stability: and the point where the runs stopped agreeing",
+          found[0]["diverge"] == 2, found)
+    check("stability: a same-day group is marked as one sitting",
+          found[0]["one_sitting"], found)
+
+    # Spanning days matters: result files record switches, not code versions, so
+    # a wide group cannot tell runtime noise from an edit to the loop.
+    spread = {("c", "m", "{}", 4096, 12, "direct", False, "default", "grep"): [
+        ("20260101-0000", {"passed": True, "tool_calls": ["a"]}),
+        ("20260228-0000", {"passed": False, "tool_calls": ["b"]}),
+        ("20260301-0000", {"passed": True, "tool_calls": ["a"]}),
+    ]}
+    check("stability: a multi-sitting group is flagged as confounded",
+          not survey(spread)[0]["one_sitting"])
+
+
 def test_pair_survey_names_only_real_switches() -> None:
     """`evals/pairs.py` cuts the ablation search space, so it must not lie about it.
 
@@ -6017,6 +6091,7 @@ def main() -> int:
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
                test_pair_survey_names_only_real_switches,
+               test_stability_survey_finds_near_ties_not_mere_variety,
                test_web_playbook_is_conditional_and_switchable,
                test_absence_challenge_has_an_off_arm,
                test_web_cases_are_opt_in_per_case,
