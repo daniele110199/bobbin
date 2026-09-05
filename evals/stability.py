@@ -111,6 +111,47 @@ def divergence(seqs: list[tuple]) -> int | None:
     return shortest
 
 
+def noise_floor(groups: dict, min_pairs: int = 3,
+                same_sitting: bool = True) -> dict:
+    """Per (case, model): the chance two runs of one configuration disagree.
+
+    Counted over pairs rather than over groups, because that is the number a
+    reader of a table actually needs. A group of `n` runs with `k` passes
+    contains `k * (n - k)` disagreeing pairs out of `n * (n - 1) / 2`, and
+    summing both over every fixed-configuration group gives
+    **P(two runs under identical settings disagree)** directly.
+
+    Pairs, not a variance: a pass rate is a proportion of Bernoulli trials whose
+    success probability is exactly what is in doubt here, and quoting a standard
+    error computed *from* that proportion would assume the stability the number
+    is meant to question. "One run in five disagrees with its twin" needs no
+    distributional assumption at all.
+
+    `same_sitting` is the honest default and the reason the pooled number is not
+    quoted. A group spanning weeks of tuning carries code changes as well as
+    runtime noise, and pooling those puts several cases at 0.5 — which is not a
+    noise floor, it is a record of the case being actively changed. Restricting
+    to groups whose runs all fall on one day cannot remove that entirely, but it
+    removes the part that matters, and it is the difference between a number a
+    table can carry and one that would just frighten a reader.
+    """
+    tally: dict = collections.defaultdict(lambda: [0, 0, 0])
+    for key, runs in groups.items():
+        n = len(runs)
+        if n < 2:
+            continue
+        if same_sitting and len({stamp[:8] for stamp, _ in runs}) > 1:
+            continue
+        k = sum(bool(r.get("passed")) for _, r in runs)
+        cell = tally[(key[0], key[1])]
+        cell[0] += k * (n - k)
+        cell[1] += n * (n - 1) // 2
+        cell[2] += n
+    return {key: {"disagree": d, "pairs": p, "runs": r,
+                  "rate": (d / p) if p else 0.0}
+            for key, (d, p, r) in tally.items() if p >= min_pairs}
+
+
 def survey(groups: dict, min_runs: int = 3) -> list[dict]:
     out = []
     for key, runs in groups.items():
@@ -143,10 +184,27 @@ def main() -> int:
     ap.add_argument("--case", help="restrict to one case id")
     ap.add_argument("--diverge", action="store_true",
                     help="show only groups whose runs agree for a while, then split")
+    ap.add_argument("--noise", action="store_true",
+                    help="print the per-case noise floor instead of the survey")
+    ap.add_argument("--pooled", action="store_true",
+                    help="with --noise: include groups spanning sittings, which "
+                         "mixes code changes in with runtime noise")
     ap.add_argument("--results", default=str(RESULTS))
     opts = ap.parse_args()
 
     groups = load(Path(opts.results), opts.since)
+
+    if opts.noise:
+        floor = noise_floor(groups, same_sitting=not opts.pooled)
+        if opts.case:
+            floor = {k: v for k, v in floor.items() if k[0] == opts.case}
+        print(f"{'case':26} {'model':22} {'runs':6} {'pairs':7} {'disagree':9} rate")
+        for (case, model), v in sorted(floor.items(), key=lambda kv: -kv[1]["rate"]):
+            mark = "  <-- a single rep says little" if v["rate"] >= 0.2 else ""
+            print(f"{case:26} {model:22} {v['runs']:<6} {v['pairs']:<7} "
+                  f"{v['disagree']:<9} {v['rate']:.2f}{mark}")
+        return 0
+
     rows = survey(groups, opts.min_runs)
     if opts.case:
         rows = [r for r in rows if r["case"] == opts.case]

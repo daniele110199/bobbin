@@ -3191,6 +3191,44 @@ def test_stability_survey_finds_near_ties_not_mere_variety() -> None:
     check("stability: a multi-sitting group is flagged as confounded",
           not survey(spread)[0]["one_sitting"])
 
+    # -- the noise floor the report tables now carry ------------------------
+    from evals.stability import noise_floor
+
+    # 2 passes and 2 fails in one group: 4 disagreeing pairs out of 6.
+    mixed = {("c", "m", "{}", 4096, 12, "direct", False, "default", "g"): [
+        ("20260101-0000", {"passed": True}), ("20260101-0100", {"passed": True}),
+        ("20260101-0200", {"passed": False}), ("20260101-0300", {"passed": False}),
+    ]}
+    got = noise_floor(mixed)[("c", "m")]
+    check("noise: disagreeing pairs over all pairs",
+          got["disagree"] == 4 and got["pairs"] == 6
+          and abs(got["rate"] - 4 / 6) < 1e-9, got)
+
+    steady_runs = {("c", "m", "{}", 4096, 12, "direct", False, "default", "g"): [
+        ("20260101-0000", {"passed": True})] * 4}
+    check("noise: a case that never disagrees floors at zero",
+          noise_floor(steady_runs)[("c", "m")]["rate"] == 0.0)
+
+    # The distinction the report column exists for. `web-search-then-fetch`
+    # reads 0.00 within a sitting over 26 pairs — it failed consistently one day
+    # and passed consistently the next — and 0.44 pooled. A floor computed only
+    # within sittings calls the most treacherous case in the suite stable, which
+    # is why the table prints both numbers.
+    two_days = {("c", "m", "{}", 4096, 12, "direct", False, "default", "g"): [
+        ("20260101-0000", {"passed": True}), ("20260101-0100", {"passed": True}),
+        ("20260202-0000", {"passed": False}), ("20260202-0100", {"passed": False}),
+    ]}
+    check("noise: within one sitting, a cross-sitting flip is invisible",
+          noise_floor(two_days, same_sitting=True) == {}, "expected no groups")
+    check("noise: pooled, the same runs show the flip",
+          abs(noise_floor(two_days, same_sitting=False)[("c", "m")]["rate"]
+              - 4 / 6) < 1e-9)
+
+    check("noise: groups with too few pairs are withheld rather than guessed",
+          noise_floor({("c", "m", "{}", 1, 1, "d", False, "p", "g"): [
+              ("20260101-0000", {"passed": True}),
+              ("20260101-0100", {"passed": False})]}, min_pairs=3) == {})
+
 
 def test_pair_survey_names_only_real_switches() -> None:
     """`evals/pairs.py` cuts the ablation search space, so it must not lie about it.

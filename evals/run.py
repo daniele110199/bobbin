@@ -33,7 +33,8 @@ from agent.research import ResearchAgent
 from agent.sandbox import Workspace
 from agent.tools import build_registry
 
-from .cases import ALL_CASES, CASES, EDIT_CASES, Case
+from .cases import ALL_CASES, CASES, EDIT_CASES, Case, _norm_model
+from .stability import load, noise_floor
 from .webfixture import FixtureWeb
 from .score import (Score, diff_snapshots, honesty_problem,
                     honesty_problem_own_words, score_answer, score_workspace,
@@ -606,20 +607,73 @@ def print_report(all_rows: list[dict], models: list[str], cases: list[Case],
               f"facts=claims backed by tool output  dropped=claims deleted as unsupported  "
               f"dossier=avg chars handed to the answer phase  calls=avg model calls/case{RESET}")
 
-    if len(models) > 1:
-        width = max(len(c.id) for c in cases) + 2
-        print(f"\n{BOLD}Per case{RESET}")
-        print(f"{'case':<{width}}" + "".join(f"{m.split(':')[0][:12]:>14}" for m in models))
-        for case in cases:
-            line = f"{case.id:<{width}}"
-            for model in models:
-                row = next((r for r in all_rows
-                            if r["model"] == model and r["case"] == case.id), None)
-                mark = "-" if row is None else (f"{GREEN}pass{RESET}" if row["passed"]
-                                               else f"{RED}FAIL{RESET}")
-                pad = 14 - 4
-                line += " " * pad + mark
-            print(line)
+    # The noise floor, from the runs already on disk. `print_report` runs before
+    # this sitting's file is written, so it is strictly historical.
+    #
+    # It is here because every table in this project quotes a pass rate with
+    # nothing beside it, and a bare "5/6 against 4/6" reads as a result. Measured
+    # over 3729 stored runs, roughly one fixed-configuration group in five flips
+    # outcome, and the worst cases are near a coin. A column that says so is the
+    # cheapest defence there is against reading a sitting as a finding.
+    # Two numbers, not one, and the second is the reason: `web-search-then-fetch`
+    # reads **0.00 within a sitting** over 26 pairs — it failed consistently on one
+    # day and passed consistently on the next. Its whole instability is *between*
+    # sittings, so the within-sitting floor calls the most treacherous case in the
+    # suite perfectly stable. Pooled, it reads 0.44.
+    #
+    # A case where those two disagree is the dangerous shape: reproducible enough
+    # inside one sitting to look like a fact, and different next week. Quoting
+    # only one of them would have hidden exactly the trap that produced this
+    # column.
+    floor = pooled = {}
+    try:
+        groups = load(RESULTS)
+        floor = noise_floor(groups)
+        pooled = noise_floor(groups, same_sitting=False)
+    except Exception:  # noqa: BLE001 - a report must never fail over its own footnote
+        pass
+
+    width = max(len(c.id) for c in cases) + 2
+    print(f"\n{BOLD}Per case{RESET}")
+    print(f"{'case':<{width}}"
+          + "".join(f"{m.split(':')[0][:12]:>14}" for m in models)
+          + f"{'noise':>14}")
+    for case in cases:
+        line = f"{case.id:<{width}}"
+        for model in models:
+            row = next((r for r in all_rows
+                        if r["model"] == model and r["case"] == case.id), None)
+            mark = "-" if row is None else (f"{GREEN}pass{RESET}" if row["passed"]
+                                            else f"{RED}FAIL{RESET}")
+            line += " " * (14 - 4) + mark
+        # The worst rate over the models actually in this run, so the column
+        # answers "how much should I trust the cells to my left".
+        def worst(table):
+            rates = [table[(case.id, _norm_model(m))]["rate"] for m in models
+                     if (case.id, _norm_model(m)) in table]
+            return max(rates) if rates else None
+
+        within, across = worst(floor), worst(pooled)
+        if within is None and across is None:
+            line += f"{DIM}{'-':>14}{RESET}"
+        else:
+            cell = (f"{within:.2f}" if within is not None else "-") + "/" + \
+                   (f"{across:.2f}" if across is not None else "-")
+            hidden = (within is not None and across is not None
+                      and within < 0.2 <= across)
+            colour = RED if (within or 0) >= 0.2 or hidden else DIM
+            line += f"{colour}{cell:>14}{RESET}"
+        print(line)
+    if floor:
+        print(f"\n{DIM}noise = P(two runs of this case under an identical recorded "
+              f"configuration disagree), as within-one-sitting/pooled-across-"
+              f"sittings, over every stored run. '-' means too few pairs to say. "
+              f"At 0.20 either number, a single rep is close to worthless and a "
+              f"one-cell difference is not a result. **A low first number beside a "
+              f"high second one is the worst case**: reproducible inside a sitting, "
+              f"different next week — quote it across sittings and you will find "
+              f"something that is not there. See `python3 -m evals.stability "
+              f"--noise`.{RESET}")
 
     sessions = [r for r in all_rows if r.get("turns")]
     if sessions:
