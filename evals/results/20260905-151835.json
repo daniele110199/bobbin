@@ -1,0 +1,368 @@
+{
+  "timestamp": "20260905-151835",
+  "models": [
+    "nemotron-3.5-lightning",
+    "qwen3-coder:30b"
+  ],
+  "mode": "direct",
+  "allow_edits": false,
+  "compaction": true,
+  "scope_check": true,
+  "switches": {
+    "AGENT_WEB_PLAYBOOK": "1"
+  },
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "nemotron-3.5-lightning": {
+      "cases": 1,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 2.0,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 0,
+      "challenges": 0,
+      "quoted": 0,
+      "presup": 0,
+      "scope": 0,
+      "notices": 0,
+      "compactions": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 60.9,
+      "tool_use": {
+        "fetch_url": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "grep": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "list_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "read_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "web_search": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        }
+      }
+    },
+    "qwen3-coder:30b": {
+      "cases": 1,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 12.0,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 0,
+      "challenges": 0,
+      "quoted": 0,
+      "presup": 0,
+      "scope": 0,
+      "notices": 0,
+      "compactions": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 1,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 73.7,
+      "tool_use": {
+        "fetch_url": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find_files": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "grep": {
+          "calls": 4,
+          "cases": 1,
+          "per_case": 4.0
+        },
+        "list_files": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "read_file": {
+          "calls": 5,
+          "cases": 1,
+          "per_case": 5.0
+        },
+        "web_search": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "web-search-then-fetch",
+      "tags": [
+        "web",
+        "search"
+      ],
+      "model": "nemotron-3.5-lightning",
+      "tools_available": [
+        "fetch_url",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "web_search"
+      ],
+      "budget": 12,
+      "passed": false,
+      "missing": [
+        "attempts"
+      ],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on the web search results, the answer is clear:\n\n- **Version**: **4.2.0**\n- **What changed**: The quaystone library's changelog states that \"4.2.0 changed how the retry ceiling counts.\"\n\nThe migration notes confirm that upgrading from 4.1 to 4.2 requires no code changes, suggesting the change was internal to how the retry ceiling is calculated/counted rather than a breaking API change.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 6443,
+      "context_tokens_est": 1610,
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "web_search"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "quaystone",
+            "path": "/tmp/llm-agent-evals/nemotron-3.5-lightning/web-search-then-fetch/fixture"
+          }
+        },
+        {
+          "name": "web_search",
+          "args": {
+            "query": "quaystone library retry ceiling version change"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 60.9
+    },
+    {
+      "research": {},
+      "case": "web-search-then-fetch",
+      "tags": [
+        "web",
+        "search"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "fetch_url",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "web_search"
+      ],
+      "budget": 12,
+      "passed": false,
+      "missing": [
+        "attempts"
+      ],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on the web search results, I can provide information about the quaystone library's retry ceiling change:\n\nAccording to the search results, quaystone library changed how its retry ceiling counts in version 4.2.0. The changelog indicates this was a significant change in the library's retry behavior, though the specific details of what changed in the retry ceiling counting mechanism aren't provided in the search results.\n\nThe search also shows that upgrading from version 4.1 to 4.2 requires no code changes, suggesting this was an internal implementation change rather than an API-breaking one.\n\nHowever, I should note that this project workspace doesn't appear to contain any quaystone library code - it's a billing toolkit called \"Ledger\" with its own configuration including MAX_RETRIES = 5 in core/config.py. The quaystone library appears to be a separate external library not part of this specific project.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 11733,
+      "context_tokens_est": 2933,
+      "steps": 12,
+      "tool_calls": [
+        "find_files",
+        "grep",
+        "grep",
+        "list_files",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "grep",
+        "grep",
+        "web_search"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "find_files",
+          "args": {
+            "pattern": "*quaystone*"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "retry.*ceiling"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "quaystone"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/architecture.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "retry",
+            "file_glob": "*.py"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "MAX_RETRIES"
+          }
+        },
+        {
+          "name": "web_search",
+          "args": {
+            "query": "quaystone library retry ceiling change version"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": true,
+      "llm_error": null,
+      "duration_s": 73.7
+    }
+  ]
+}
