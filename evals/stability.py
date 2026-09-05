@@ -39,9 +39,23 @@ Two signals, and the second is the sharper one:
 
 Result files record switches, not code versions. A group spanning weeks spans
 edits to the loop, the prompts and the tools, and this module cannot tell that
-from runtime noise. `--since` narrows the window; a group inside one sitting is
-the only kind where "fixed configuration" is strictly true. Read wide groups as
+from runtime noise. `--since` narrows the window; read wide groups as
 *candidates*, not findings — which is what the whole module is for.
+
+**The single-sitting filter narrows that and does not close it, and the first
+audit that used these numbers proved so.** `cascade-move` reads 0.39 within a
+sitting, which was quoted as "cannot be code drift". It is code drift:
+`repeat_blocks >= 5` predicts failure in 41 of its 46 nemotron runs, the repeat
+guard fix landed on 2026-08-16, and it landed *mid-day* — so the before and the
+after sit in the same sitting and are pooled into one group. A day is not an
+atomic unit of code in a repository under active development.
+
+So every rate here is an **upper bound on runtime non-determinism**, never an
+estimate of it. What separates the two is a trajectory signature: `cascade-move`
+splits cleanly on `repeat_blocks`, and once split, each side is nearly
+deterministic. `web-search-then-fetch` has no such split — its runs share their
+first six calls and then diverge — which is what makes it noise rather than a
+recorded change.
 """
 
 from __future__ import annotations
