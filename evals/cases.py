@@ -1847,8 +1847,114 @@ SECURITY_CASES: list[Case] = [
     ),
 ]
 
+# A diff-review suite: the workflow the "keep code local" concern actually lives
+# in. You do not paste a whole file into a cloud LLM out of habit; you paste the
+# diff you are about to push. Reviewing a change is also a harder task than
+# reviewing a file — the model has to reason about what the change *did*, not
+# just pattern-match the end state — and it has its own false-positive trap: a
+# diff that *fixes* a vulnerability, or an innocuous refactor of
+# security-relevant code, must not be reported as introducing one.
+#
+# Each case carries a unified diff in the prompt (what a pre-push hook feeds) and
+# the after-state file is in the workspace, so the tool-based agent can read the
+# surrounding code the way it would read a real working tree.
+#
+# Three outcomes, four cases: two diffs introduce a vulnerability (recall), one
+# fixes a vulnerability, one is a behaviour-preserving refactor. The last two are
+# the false-positive controls, scored on the verdict the review reaches rather
+# than on bug-word hunting — the `sec-clean` lesson.
+DIFFREVIEW_CASES: list[Case] = [
+    Case(
+        id="diff-introduces-sqli",
+        prompt=(
+            "This change is staged in the working tree. Review it: does it "
+            "introduce a security vulnerability?\n\n"
+            "--- a/query.py\n+++ b/query.py\n"
+            "@@ def customer_by_email(conn, email):\n"
+            "-    q = \"SELECT id, name FROM customers WHERE email = ?\"\n"
+            "-    return conn.execute(q, (email,)).fetchone()\n"
+            "+    q = \"SELECT id, name FROM customers WHERE email = '%s'\" % email\n"
+            "+    return conn.execute(q).fetchone()\n"),
+        expect_all=[r"(?i)sql injection|injection|parameteri[sz]"],
+        tags=["diffreview", "review"],
+        fixture="fixture-diffreview",
+    ),
+    Case(
+        id="diff-introduces-shell",
+        prompt=(
+            "This change is staged in the working tree. Review it: does it "
+            "introduce a security vulnerability?\n\n"
+            "--- a/report.py\n+++ b/report.py\n"
+            "@@ def archive(name):\n"
+            "-    subprocess.run([\"tar\", \"czf\", \"backup.tgz\", name])\n"
+            "+    subprocess.run(\"tar czf backup.tgz \" + name, shell=True)\n"),
+        expect_all=[r"(?i)command injection|shell injection|shell\s*=\s*True|"
+                    r"arbitrary command|arbitrary shell"],
+        tags=["diffreview", "review"],
+        fixture="fixture-diffreview",
+    ),
+    Case(
+        id="diff-fixes-hash",
+        # The diff replaces MD5 with bcrypt. The change is a security
+        # *improvement*; a review that calls it a newly introduced vulnerability
+        # is wrong, and one that flags the now-safe code is the false positive
+        # this case exists to catch.
+        prompt=(
+            "This change is staged in the working tree. Review it: does it "
+            "introduce a security vulnerability?\n\n"
+            "--- a/passwords.py\n+++ b/passwords.py\n"
+            "-import hashlib\n+import bcrypt\n"
+            "@@ def store(password):\n"
+            "-    return hashlib.md5(password.encode()).hexdigest()\n"
+            "+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt())\n"
+            "@@ def verify(password, stored):\n"
+            "-    return hashlib.md5(password.encode()).hexdigest() == stored\n"
+            "+    return bcrypt.checkpw(password.encode(), stored)\n"),
+        expect_any=[r"(?i)\b(no (?:security )?vulnerab|does not introduce|"
+                    r"no (?:security )?(?:issue|problem|flaw|concern)|improv|"
+                    r"more secure|stronger|fixes|good|safe|no new)"],
+        expect_none=[
+            r"(?i)introduces? (?:a |an )?\w*\s*(?:vulnerabilit|security (?:issue|flaw))",
+            r"(?i)\b(is|are)\s+vulnerable\s+to\b",
+        ],
+        tags=["diffreview", "review", "clean"],
+        fixture="fixture-diffreview",
+    ),
+    Case(
+        id="diff-refactor-safe",
+        # A pure rename (p -> candidate) inside a correct path-traversal guard.
+        # No behaviour changes. The bait: the function joins user input onto a
+        # path, so a reviewer skimming for "user input + path" flags traversal —
+        # but the resolved-path check is intact and untouched.
+        prompt=(
+            "This change is staged in the working tree. Review it: does it "
+            "introduce a security vulnerability?\n\n"
+            "--- a/paths.py\n+++ b/paths.py\n"
+            "@@ def export_path(user_supplied_name):\n"
+            "-    p = (EXPORT_ROOT / user_supplied_name).resolve()\n"
+            "-    if not p.is_relative_to(EXPORT_ROOT):\n"
+            "-        raise ValueError(\"outside export root\")\n"
+            "-    return p\n"
+            "+    candidate = (EXPORT_ROOT / user_supplied_name).resolve()\n"
+            "+    if not candidate.is_relative_to(EXPORT_ROOT):\n"
+            "+        raise ValueError(\"outside export root\")\n"
+            "+    return candidate\n"),
+        expect_any=[r"(?i)\b(no (?:security )?vulnerab|does not introduce|"
+                    r"no (?:security )?(?:issue|problem|flaw|concern)|"
+                    r"no (?:behaviou?ral |functional )?change|rename|"
+                    r"equivalent|safe|no new|purely (?:cosmetic|a refactor))"],
+        expect_none=[
+            r"(?i)introduces? (?:a |an )?\w*\s*(?:vulnerabilit|security (?:issue|flaw))",
+            r"(?i)\b(is|are)\s+vulnerable\s+to\b",
+            r"(?i)path travers\w+ (?:vulnerabilit|is possible|risk|attack)",
+        ],
+        tags=["diffreview", "review", "clean"],
+        fixture="fixture-diffreview",
+    ),
+]
+
 ALL_CASES = (CASES + EDIT_CASES + CASCADE_CASES + CASCADE_B_CASES + REPAIR_CASES
              + HONESTY_EDIT_CASES + MULTI_TURN_CASES
              + SESSION_RECALL_CASES + CREATE_REQUEST_CASES + WEB_CASES + BURN_CASES
-             + SECURITY_CASES)
+             + SECURITY_CASES + DIFFREVIEW_CASES)
 BY_ID = {c.id: c for c in ALL_CASES}

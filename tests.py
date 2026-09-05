@@ -3330,6 +3330,75 @@ def test_empty_search_note_counts_in_both_arms() -> None:
           EMPTY_SEARCH_TRIGGER >= 3, EMPTY_SEARCH_TRIGGER)
 
 
+def test_diff_review_suite_scores_change_reasoning() -> None:
+    """The diff-review suite: reviewing a change, not a file.
+
+    This is the workflow the privacy pitch lives in — you paste the diff you are
+    about to push, not the whole file — and it is a harder task, because the
+    model has to reason about what the change did. Two diffs introduce a bug
+    (recall); one fixes a bug and one is a behaviour-preserving rename (the
+    false-positive controls, scored on the verdict, not on bug words).
+
+    Hermetic: crafted answers, no model. The after-state files are read to
+    confirm they match the diffs, so a case cannot silently drift from what it
+    claims to test.
+    """
+    from evals.cases import BY_ID
+    from evals.score import score_answer
+
+    ff = Path("evals/fixture-diffreview")
+    check("diff: query.py is in the vulnerable end state (string-formatted)",
+          "% email" in ff.joinpath("query.py").read_text()
+          and "(email,)" not in ff.joinpath("query.py").read_text())
+    check("diff: report.py archive uses shell=True in the end state",
+          "shell=True" in ff.joinpath("report.py").read_text())
+    check("diff: passwords.py end state is bcrypt, not md5",
+          "bcrypt" in ff.joinpath("passwords.py").read_text()
+          and "md5" not in ff.joinpath("passwords.py").read_text())
+    check("diff: paths.py keeps its resolved-path guard after the rename",
+          "is_relative_to(EXPORT_ROOT)" in ff.joinpath("paths.py").read_text())
+
+    def passes(cid, ans):
+        sc = score_answer(BY_ID[cid].turn_list()[0], ans)
+        return not (sc.missing or sc.forbidden)
+
+    # recall: the introduced bug must be named
+    check("diff: catching the introduced SQLi passes",
+          passes("diff-introduces-sqli",
+                 "This introduces SQL injection — the query is now string-formatted."))
+    check("diff: missing the introduced SQLi fails",
+          not passes("diff-introduces-sqli", "Looks fine, no problems."))
+    check("diff: catching the introduced shell injection passes",
+          passes("diff-introduces-shell",
+                 "This adds command injection via shell=True on user input."))
+    check("diff: missing the introduced shell injection fails",
+          not passes("diff-introduces-shell", "The change looks okay to me."))
+
+    # false-positive control 1: a diff that FIXES a bug
+    check("diff: recognizing the md5->bcrypt fix as safe passes",
+          passes("diff-fixes-hash",
+                 "Security improvement: bcrypt replaces the weak MD5 hash. "
+                 "No vulnerability introduced."))
+    check("diff: calling the fix a newly introduced vulnerability FAILS",
+          not passes("diff-fixes-hash",
+                     "This introduces a vulnerability in password handling."))
+    check("diff: flagging the now-safe hashing code FAILS",
+          not passes("diff-fixes-hash",
+                     "store is vulnerable to hash collision attacks."))
+
+    # false-positive control 2: a behaviour-preserving refactor
+    check("diff: calling the pure rename safe passes",
+          passes("diff-refactor-safe",
+                 "Pure rename of p to candidate, no behavioral change; safe."))
+    check("diff: inventing a path traversal in the refactor FAILS",
+          not passes("diff-refactor-safe",
+                     "This introduces a path traversal vulnerability via the name."))
+
+    check("diff: the suite is read-only",
+          all("edit" not in c.tags and "writes" not in c.tags
+              for c in BY_ID.values() if "diffreview" in c.tags))
+
+
 def test_security_suite_scores_recall_and_false_positives() -> None:
     """The security review suite is a benchmark, so its scoring must be sound.
 
@@ -6299,6 +6368,7 @@ def main() -> int:
                test_offline_web_fixture_serves_the_real_tools,
                test_pair_survey_names_only_real_switches,
                test_security_suite_scores_recall_and_false_positives,
+               test_diff_review_suite_scores_change_reasoning,
                test_empty_search_note_counts_in_both_arms,
                test_stability_survey_finds_near_ties_not_mere_variety,
                test_web_playbook_is_conditional_and_switchable,
