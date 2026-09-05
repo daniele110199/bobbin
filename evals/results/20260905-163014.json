@@ -1,0 +1,306 @@
+{
+  "timestamp": "20260905-163014",
+  "models": [
+    "qwen3-coder:30b"
+  ],
+  "mode": "direct",
+  "allow_edits": false,
+  "compaction": true,
+  "scope_check": true,
+  "switches": {},
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 3,
+      "passed": 3,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 2.6666666666666665,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 1,
+      "challenges": 0,
+      "quoted": 0,
+      "presup": 0,
+      "scope": 0,
+      "notices": 0,
+      "compactions": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 14.4,
+      "tool_use": {
+        "find_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "grep": {
+          "calls": 2,
+          "cases": 2,
+          "per_case": 0.6666666666666666
+        },
+        "list_files": {
+          "calls": 2,
+          "cases": 1,
+          "per_case": 0.6666666666666666
+        },
+        "read_file": {
+          "calls": 4,
+          "cases": 2,
+          "per_case": 1.3333333333333333
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "locate-tax",
+      "tags": [
+        "locate",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file"
+      ],
+      "budget": 12,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function `compute_tax` is defined in the file `src/billing/tax.py` at line 7.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 3259,
+      "context_tokens_est": 814,
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def compute_tax"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 11.4
+    },
+    {
+      "research": {},
+      "case": "api-endpoint",
+      "tags": [
+        "read-value"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file"
+      ],
+      "budget": 12,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my investigation, I found that the API endpoint configured in this project is:\n\n**https://api.example.com/v2**\n\nThis is defined in the `src/core/config.py` file on line 5, where `API_ENDPOINT = \"https://api.example.com/v2\"` is set. The CLI entry point (`src/cli.py`) uses this configuration value when creating an InvoiceBuilder instance.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 5128,
+      "context_tokens_est": 1282,
+      "steps": 6,
+      "tool_calls": [
+        "list_files",
+        "read_file",
+        "read_file",
+        "list_files",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "list_files",
+          "args": {
+            "depth": 2
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/cli.py"
+          }
+        },
+        {
+          "name": "list_files",
+          "args": {
+            "path": "src/core"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/config.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 18.7
+    },
+    {
+      "research": {},
+      "case": "sentinel",
+      "tags": [
+        "search",
+        "needle"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file"
+      ],
+      "budget": 12,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "I found the full value of the tracking ID that starts with \"XK_SENTINEL\". \n\nThe complete tracking ID is XK_SENTINEL_9931, and it is contained in the file docs/architecture.md at line 10.\n\nThe file shows:\n```\nInternal tracking id for this document: XK_SENTINEL_9931\n```",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 4214,
+      "context_tokens_est": 1053,
+      "steps": 3,
+      "tool_calls": [
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "XK_SENTINEL"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "docs/architecture.md"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 13.1
+    }
+  ]
+}

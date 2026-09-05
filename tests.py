@@ -3230,6 +3230,106 @@ def test_stability_survey_finds_near_ties_not_mere_variety() -> None:
               ("20260101-0100", {"passed": False})]}, min_pairs=3) == {})
 
 
+def test_empty_search_note_counts_in_both_arms() -> None:
+    """The workspace-burn note: a mechanism where prose had already failed.
+
+    The failure it targets: qwen3-coder spends eleven of twelve steps searching a
+    workspace that does not contain the word it is looking for — `find_files`,
+    `grep`, `find_files`, `list_files`, re-spelling the same idea — reaches
+    `web_search` as its last call and has nothing left to fetch with.
+
+    `prompts/web.md` tried to fix that with a standing instruction and lost: it
+    suppressed a `fetch_url` nemotron was already making unprompted, and moved
+    qwen3's trajectory by not one call. A rule at the top of the prompt is read
+    before there is anything to apply it to. This fires at the moment the fact
+    exists, which is the shape of the mechanisms here that *have* earned their
+    place — the absence challenge, the context notice.
+
+    Off by default. The last attempt at this failure made things worse, and the
+    case that witnesses it is the least stable instrument in the suite (0.00
+    within a sitting, 0.44 pooled), so it has to earn its default rather than be
+    given it.
+    """
+    import os
+
+    from agent.loop import EMPTY_SEARCH_TRIGGER, Agent, empty_search_note_enabled
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+
+    class Reply:
+        def __init__(self, calls=None, content=""):
+            self.content, self.recovered_from_text = content, False
+            self.tool_calls = calls or []
+
+    class Call:
+        def __init__(self, name, args):
+            self.name, self.arguments, self.id = name, args, "1"
+
+    class Client:
+        """Searches for names the workspace does not contain, then gives up."""
+        def __init__(self, hits=0):
+            self.n, self.hits = 0, hits
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n <= 5:
+                pattern = "x = 1" if self.n <= self.hits else f"quaystone{self.n}"
+                return Reply([Call("grep", {"pattern": pattern})])
+            return Reply(content="I could not find it.")
+
+    def run(arm: str, hits: int = 0):
+        os.environ.pop("AGENT_EMPTY_SEARCH_NOTE", None)
+        if arm == "on":
+            os.environ["AGENT_EMPTY_SEARCH_NOTE"] = "1"
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                (Path(tmpdir) / "a.py").write_text("x = 1\n")
+                ws = Workspace(Path(tmpdir))
+                agent = Agent(client=Client(hits), registry=build_registry(ws),
+                              workspace=ws, max_steps=8)
+                agent.ask("Where is quaystone configured?")
+            delivered = [m for m in agent.messages
+                         if m.get("role") == "user"
+                         and "without a single match" in str(m.get("content"))]
+            return agent.stats, delivered
+        finally:
+            os.environ.pop("AGENT_EMPTY_SEARCH_NOTE", None)
+
+    check("empty-search note: off by default", not empty_search_note_enabled())
+
+    off_stats, off_msgs = run("off")
+    on_stats, on_msgs = run("on")
+
+    check("empty-search note: fruitless searches are recorded in both arms",
+          len(off_stats.empty_searches) == 5 == len(on_stats.empty_searches),
+          (off_stats.empty_searches, on_stats.empty_searches))
+    check("empty-search note: it is COUNTED in both arms, so they compare",
+          off_stats.empty_search_notes == 1 == on_stats.empty_search_notes,
+          (off_stats.empty_search_notes, on_stats.empty_search_notes))
+    check("empty-search note: but delivered only in the on arm",
+          not off_msgs and len(on_msgs) == 1, (len(off_msgs), len(on_msgs)))
+    check("empty-search note: it names the terms that found nothing",
+          "quaystone1" in on_msgs[0]["content"], on_msgs[0]["content"])
+    check("empty-search note: and says a respelling will not help either",
+          "another spelling" in on_msgs[0]["content"], on_msgs[0]["content"])
+
+    # Once per turn. A note repeated every step would be noise, and would spend
+    # the context it is trying to save.
+    check("empty-search note: it is said once, not once per search",
+          len(on_msgs) == 1)
+
+    # A search that finds something must not count. The vocabulary cases probe a
+    # wrong term and then find the right one; firing on those would punish the
+    # behaviour the vocabulary rescue exists to encourage.
+    fruitful, _ = run("on", hits=5)
+    check("empty-search note: a search that matches is not counted",
+          fruitful.empty_searches == [], fruitful.empty_searches)
+    check("empty-search note: and below the trigger it never fires",
+          fruitful.empty_search_notes == 0)
+    check("empty-search note: the trigger is not one or two searches",
+          EMPTY_SEARCH_TRIGGER >= 3, EMPTY_SEARCH_TRIGGER)
+
+
 def test_pair_survey_names_only_real_switches() -> None:
     """`evals/pairs.py` cuts the ablation search space, so it must not lie about it.
 
@@ -6129,6 +6229,7 @@ def main() -> int:
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
                test_pair_survey_names_only_real_switches,
+               test_empty_search_note_counts_in_both_arms,
                test_stability_survey_finds_near_ties_not_mere_variety,
                test_web_playbook_is_conditional_and_switchable,
                test_absence_challenge_has_an_off_arm,

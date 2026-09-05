@@ -229,6 +229,11 @@ def run_turn(agent, case: Case, turn, index: int, root: Path) -> dict:
         "quoted_absences": st.quoted_absences,
         "presupposition_challenges": st.presupposition_challenges,
         "scope_challenges": st.scope_challenges,
+        # Counted in both arms, so a run with the note off still says
+        # when it would have fired. That is how the fire rate gets
+        # priced before the treatment is ever measured.
+        "empty_search_notes": st.empty_search_notes,
+        "empty_searches": list(st.empty_searches),
         "interrupted": st.interrupted,
         "steers": st.steers,
         "context_notices": st.context_notices,
@@ -365,6 +370,11 @@ def run_case(model: str, case: Case, opts) -> dict:
         "quoted_absences": total("quoted_absences"),
         "presupposition_challenges": total("presupposition_challenges"),
         "scope_challenges": total("scope_challenges"),
+        "empty_search_notes": total("empty_search_notes"),
+        # The terms themselves, for diagnosis: a note that fired on a case whose
+        # answer *is* in the workspace is a false positive, and only the terms
+        # show which it was.
+        "empty_searches": gathered("empty_searches"),
         # A run stopped by its user is not a run that failed, and a
         # scored suite has to be able to tell them apart.
         "interrupted": any(r["interrupted"] for r in rows),
@@ -452,6 +462,7 @@ def run_model(model: str, cases: list[Case], opts) -> list[dict]:
                        "recovered_text_calls": 0, "absence_challenges": 0,
                        "quoted_absences": 0, "presupposition_challenges": 0,
                        "scope_challenges": 0,
+                       "empty_search_notes": 0,
                        "context_notices": 0, "compactions": 0,
                        "digest_previews": [],
                        "fabrications": 0, "budget_exhausted": False,

@@ -190,6 +190,47 @@ repeat your answer and it will be accepted."""
 # otherwise. Measured: 11/12 -> 12/12, two models, two sittings, four cells.
 CONTEXT_RESERVE = 1400
 
+# Said once, when the workspace has been searched several times for something it
+# does not contain.
+#
+# Prose was tried first and lost: `prompts/web.md` told the model to search the
+# web when the workspace could not answer, and it suppressed the `fetch_url` that
+# nemotron had been making unprompted, while moving qwen3's trajectory by not one
+# call. A standing instruction is read once, at the top, before there is anything
+# to apply it to. This fires at the moment the fact exists.
+#
+# It states the fact and stops. The failing trajectory it was built for spends
+# eleven of twelve steps re-spelling the same idea — `find_files`, `grep`,
+# `find_files`, `list_files` — so the one clause that is not merely a restatement
+# of what the model already read is that *another spelling will fail too*. What
+# to do instead is deliberately not said: the tools the model holds are in its
+# schemas already, and the last thing added here that named a tool made a model
+# stop calling it.
+EMPTY_SEARCHES = (
+    "You have now searched this workspace {n} times without a single match: "
+    "{terms}. That is a fact about the workspace rather than about your search "
+    "terms — another spelling of the same idea will come back empty too."
+)
+
+# How many fruitless searches before saying so. Not consecutive: the failing
+# trajectory interleaves `read_file` between its searches, so a streak counter
+# would never fire.
+EMPTY_SEARCH_TRIGGER = 4
+
+_EMPTY_SEARCH_PREFIXES = ("No matches for", "No files matching")
+
+
+def empty_search_note_enabled() -> bool:
+    """Off by default; `AGENT_EMPTY_SEARCH_NOTE=1` is the on arm.
+
+    Off because the last mechanism aimed at this failure made things worse, and
+    because the case it targets — `web-search-then-fetch` — is the least stable
+    instrument in the suite (0.00 within a sitting, 0.44 pooled). A mechanism
+    whose only witness flips between sittings has to earn its default, not be
+    given it.
+    """
+    return bool(os.environ.get("AGENT_EMPTY_SEARCH_NOTE"))
+
 # Worded to be true in both regimes it fires in. Simulated over the stored curves
 # before it was ever run: at qwen's pin the trigger is due from turn 2 while the
 # session does not actually cross until turn 6, so "the earliest turns have been
@@ -843,6 +884,10 @@ class RunStats:
     # Times a turn that edited more than one file was asked which of them the
     # request actually called for. Counted in both arms, like the others.
     scope_challenges: int = 0
+    # Searches of the workspace that came back with nothing, and the terms they
+    # looked for. Counted always; the note is delivered only in one arm.
+    empty_searches: list[str] = field(default_factory=list)
+    empty_search_notes: int = 0
     # Whether this turn stopped because the user asked it to, and how many
     # mid-turn instructions it was given. A run that was interrupted is not a run
     # that failed, and a scored suite has to be able to tell them apart.
@@ -1271,6 +1316,7 @@ class Agent:
         presupposed = False
         rebuked = False
         nudged = False
+        searched_enough = False
         # Whatever was already broken before the agent touched anything, taken in
         # `ask()`. Without it the loop would report a repo's pre-existing mess as
         # the agent's doing, which is both wrong and unfixable by it.
@@ -1454,6 +1500,25 @@ class Agent:
             if stopped is not None:
                 return stopped
 
+            # Said once, and here rather than at the answer: the point of it is
+            # to reach the model while it still has steps to spend differently.
+            # The absence challenge is the mirror of this — it fires on a
+            # *claim* of absence, after the fact; this fires on the evidence of
+            # it, during. Counted in both arms so they stay comparable.
+            if not searched_enough and len(self.stats.empty_searches) >= EMPTY_SEARCH_TRIGGER:
+                searched_enough = True
+                self.stats.empty_search_notes += 1
+                if empty_search_note_enabled():
+                    terms = ", ".join(repr(t) for t in
+                                      dict.fromkeys(self.stats.empty_searches))
+                    self.messages.append({
+                        "role": "user",
+                        "content": EMPTY_SEARCHES.format(
+                            n=len(self.stats.empty_searches), terms=terms),
+                    })
+                    self.trace.on_thinking(
+                        f"[{len(self.stats.empty_searches)} searches, no matches]")
+
             # Halfway through the budget, with edits on disk and steps left to
             # act on what it says. Once: a report repeated every step is noise,
             # and the second copy would be answering a question nobody asked
@@ -1613,6 +1678,13 @@ class Agent:
                 failed[fingerprint] = failed.get(fingerprint, 0) + 1
         if not ok:
             self.stats.tool_errors += 1
+        elif text.startswith(_EMPTY_SEARCH_PREFIXES):
+            # A search that ran fine and found nothing. Read off the result text
+            # rather than by asking the tools to report it: the model must see
+            # byte-identical output in both arms, and every number on record was
+            # measured against the strings these tools already return.
+            term = call.arguments.get("pattern") or call.arguments.get("path") or "?"
+            self.stats.empty_searches.append(str(term))
 
         self.trace.on_tool_result(call.name, text, ok)
         self.messages.append({

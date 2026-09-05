@@ -1,0 +1,291 @@
+{
+  "timestamp": "20260905-163121",
+  "models": [
+    "qwen3-coder:30b"
+  ],
+  "mode": "direct",
+  "allow_edits": false,
+  "compaction": true,
+  "scope_check": true,
+  "switches": {},
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "num_ctx": 16384,
+  "summary": {
+    "qwen3-coder:30b": {
+      "cases": 3,
+      "passed": 3,
+      "pass_rate": 1.0,
+      "avg_tool_calls": 1.6666666666666667,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 2,
+      "challenges": 0,
+      "quoted": 0,
+      "presup": 0,
+      "scope": 0,
+      "notices": 0,
+      "compactions": 0,
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 9.8,
+      "tool_use": {
+        "find_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "grep": {
+          "calls": 4,
+          "cases": 3,
+          "per_case": 1.3333333333333333
+        },
+        "list_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "read_file": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 0.3333333333333333
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "locate-tax",
+      "tags": [
+        "locate",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file"
+      ],
+      "budget": 12,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "The function `compute_tax` is defined in the file `src/billing/tax.py` at line 7.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 3259,
+      "context_tokens_est": 814,
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "def compute_tax"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "empty_searches": [],
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 3.6
+    },
+    {
+      "research": {},
+      "case": "importers",
+      "tags": [
+        "multi-file",
+        "trap"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file"
+      ],
+      "budget": 12,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on the search results, there are two files that import compute_tax:\n\n1. src/billing/invoice.py - This file imports compute_tax from billing.tax and uses it in line 12.\n2. tests/test_tax.py - This file imports compute_tax from billing.tax and uses it in lines 5 and 9.\n\nThese are the only two files that import or use the compute_tax function according to the search results.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 3862,
+      "context_tokens_est": 965,
+      "steps": 2,
+      "tool_calls": [
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "compute_tax"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 1,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "empty_searches": [],
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 9.8
+    },
+    {
+      "research": {},
+      "case": "vocab-signin",
+      "tags": [
+        "vocab",
+        "semantic"
+      ],
+      "model": "qwen3-coder:30b",
+      "tools_available": [
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file"
+      ],
+      "budget": 12,
+      "passed": true,
+      "missing": [],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "Based on my search, the function that authenticates a user is `sign_in` and it's located in the file `src/core/session.py`.\n\nThe `sign_in` function takes a username and secret as parameters, checks the secret against the store (though the actual implementation of this check isn't shown in the code I can see), and opens a session by returning a dictionary with the user and time-to-live (ttl) values.\n\nThis appears to be the authentication function in this codebase, as it's specifically designed to authenticate users and create sessions for them.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 5466,
+      "context_tokens_est": 1366,
+      "steps": 4,
+      "tool_calls": [
+        "grep",
+        "grep",
+        "read_file"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "authenticate"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "sign_in"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "src/core/session.py"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 0,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "empty_searches": [
+        "authenticate"
+      ],
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 0,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 16.0
+    }
+  ]
+}
