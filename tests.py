@@ -2995,6 +2995,72 @@ def test_http_post_is_gated_and_sends_nothing_until_approved() -> None:
               "http_post" not in build_registry(ws, EditSession()).tools)
 
 
+def test_absence_challenge_has_an_off_arm() -> None:
+    """The most-firing text mechanism in the suite can finally be measured.
+
+    313 of 3582 stored runs fired it and nothing could turn it off, which is the
+    one thing `loop.py` says disqualifies a mechanism from being measured
+    forwards. `evals/pairs.py` surfaced it: it also blocked 87 co-occurring runs,
+    so five of the twelve candidate pairs were unrunnable because of this alone.
+
+    The off arm must *count and fall through* — not short-circuit the run. The
+    first version used `break`, which would have exited the step loop and skipped
+    the answer path entirely: the arm would have changed the run's shape rather
+    than the mechanism under test, which is precisely the failure
+    `pairs.vacuous()` was written to catch one commit earlier.
+    """
+    import os
+
+    from agent.loop import Agent
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+
+    class Reply:
+        def __init__(self, content):
+            self.content, self.tool_calls, self.recovered_from_text = content, [], False
+
+    class Client:
+        def __init__(self):
+            self.calls = 0
+
+        def chat(self, messages, schemas):
+            self.calls += 1
+            return Reply("There is no such function anywhere in this project.")
+
+    def run(arm: str):
+        os.environ.pop("AGENT_NO_ABSENCE_CHALLENGE", None)
+        if arm == "off":
+            os.environ["AGENT_NO_ABSENCE_CHALLENGE"] = "1"
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                (Path(tmpdir) / "a.py").write_text("x = 1\n")
+                ws = Workspace(Path(tmpdir))
+                client = Client()
+                agent = Agent(client=client, registry=build_registry(ws),
+                              workspace=ws, max_steps=6)
+                answer = agent.ask("Where is compute_tax defined?")
+            return answer, agent.stats.absence_challenges, client.calls
+        finally:
+            os.environ.pop("AGENT_NO_ABSENCE_CHALLENGE", None)
+
+    on_answer, on_count, on_calls = run("on")
+    off_answer, off_count, off_calls = run("off")
+
+    check("absence arm: the challenge is counted in BOTH arms, so they compare",
+          on_count == 1 and off_count == 1, (on_count, off_count))
+    check("absence arm: on, it costs a second model call",
+          on_calls == 2, on_calls)
+    check("absence arm: off, it costs none", off_calls == 1, off_calls)
+    check("absence arm: off still returns the model's answer, whole",
+          off_answer == "There is no such function anywhere in this project.",
+          off_answer)
+    check("absence arm: and does not truncate the run into a fragment",
+          not off_answer.startswith("[") and off_answer.rstrip().endswith("."),
+          off_answer)
+    check("absence arm: the default is unchanged",
+          on_answer == off_answer)
+
+
 def test_pair_survey_names_only_real_switches() -> None:
     """`evals/pairs.py` cuts the ablation search space, so it must not lie about it.
 
@@ -3025,10 +3091,13 @@ def test_pair_survey_names_only_real_switches() -> None:
     # A mechanism with no switch cannot be an arm. That is `loop.py`'s own rule —
     # "a mechanism that cannot be turned off cannot be measured forwards" — and
     # the survey has to report it rather than quietly dropping it.
-    check("pairs: the absence challenge is recorded as having no switch",
-          MECHANISMS["absence_challenges"] is None)
     check("pairs: nothing claims a switch the source does not have",
           not [s for s in MECHANISMS.values() if s and s not in real])
+    # Every text mechanism is now ablatable. The absence challenge was the last
+    # one without a switch, and this survey is what found it.
+    check("pairs: every mechanism has an off switch",
+          not [m for m, s in MECHANISMS.items() if s is None],
+          [m for m, s in MECHANISMS.items() if s is None])
 
     # Both nested pairs are stored under sorted keys, or the lookup that skips
     # them silently misses and schedules a degenerate 2x2.
@@ -5891,6 +5960,7 @@ def main() -> int:
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
                test_pair_survey_names_only_real_switches,
+               test_absence_challenge_has_an_off_arm,
                test_web_cases_are_opt_in_per_case,
                test_honesty_case_two_renames,
                test_rescore_over_stored_results,

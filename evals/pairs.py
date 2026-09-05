@@ -61,15 +61,15 @@ RESULTS = Path(__file__).resolve().parent / "results"
 
 # Row counters that mean "this mechanism actually put text in front of the model
 # on this run". Lists and ints both appear; `fired()` handles either.
-# `None` means the mechanism has no off switch, so it cannot be an arm at all.
-# That is not an oversight to route around: `loop.py` already says it in as many
-# words — "a mechanism that cannot be turned off cannot be measured forwards" —
-# about the unfinished note, which was the last one to get a switch. The absence
-# challenge is the remaining one, and it is the *most* frequently firing text
-# mechanism in the whole suite, which makes it the biggest unablatable surface
-# here rather than a footnote.
+# `None` would mean a mechanism has no off switch, and so cannot be an arm at
+# all. Nothing is `None` any more: the absence challenge was the last one, and
+# this survey is what found it — the *most* frequently firing text mechanism in
+# the suite, 313 runs of 3582, and the only one that could never be measured
+# forwards. It has `AGENT_NO_ABSENCE_CHALLENGE` now. The column stays because the
+# next mechanism added without a switch should show up here rather than quietly
+# be omitted.
 MECHANISMS = {
-    "absence_challenges": None,
+    "absence_challenges": "AGENT_NO_ABSENCE_CHALLENGE",
     "scope_challenges": "AGENT_NO_SCOPE_CHECK",
     "context_notices": "AGENT_NO_CONTEXT_NOTICE",
     "compactions": "AGENT_NO_COMPACT",

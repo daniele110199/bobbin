@@ -1327,11 +1327,25 @@ class Agent:
                 # the agent to go and grep, which is the wrong instruction when
                 # the negative is incidental ("there was no such line, so I added
                 # one") rather than a failed search.
+                # Counted in both arms, delivered in one — the pattern every other
+                # mechanism here already follows. `AGENT_NO_ABSENCE_CHALLENGE=1` is
+                # the off arm, and it was the last one missing: this is the most
+                # frequently firing text mechanism in the suite (313 runs of the
+                # stored 3582) and until now the only one that could not be an arm
+                # at all. `evals/pairs.py` reports exactly that, and the rule it
+                # runs into is this file's own, written about the unfinished note:
+                # a mechanism that cannot be turned off cannot be measured
+                # forwards. Adding the switch does not change the default.
                 edited = bool(self.session and self.session.history)
-                if not challenged and not edited and claims_absence(answer) \
-                        and not self._absence_is_quoted(answer, turn_start):
+                due = (not challenged and not edited and claims_absence(answer)
+                       and not self._absence_is_quoted(answer, turn_start))
+                if due:
+                    # Counted first and unconditionally, so the off arm still
+                    # records every run where the challenge would have fired and
+                    # the two arms stay comparable.
                     challenged = True
                     self.stats.absence_challenges += 1
+                if due and not os.environ.get("AGENT_NO_ABSENCE_CHALLENGE"):
                     called = ", ".join(self.stats.names) or "no tools at all"
                     self.messages.append({"role": "assistant", "content": answer})
                     self.messages.append({
