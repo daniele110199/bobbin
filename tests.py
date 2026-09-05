@@ -3061,6 +3061,63 @@ def test_absence_challenge_has_an_off_arm() -> None:
           on_answer == off_answer)
 
 
+def test_web_playbook_is_conditional_and_switchable() -> None:
+    """`prompts/web.md` appears only with the web tools, and can be turned off.
+
+    The gap it fills: the playbook said *nothing at all* about the web tools
+    while they were being scored. On qwen3-coder:30b `web-search-then-fetch`
+    failed 11 of 12 stored runs, identically each time — twelve steps, eleven of
+    them searching a workspace that does not contain the word `quaystone`,
+    `web_search` as the *last* call, budget exhausted, `fetch_url` never called,
+    and an answer claiming it "cannot access the actual documentation from the
+    tools available to me". It could. Nothing had told it when to reach.
+
+    The assertions here are about cost, not about whether the text works — that
+    is an A/B, not a unit test. What must hold is that no suite which never sees
+    the web tools pays a byte for this, because every number on record was
+    measured without it.
+    """
+    import os
+
+    from agent.prompts import load_system_prompt
+
+    root = "/tmp/whatever"
+    plain = load_system_prompt(root)
+    with_web = load_system_prompt(root, web=True)
+    editing = load_system_prompt(root, editing=True)
+
+    check("web playbook: it is absent unless asked for",
+          "fetch_url" not in plain and "web_search" not in plain)
+    check("web playbook: the edit prompt does not acquire it either",
+          "web_search" not in editing)
+
+    # Off by default *because it was measured and lost*: nemotron went 2/2 to
+    # 0/1 with it, stopping a `fetch_url` it was already making unprompted, and
+    # qwen3's trajectory did not move by a single call. So the default prompt
+    # must be byte-identical to having no web layer at all, even when the web
+    # tools are registered.
+    check("web playbook: registering the web tools does not add it",
+          with_web == plain, f"{len(with_web)} vs {len(plain)}")
+
+    os.environ["AGENT_WEB_PLAYBOOK"] = "1"
+    try:
+        opted_in = load_system_prompt(root, web=True)
+        check("web playbook: AGENT_WEB_PLAYBOOK=1 opts into it",
+              "web_search" in opted_in and "fetch_url" in opted_in)
+        check("web playbook: and it is strictly additive",
+              opted_in.startswith(plain), opted_in[:80])
+        # It says the two things the failure was made of. The second is the one
+        # that did not take, and a re-test should start by changing it.
+        check("web playbook: it tells the model to search the web first",
+              "search the web first" in opted_in, opted_in[-700:])
+        check("web playbook: and to open a result before answering from it",
+              "fetch_url` before answering" in opted_in, opted_in[-700:])
+        check("web playbook: it does nothing without the web tools",
+              "web_search" not in load_system_prompt(root))
+    finally:
+        del os.environ["AGENT_WEB_PLAYBOOK"]
+
+
 def test_pair_survey_names_only_real_switches() -> None:
     """`evals/pairs.py` cuts the ablation search space, so it must not lie about it.
 
@@ -5960,6 +6017,7 @@ def main() -> int:
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
                test_pair_survey_names_only_real_switches,
+               test_web_playbook_is_conditional_and_switchable,
                test_absence_challenge_has_an_off_arm,
                test_web_cases_are_opt_in_per_case,
                test_honesty_case_two_renames,

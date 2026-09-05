@@ -936,6 +936,9 @@ class Agent:
                 "content": load_system_prompt(
                     self.workspace.root, self.playbook,
                     editing=self.session is not None,
+                    # Keyed on the registry rather than on a flag, so the
+                    # guidance appears exactly when the tools it describes do.
+                    web="web_search" in self.registry.tools,
                 ),
             })
 
