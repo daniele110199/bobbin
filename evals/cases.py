@@ -1763,7 +1763,92 @@ BURN_CASES: list[Case] = [
     ),
 ]
 
+# A security-review suite, and a benchmark meant to be shown to someone deciding
+# whether a local model is worth pointing at their code. The pitch it tests is
+# specific: a model that runs on your own hardware can review a codebase you are
+# not allowed to paste into a cloud service — under NDA, or subject to a
+# data-egress rule — and the price of that privacy is a weaker reviewer. This
+# measures how much weaker.
+#
+# It scores the two numbers a reader actually needs, not one:
+#
+#  * **recall** — of the planted vulnerabilities, how many are found. `auth.py`
+#    and `files.py` carry six between them, each a distinct OWASP-class bug with
+#    a single obvious fix, so a miss is a miss and not a matter of taste.
+#  * **false positives** — `storage.py` does the same *kinds* of things (SQL, a
+#    subprocess, a path, a secret) and does each one correctly. A reviewer that
+#    flags it is inventing work, and a security tool that cries wolf is worse
+#    than none. This is the `web-absent` idea in a domain where it is the whole
+#    point: the honest answer to "what is wrong with this file" is "nothing".
+#
+# Read-only: a review reads, it does not edit, so these run against the default
+# registry like the 22.
+SECURITY_CASES: list[Case] = [
+    Case(
+        id="sec-auth",
+        prompt=("Do a security review of auth.py. List every vulnerability with "
+                "its line, what the flaw is, and how to fix it."),
+        # Four planted flaws, matched on the vocabulary a review actually uses
+        # rather than on one exact phrase.
+        expect_all=[
+            r"(?i)sql injection|parameteri[sz]|injection",
+            r"(?i)md5|weak.{0,15}hash|insecure.{0,15}hash",
+            r"(?i)hardcoded|hard-coded|hard coded",
+            r"(?i)predictab|seed|not.{0,10}random|insecure.{0,15}random|weak.{0,15}random",
+        ],
+        tags=["security", "review"],
+        fixture="fixture-security",
+    ),
+    Case(
+        id="sec-files",
+        prompt=("Do a security review of files.py. List every vulnerability with "
+                "its line, what the flaw is, and how to fix it."),
+        expect_all=[
+            r"(?i)path travers|directory travers|\.\./|traversal",
+            r"(?i)command injection|shell injection|shell\s*=\s*True|arbitrary command",
+        ],
+        tags=["security", "review"],
+        fixture="fixture-security",
+    ),
+    Case(
+        id="sec-clean",
+        # The false-positive control. storage.py is correct; the honest review
+        # says so. A model that manufactures a finding to look thorough fails
+        # here, which is exactly the failure that makes an automated reviewer
+        # untrustworthy.
+        prompt=("Do a security review of storage.py. If it is secure, say so; if "
+                "not, list the vulnerabilities. Do not report issues that are not "
+                "there."),
+        # Scored on the *verdict*, not on keyword-hunting for bug words — the
+        # discriminator here is "does the review conclude the file is safe", and
+        # a regex cannot tell "prevents SQL injection" from "has a SQL injection"
+        # reliably (the negation trap: "no vulnerabilities found" contains
+        # "vulnerabilities found"). This case fell for exactly that on its first
+        # run, forbidding "sql injection" and thereby failing three honest reviews
+        # that used the phrase to explain *why* the code is safe. So: require a
+        # clean verdict, and forbid only the one construction a false positive
+        # uses and an honest review never does — declaring the file itself
+        # vulnerable/insecure. The recall cases already prove the models can find
+        # real bugs, so a model that games this by calling everything secure
+        # would crater sec-auth and sec-files.
+        expect_any=[
+            r"(?i)\b(secure|no (?:significant |obvious )?vulnerab|no (?:security )?"
+            r"issues|no (?:significant )?problems|looks (?:good|fine|safe)|"
+            r"well[- ]?written|no flaws|nothing (?:wrong|of concern)|follows "
+            r"(?:good |security )?best practices)\b",
+        ],
+        expect_none=[
+            r"(?i)\bstorage\.py\b[^.]{0,40}\b(is|appears|seems)\b[^.]{0,20}"
+            r"\b(vulnerable|insecure|unsafe|not secure)\b",
+            r"(?i)\b(is|are)\s+vulnerable\s+to\b",
+        ],
+        tags=["security", "review", "clean"],
+        fixture="fixture-security",
+    ),
+]
+
 ALL_CASES = (CASES + EDIT_CASES + CASCADE_CASES + CASCADE_B_CASES + REPAIR_CASES
              + HONESTY_EDIT_CASES + MULTI_TURN_CASES
-             + SESSION_RECALL_CASES + CREATE_REQUEST_CASES + WEB_CASES + BURN_CASES)
+             + SESSION_RECALL_CASES + CREATE_REQUEST_CASES + WEB_CASES + BURN_CASES
+             + SECURITY_CASES)
 BY_ID = {c.id: c for c in ALL_CASES}

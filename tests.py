@@ -3330,6 +3330,75 @@ def test_empty_search_note_counts_in_both_arms() -> None:
           EMPTY_SEARCH_TRIGGER >= 3, EMPTY_SEARCH_TRIGGER)
 
 
+def test_security_suite_scores_recall_and_false_positives() -> None:
+    """The security review suite is a benchmark, so its scoring must be sound.
+
+    It measures the two numbers a reader deciding whether to point a local model
+    at their code actually needs: how many planted vulnerabilities are found
+    (`auth.py`, `files.py`), and whether the reviewer invents findings against
+    correct code (`storage.py`). A benchmark whose clean case can be passed by a
+    model that flags everything would be worse than no benchmark.
+
+    Hermetic: this checks the scoring against crafted answers, no model involved.
+    The fixture files are read to confirm the planted flaws are actually present,
+    because a case that scores a bug the fixture does not contain measures nothing.
+    """
+    from evals.cases import BY_ID
+    from evals.score import score_answer
+
+    # The planted flaws are really in the files.
+    auth_src = (Path("evals/fixture-security/auth.py")).read_text()
+    files_src = (Path("evals/fixture-security/files.py")).read_text()
+    clean_src = (Path("evals/fixture-security/storage.py")).read_text()
+    check("security: auth.py has the string-formatted query",
+          "WHERE username = '%s'" % "" in auth_src.replace("%s", "") or
+          "'%s'" in auth_src)
+    check("security: auth.py hashes with md5", "md5" in auth_src)
+    check("security: files.py runs a shell", "shell=True" in files_src)
+    check("security: storage.py is parameterized, not formatted",
+          "?" in clean_src and "%s" not in clean_src)
+    check("security: storage.py takes its secret from the environment",
+          'os.environ["STORAGE_API_KEY"]' in clean_src)
+
+    def passes(case_id, answer):
+        sc = score_answer(BY_ID[case_id].turn_list()[0], answer)
+        return not (sc.missing or sc.forbidden)
+
+    full_auth = ("SQL injection at line 12 (use parameterized queries); "
+                 "hardcoded secret at line 6; MD5 weak hash at line 18 (use "
+                 "bcrypt); predictable token, random is seeded from the username "
+                 "length at line 23 (use secrets).")
+    check("security: a complete auth review passes", passes("sec-auth", full_auth))
+    check("security: a review that misses the token bug fails",
+          not passes("sec-auth", "SQL injection line 12, MD5 line 18, "
+                     "hardcoded secret line 6. That's all."))
+
+    check("security: a complete files review passes",
+          passes("sec-files", "Path traversal in read_upload line 9, and command "
+                 "injection via shell=True in convert_to_pdf line 15."))
+    check("security: missing the command injection fails the files case",
+          not passes("sec-files", "Just a path traversal in read_upload."))
+
+    # The control, both directions. This is the assertion the benchmark lives or
+    # dies by: flagging clean code must fail.
+    check("security: calling the clean file secure passes",
+          passes("sec-clean", "storage.py is secure: parameterized queries, "
+                 "subprocess as a list, path validated against the root, secret "
+                 "from the environment."))
+    check("security: inventing a finding against the clean file FAILS",
+          not passes("sec-clean", "storage.py has a possible SQL injection in "
+                     "find_user."))
+    check("security: an evasive non-answer does not pass the clean case",
+          not passes("sec-clean", "I reviewed storage.py carefully and "
+                     "considered many angles."))
+
+    # Read-only, so it must not have leaked into the write path or changed the
+    # default registry's shape.
+    check("security: the cases are read-only",
+          all("edit" not in c.tags and "writes" not in c.tags
+              for c in BY_ID.values() if "security" in c.tags))
+
+
 def test_pair_survey_names_only_real_switches() -> None:
     """`evals/pairs.py` cuts the ablation search space, so it must not lie about it.
 
@@ -6229,6 +6298,7 @@ def main() -> int:
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
                test_pair_survey_names_only_real_switches,
+               test_security_suite_scores_recall_and_false_positives,
                test_empty_search_note_counts_in_both_arms,
                test_stability_survey_finds_near_ties_not_mere_variety,
                test_web_playbook_is_conditional_and_switchable,
