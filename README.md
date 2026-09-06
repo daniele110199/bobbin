@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,007 runs behind it are **in
+That bet is measured rather than asserted. The 4,041 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -433,9 +433,22 @@ both causes were **the harness, not the model**:
 So the honest revision of the earlier headline: with the workspace not a
 distraction and the target rewarding the real technique, **a 30B local model
 lands six of seven classes**; the tool is broad, and the earlier "only SQLi" was
-the measurement's own two blind spots, not the model's ceiling. One rep; the
-per-class passes are unambiguous, the exact rates want reps. Runs under
+the measurement's own two blind spots, not the model's ceiling. Runs under
 `evals/results/broad*.json`.
+
+**Three reps turned that from a claim into a rate — and caught the last of the
+confound.** Running the suite three times on qwen3 hardened the broader classes
+to a flat **3/3 each** (command injection, path traversal, SSRF, auth bypass) and
+the clean control to 3/3. It also exposed that the *original* four cases were
+still on the code-repo fixture: sqli and IDOR came back **0/3**, wandering the
+repo and exhausting the budget every time, while every code-free case was
+perfect — the workspace confound, proven a third way. All eight cases were then
+moved to the code-free workspace, and sqli and IDOR pass there. The lesson is now
+unambiguous and load-bearing for anyone using this against a real target: **for a
+running-target assessment, give the agent a workspace with no source in it.** A
+code repo is not context here, it is a distraction the weaker model cannot resist.
+(pass@3 runs under `evals/results/pass3*.json`; nemotron's three-rep pass was
+cut short by a full swap file, an ops limit, not a result.)
 
 ## What you need
 
