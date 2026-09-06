@@ -2278,5 +2278,67 @@ CHAINED_CASES: list[Case] = [
     ),
 ]
 
-ALL_CASES = ALL_CASES + RECON_CASES + CHAINED_CASES
+# Find-then-fix: the two halves of the tool in one loop. The review suite finds a
+# vulnerability in source; here the agent also *patches* it, behind the edit gate,
+# and is scored on the resulting file — the flaw gone, a real fix in its place, and
+# nothing else broken. Run with `--allow-edits`, the same as `tag:edit`. This is
+# the arc that makes it more than a scanner: a local agent that finds the hole and
+# closes it, all on your hardware.
+FIXREVIEW_CASES: list[Case] = [
+    Case(
+        id="fix-sqli",
+        prompt=("auth.py has a SQL injection in check_login. Find it and fix it so "
+                "the username can no longer alter the query. Keep the function "
+                "working."),
+        files=[FileCheck("auth.py",
+                         contains=[r"cur\.execute\([^)]*,", r"\?"],
+                         absent=[r"%\s*username", r"\{\s*username"])],
+        may_touch=["auth.py"],
+        tags=["fixreview", "security"],
+        fixture="fixture-security",
+    ),
+    Case(
+        id="fix-secret",
+        prompt=("auth.py hardcodes SESSION_SECRET in the source. Fix it so the "
+                "secret is not a literal in the file — read it from the environment "
+                "instead."),
+        files=[FileCheck("auth.py",
+                         contains=[r"os\.environ|os\.getenv|getenv|os\.urandom|"
+                                   r"secrets\."],
+                         absent=[r"s3cr3t-hardcoded-key"])],
+        may_touch=["auth.py"],
+        tags=["fixreview", "security"],
+        fixture="fixture-security",
+    ),
+    Case(
+        id="fix-weak-token",
+        prompt=("reset_token in auth.py builds a predictable token by seeding the "
+                "random module with the username length. Fix it to use a "
+                "cryptographically secure source."),
+        files=[FileCheck("auth.py",
+                         contains=[r"secrets\."],
+                         absent=[r"random\.seed", r"random\.randint"])],
+        may_touch=["auth.py"],
+        tags=["fixreview", "security"],
+        fixture="fixture-security",
+    ),
+    Case(
+        id="fix-shell",
+        prompt=("convert_to_pdf in files.py builds a shell command by string "
+                "concatenation and runs it with shell=True — a command injection. "
+                "Fix it so the filename cannot inject a command."),
+        # Score the safe form, not one exact spelling of it: a command list
+        # (inline in the call or assigned to a variable first) or `shlex.split`,
+        # with the shell turned off. Requiring the list to sit inside the call
+        # parens is the exact-form antipattern the fixture lessons keep teaching.
+        files=[FileCheck("files.py",
+                         contains=[r"\[\s*[\"']libreoffice|shlex\.split"],
+                         absent=[r"shell\s*=\s*True"])],
+        may_touch=["files.py"],
+        tags=["fixreview", "security"],
+        fixture="fixture-security",
+    ),
+]
+
+ALL_CASES = ALL_CASES + RECON_CASES + CHAINED_CASES + FIXREVIEW_CASES
 BY_ID = {c.id: c for c in ALL_CASES}

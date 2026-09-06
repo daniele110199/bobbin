@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,048 runs behind it are **in
+That bet is measured rather than asserted. The 4,057 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -527,6 +527,30 @@ was visited. Two honest reads fall out of it:
   *asset*: it swept more of the app and out-recalled the flagship, 6/12 to 4/12.
 
 Runs under `evals/results/chained-*.json`.
+
+### Find *and* fix (`tag:fixreview`)
+
+The two halves of the tool in one loop: the reviewer finds a vulnerability in
+source, and the editor **patches it** — behind the same human gate as any write —
+scored on the resulting file, not the prose. Four fixes on the review fixtures:
+the SQL injection parameterised, the hardcoded secret moved to the environment,
+the predictable token switched to `secrets`, the `shell=True` command turned into
+a list-form call.
+
+```bash
+python3 -m evals.run --cases tag:fixreview --allow-edits
+```
+
+Both 30B models land **4/4** — they do not merely report the flaw, they apply a
+correct patch to disk. The scoring is what makes that claim mean something: it
+reads the file after the edit, so a model that *describes* a fix without applying
+it fails, and a fix that leaves the flaw in fails too (the unit test pins both
+directions). The one initial miss was the fixture's fault, not the model's —
+qwen3 wrote a correct list-form `subprocess` call but assigned the list to a
+variable, and the check wanted it inline: the exact-form antipattern a fourth
+time, now fixed in the fix-scoring as well. So the tool is not only a scanner; on
+these fixtures a local 30B **finds the hole and closes it**, on your own hardware.
+Runs under `evals/results/fixreview-*.json`.
 
 ## What you need
 

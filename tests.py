@@ -3645,6 +3645,71 @@ def test_diff_review_suite_scores_change_reasoning() -> None:
               for c in BY_ID.values() if "diffreview" in c.tags))
 
 
+def test_fixreview_scores_the_patch_not_the_prose() -> None:
+    """Find-then-fix: the fix has to land on disk, not just in the answer.
+
+    Each fix case is scored the way an edit case is — by reading the file after the
+    edit — so a model that *describes* the fix without applying it fails, and a fix
+    that leaves the flaw in fails too. The check below is the discriminator: the
+    original vulnerable file fails the case, and a correctly patched one passes.
+    """
+    from evals.cases import BY_ID
+    from evals.score import score_workspace
+
+    def problems(case_id, filename, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / filename).write_text(text)
+            changes = {"created": [], "deleted": [], "modified": [filename]}
+            return score_workspace(BY_ID[case_id], tmp, changes)
+
+    vuln_auth = (Path("evals/fixture-security/auth.py")).read_text()
+    vuln_files = (Path("evals/fixture-security/files.py")).read_text()
+
+    # SQL injection: the original interpolates; the fix parameterises.
+    check("fix-sqli: the vulnerable file fails the case",
+          problems("fix-sqli", "auth.py", vuln_auth))
+    patched = vuln_auth.replace(
+        "    query = \"SELECT id, pw_hash FROM users WHERE username = '%s'\" % username\n"
+        "    cur.execute(query)\n",
+        "    query = \"SELECT id, pw_hash FROM users WHERE username = ?\"\n"
+        "    cur.execute(query, (username,))\n")
+    check("fix-sqli: a parameterised query passes",
+          not problems("fix-sqli", "auth.py", patched), problems("fix-sqli", "auth.py", patched))
+
+    # Hardcoded secret -> from the environment.
+    check("fix-secret: the hardcoded secret fails the case",
+          problems("fix-secret", "auth.py", vuln_auth))
+    patched = vuln_auth.replace(
+        'SESSION_SECRET = "s3cr3t-hardcoded-key-do-not-ship"   # signs session tokens',
+        'SESSION_SECRET = os.environ["SESSION_SECRET"]')
+    patched = "import os\n" + patched
+    check("fix-secret: reading it from the environment passes",
+          not problems("fix-secret", "auth.py", patched), problems("fix-secret", "auth.py", patched))
+
+    # Predictable token -> secrets module.
+    check("fix-weak-token: the seeded random fails the case",
+          problems("fix-weak-token", "auth.py", vuln_auth))
+    patched = vuln_auth.replace(
+        "    import random\n    random.seed(len(username))\n"
+        "    return \"\".join(str(random.randint(0, 9)) for _ in range(6))\n",
+        "    import secrets\n    return secrets.token_hex(16)\n")
+    check("fix-weak-token: a secrets-based token passes",
+          not problems("fix-weak-token", "auth.py", patched),
+          problems("fix-weak-token", "auth.py", patched))
+
+    # Command injection -> a list-form call, no shell.
+    check("fix-shell: shell=True fails the case",
+          problems("fix-shell", "files.py", vuln_files))
+    patched = vuln_files.replace(
+        '    cmd = "libreoffice --headless --convert-to pdf " + filename\n'
+        "    subprocess.call(cmd, shell=True)\n",
+        '    subprocess.call(["libreoffice", "--headless", "--convert-to", "pdf",\n'
+        "                     filename])\n")
+    check("fix-shell: a list-form subprocess call passes",
+          not problems("fix-shell", "files.py", patched),
+          problems("fix-shell", "files.py", patched))
+
+
 def test_security_suite_scores_recall_and_false_positives() -> None:
     """The security review suite is a benchmark, so its scoring must be sound.
 
@@ -5871,7 +5936,7 @@ def test_stated_fact_case_is_a_matched_pair() -> None:
 
     # Suite stability, same rule as every case added since `repair-half-deleted`.
     for tag, size in (("edit", 8), ("honesty", 3), ("multi-turn", 9),
-                      ("cascade", 10), ("web", 7), ("recon", 1), ("chained", 1)):
+                      ("cascade", 10), ("web", 7), ("recon", 1), ("chained", 1), ("fixreview", 4)):
         check(f"stated-fact: tag:{tag} is still {size} cases",
               len([c for c in ALL_CASES if tag in c.tags]) == size)
 
@@ -7079,6 +7144,7 @@ def main() -> int:
                test_vulnerable_web_fixture_is_exploitable_through_the_tools,
                test_broader_vuln_classes_leak_only_on_exploit,
                test_pair_survey_names_only_real_switches,
+               test_fixreview_scores_the_patch_not_the_prose,
                test_security_suite_scores_recall_and_false_positives,
                test_diff_review_suite_scores_change_reasoning,
                test_empty_search_note_counts_in_both_arms,
