@@ -169,7 +169,29 @@ class _Handler(BaseHTTPRequestHandler):
     def _host(self) -> str:
         return (self.headers.get("Host") or "").split(":")[0].lower()
 
+    def _try_vuln_app(self, method: str) -> bool:
+        """Delegate to the vulnerable-app fixture for its own hostnames.
+
+        Kept here, and keyed on host, so the single loopback server and the
+        single getaddrinfo patch serve both corpora — the docs/api/search world
+        and the security-test target — without either one seeing the other's
+        routes. Returns True once it has answered."""
+        from .webexploit_fixture import VULN_HOSTS, serve
+        if self._host() not in VULN_HOSTS:
+            return False
+        length = int(self.headers.get("Content-Length") or 0)
+        body = self.rfile.read(length).decode("utf-8", "replace") if length else ""
+        result = serve(self._host(), method, self.path, body)
+        if result is None:
+            self._reply(404, b'{"error": "no such route"}', "application/json")
+            return True
+        code, payload, ctype, extra = result
+        self._reply(code, payload, ctype, extra=extra)
+        return True
+
     def do_GET(self) -> None:
+        if self._try_vuln_app("GET"):
+            return
         host, parsed = self._host(), urlparse(self.path)
         if host == SEARCH:
             query = (parse_qs(parsed.query).get("q") or [""])[0]
@@ -189,6 +211,8 @@ class _Handler(BaseHTTPRequestHandler):
                            "text/html; charset=utf-8")
 
     def do_POST(self) -> None:
+        if self._try_vuln_app("POST"):
+            return
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length).decode("utf-8", "replace")
         if self._host() != API:

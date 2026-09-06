@@ -234,6 +234,11 @@ def main() -> int:
                          "Every request is shown to you in full and sent only if "
                          "you approve it; answer 'a' to allow that one endpoint "
                          "for the rest of the session")
+    ap.add_argument("--security", action="store_true",
+                    help="append the security-testing playbook: find and prove "
+                         "vulnerabilities in a target you are authorized to test. "
+                         "Off by default and measured as an arm; pair it with "
+                         "--allow-web/--allow-post to reach a live target")
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="print full tool output")
     ap.add_argument("--session", metavar="PATH",
@@ -284,7 +289,8 @@ def main() -> int:
     else:
         agent = Agent(client=client, registry=registry, workspace=ws,
                       max_steps=opts.max_steps, trace=trace,
-                      playbook=opts.playbook, session=session)
+                      playbook=opts.playbook, session=session,
+                      security=opts.security)
 
     chosen = f"{opts.model}{' (first in ollama list)' if picked_for_you else ''}"
     print(f"{DIM}model={chosen}  root={ws.root}  mode={opts.mode}  "

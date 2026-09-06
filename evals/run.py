@@ -128,6 +128,11 @@ def build_agent(model: str, ws: Workspace, opts, max_steps: int | None = None,
         # is documented as pinning every case.
         max_steps=opts.max_steps or max_steps, playbook=opts.playbook,
         session=session,
+        # Suite-level arm, the same shape as the web-playbook measurement:
+        # run the security cases with and without it to see what the text buys.
+        # getattr, not attribute access: some tests build `opts` by hand and
+        # predate this flag, and a missing arm means "off".
+        security=getattr(opts, "security", False),
     )
 
 
@@ -234,6 +239,9 @@ def run_turn(agent, case: Case, turn, index: int, root: Path) -> dict:
         # priced before the treatment is ever measured.
         "empty_search_notes": st.empty_search_notes,
         "empty_searches": list(st.empty_searches),
+        "progress_nudges": st.progress_nudges,
+        "progress_blocks": st.progress_blocks,
+        "fabricated_calls": st.fabricated_calls,
         "interrupted": st.interrupted,
         "steers": st.steers,
         "context_notices": st.context_notices,
@@ -375,6 +383,9 @@ def run_case(model: str, case: Case, opts) -> dict:
         # answer *is* in the workspace is a false positive, and only the terms
         # show which it was.
         "empty_searches": gathered("empty_searches"),
+        "progress_nudges": total("progress_nudges"),
+        "progress_blocks": total("progress_blocks"),
+        "fabricated_calls": total("fabricated_calls"),
         # A run stopped by its user is not a run that failed, and a
         # scored suite has to be able to tell them apart.
         "interrupted": any(r["interrupted"] for r in rows),
@@ -462,7 +473,8 @@ def run_model(model: str, cases: list[Case], opts) -> list[dict]:
                        "recovered_text_calls": 0, "absence_challenges": 0,
                        "quoted_absences": 0, "presupposition_challenges": 0,
                        "scope_challenges": 0,
-                       "empty_search_notes": 0,
+                       "empty_search_notes": 0, "progress_nudges": 0, "progress_blocks": 0,
+                       "fabricated_calls": 0,
                        "context_notices": 0, "compactions": 0,
                        "digest_previews": [],
                        "fabrications": 0, "budget_exhausted": False,
@@ -774,6 +786,9 @@ def main() -> int:
                     help="pin every case to this budget; default is per-case, then scaled to the task")
     ap.add_argument("--playbook", default="default",
                     help="'default', 'none' (to A/B without it), or a path to a .md file")
+    ap.add_argument("--security", action="store_true",
+                    help="append the security-testing playbook (prompts/security.md). "
+                         "Off by default; the arm for tag:webexploit")
     ap.add_argument("--mode", default="direct", choices=["direct", "research"],
                     help="'direct' = one loop; 'research' = survey/plan/subagents/synthesise")
     ap.add_argument("--subtasks", type=int, default=3,
@@ -818,7 +833,8 @@ def main() -> int:
 
     print(f"{BOLD}{len(cases)} case(s) x {len(models)} model(s){RESET}  "
           f"mode={opts.mode}  playbook={opts.playbook}  "
-          f"edits={'on' if opts.allow_edits else 'off'}  "
+          + (f"{DIM}security-playbook on{RESET}  " if opts.security else "")
+          + f"edits={'on' if opts.allow_edits else 'off'}  "
           f"fixture={FIXTURE}"
           + (f"  {DIM}offline web for {len(web_cases)} case(s){RESET}"
              if web_cases else ""))
@@ -845,6 +861,7 @@ def main() -> int:
         "jobs": opts.jobs,
         "max_steps": opts.max_steps,
         "playbook": opts.playbook,
+        "security": opts.security,
         "num_ctx": opts.num_ctx or DEFAULT_NUM_CTX,
         "summary": {m: summarise([r for r in all_rows if r["model"] == m]) for m in models},
         "rows": all_rows,

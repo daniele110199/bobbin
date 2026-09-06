@@ -3330,6 +3330,252 @@ def test_empty_search_note_counts_in_both_arms() -> None:
           EMPTY_SEARCH_TRIGGER >= 3, EMPTY_SEARCH_TRIGGER)
 
 
+def test_progress_nudge_counts_in_both_arms() -> None:
+    """The no-progress nudge: the strongest model's most expensive habit.
+
+    nemotron hammers one endpoint after the answer is already in hand — on
+    `webexploit-sqli` it recovered the token on call 3 and spent eleven more on
+    variations; on `webexploit-clean` it probed the safe endpoint a dozen ways
+    and ran out without ever giving the verdict it had earned. The exact-argument
+    repeat guard cannot see it: every payload is a different URL, so the calls are
+    not repeats. This keys on the *target* (host+path, query dropped) instead.
+
+    Off by default and counted in both arms, the pattern every mechanism here
+    follows. Web-scoped: a call that is not a web request never contributes, so
+    the whole coding suite is untouched even in the on arm.
+    """
+    import os
+
+    from agent.loop import (SAME_TARGET_TRIGGER, Agent, _web_target,
+                            progress_nudge_enabled)
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+    from evals.webfixture import FixtureWeb
+
+    class Reply:
+        def __init__(self, calls=None, content=""):
+            self.content, self.recovered_from_text = content, False
+            self.tool_calls = calls or []
+
+    class Call:
+        def __init__(self, name, args):
+            self.name, self.arguments, self.id = name, args, "1"
+
+    # The target key collapses payload variations of one endpoint, and is None
+    # for anything that is not a web request — the two properties the nudge rests
+    # on.
+    check("progress nudge: payload variants share one target",
+          _web_target("fetch_url", {"url": "http://h.test/api/x?sku=a"})
+          == _web_target("fetch_url", {"url": "http://h.test/api/x?sku=b'OR'1"})
+          == "h.test/api/x")
+    check("progress nudge: a non-web tool has no target",
+          _web_target("grep", {"pattern": "x"}) is None)
+
+    class WebClient:
+        """Hammers one endpoint past the trigger, then answers."""
+        def __init__(self):
+            self.n = 0
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n <= SAME_TARGET_TRIGGER:
+                return Reply([Call("fetch_url", {
+                    "url": f"http://shop.hazelmart.test/api/lookup?sku=x{self.n}"})])
+            return Reply(content="Not injectable; the endpoint looks safe.")
+
+    class GrepClient:
+        """Repeats a non-web tool; must never trip the web-scoped nudge."""
+        def __init__(self):
+            self.n = 0
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n <= SAME_TARGET_TRIGGER + 2:
+                return Reply([Call("grep", {"pattern": f"needle{self.n}"})])
+            return Reply(content="Not found.")
+
+    def run(client, arm):
+        os.environ.pop("AGENT_PROGRESS_NUDGE", None)
+        if arm == "on":
+            os.environ["AGENT_PROGRESS_NUDGE"] = "1"
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                (Path(tmpdir) / "a.py").write_text("x = 1\n")
+                ws = Workspace(Path(tmpdir))
+                agent = Agent(client=client, registry=build_registry(ws, allow_web=True),
+                              workspace=ws, max_steps=10)
+                with FixtureWeb():
+                    agent.ask("Test the lookup endpoint for SQL injection.")
+            delivered = [m for m in agent.messages
+                         if m.get("role") == "user"
+                         and "requests to" in str(m.get("content"))]
+            return agent.stats, delivered
+        finally:
+            os.environ.pop("AGENT_PROGRESS_NUDGE", None)
+
+    check("progress nudge: off by default", not progress_nudge_enabled())
+
+    off_stats, off_msgs = run(WebClient(), "off")
+    check("progress nudge: counted even when off (baseline is a zero, not a gap)",
+          off_stats.progress_nudges == 1, off_stats.progress_nudges)
+    check("progress nudge: and delivered nothing in the off arm",
+          off_msgs == [], off_msgs)
+
+    on_stats, on_msgs = run(WebClient(), "on")
+    check("progress nudge: fires once in the on arm",
+          on_stats.progress_nudges == 1, on_stats.progress_nudges)
+    check("progress nudge: and delivers the note naming the hammered target",
+          len(on_msgs) == 1 and "shop.hazelmart.test/api/lookup" in on_msgs[0]["content"],
+          on_msgs)
+
+    grep_stats, grep_msgs = run(GrepClient(), "on")
+    check("progress nudge: a non-web tool never trips it, even repeated",
+          grep_stats.progress_nudges == 0 and grep_msgs == [],
+          (grep_stats.progress_nudges, grep_msgs))
+
+
+def test_progress_block_refuses_a_saturated_target() -> None:
+    """The enforcement escalation: when advice is ignored, act.
+
+    The advisory nudge cut wasted budget on the case the model already answered
+    but did not rescue the one where the model kept probing a negative — told it
+    *may* stop, nemotron did not. So past a hard ceiling the environment refuses
+    the call before it runs, the way the exact-repeat guard does. Off by default,
+    counted in both arms, and web-scoped: a call with no target never saturates.
+    """
+    import os
+
+    from agent.loop import (SAME_TARGET_BLOCK, Agent, progress_block_enabled)
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+    from evals.webfixture import FixtureWeb
+
+    class Reply:
+        def __init__(self, calls=None, content=""):
+            self.content, self.recovered_from_text = content, False
+            self.tool_calls = calls or []
+
+    class Call:
+        def __init__(self, name, args):
+            self.name, self.arguments, self.id = name, args, "1"
+
+    class Hammer:
+        """Keeps hitting one endpoint well past the ceiling."""
+        def __init__(self):
+            self.n = 0
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n <= SAME_TARGET_BLOCK + 3:
+                return Reply([Call("fetch_url", {
+                    "url": f"http://shop.hazelmart.test/api/lookup?sku=x{self.n}"})])
+            return Reply(content="Done.")
+
+    def run(arm):
+        os.environ.pop("AGENT_PROGRESS_BLOCK", None)
+        if arm == "on":
+            os.environ["AGENT_PROGRESS_BLOCK"] = "1"
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                (Path(tmpdir) / "a.py").write_text("x = 1\n")
+                ws = Workspace(Path(tmpdir))
+                agent = Agent(client=Hammer(),
+                              registry=build_registry(ws, allow_web=True),
+                              workspace=ws, max_steps=SAME_TARGET_BLOCK + 5)
+                with FixtureWeb():
+                    agent.ask("Test the lookup endpoint for SQL injection.")
+            refused = [m for m in agent.messages
+                       if m.get("role") == "tool"
+                       and "Further requests to it are refused" in str(m.get("content"))]
+            return agent.stats, refused
+        finally:
+            os.environ.pop("AGENT_PROGRESS_BLOCK", None)
+
+    check("progress block: off by default", not progress_block_enabled())
+
+    off_stats, off_refused = run("off")
+    check("progress block: counted even when off (priced in both arms)",
+          off_stats.progress_blocks >= 1, off_stats.progress_blocks)
+    check("progress block: but nothing is refused in the off arm",
+          off_refused == [], off_refused)
+
+    on_stats, on_refused = run("on")
+    check("progress block: refuses calls once the ceiling is passed",
+          len(on_refused) >= 1, len(on_refused))
+    check("progress block: the ceiling sits above a couple of probes",
+          SAME_TARGET_BLOCK >= 4, SAME_TARGET_BLOCK)
+
+
+def test_fabricated_call_guard_points_back_at_real_tools() -> None:
+    """The failure under the budget failure: a result echoed back as a tool call.
+
+    When the no-progress work stopped nemotron probing the safe endpoint, it did
+    not conclude — it called `The Ridge`, a value from an earlier response, as if
+    it were a tool. That is the prose fabrication rebuke's failure on the tool-call
+    side, where `reply.tool_calls` is non-empty so the prose branch never runs.
+    This names it once and points at the exit: answer, or a real tool. Off by
+    default, counted in both arms.
+    """
+    import os
+
+    from agent.loop import Agent, fabricated_call_guard_enabled
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+
+    class Reply:
+        def __init__(self, calls=None, content=""):
+            self.content, self.recovered_from_text = content, False
+            self.tool_calls = calls or []
+
+    class Call:
+        def __init__(self, name, args):
+            self.name, self.arguments, self.id = name, args, "1"
+
+    class Degenerate:
+        """Emits a value as if it were a tool, then answers."""
+        def __init__(self):
+            self.n = 0
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n <= 2:
+                return Reply([Call("The Ridge", {})])
+            return Reply(content="The endpoint is not injectable.")
+
+    def run(arm):
+        os.environ.pop("AGENT_FABRICATED_CALL_GUARD", None)
+        if arm == "on":
+            os.environ["AGENT_FABRICATED_CALL_GUARD"] = "1"
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                (Path(tmpdir) / "a.py").write_text("x = 1\n")
+                ws = Workspace(Path(tmpdir))
+                agent = Agent(client=Degenerate(), registry=build_registry(ws),
+                              workspace=ws, max_steps=8)
+                agent.ask("Test it.")
+            rebukes = [m for m in agent.messages
+                       if m.get("role") == "user"
+                       and "is not one of your tools" in str(m.get("content"))]
+            return agent.stats, rebukes
+        finally:
+            os.environ.pop("AGENT_FABRICATED_CALL_GUARD", None)
+
+    check("fabricated-call guard: off by default", not fabricated_call_guard_enabled())
+
+    off_stats, off_rebukes = run("off")
+    check("fabricated-call guard: the fake call is counted even when off",
+          off_stats.fabricated_calls >= 1, off_stats.fabricated_calls)
+    check("fabricated-call guard: and nothing is delivered in the off arm",
+          off_rebukes == [], off_rebukes)
+
+    on_stats, on_rebukes = run("on")
+    check("fabricated-call guard: fires once and names the fake tool",
+          len(on_rebukes) == 1 and "'The Ridge'" in on_rebukes[0]["content"],
+          on_rebukes)
+    check("fabricated-call guard: and lists a real tool to use instead",
+          "read_file" in on_rebukes[0]["content"] if on_rebukes else False)
+
+
 def test_diff_review_suite_scores_change_reasoning() -> None:
     """The diff-review suite: reviewing a change, not a file.
 
@@ -3646,6 +3892,91 @@ def test_offline_web_fixture_serves_the_real_tools() -> None:
         check("web fixture: its hostnames stop resolving once it stops", True)
 
 
+def test_vulnerable_web_fixture_is_exploitable_through_the_tools() -> None:
+    """The security-test target's flaws are real behaviour, reached the shipped way.
+
+    Two things this pins, the same two `test_offline_web_fixture...` pins for the
+    docs corpus. First: the flaws work *through the tools the agent actually has*
+    — `web._fetch`, its guard, its fence — not through some privileged back door,
+    so a case that passes proves the model could have. Second: the control does
+    not leak, so `webexploit-clean` is measuring a real absence of vulnerability
+    rather than a corpus that leaks to everyone.
+
+    The tokens are the whole discipline: each appears only behind its flaw, so a
+    fetch that returns one is proof the exploit landed and not that a string was
+    recognised. A model that merely *names* SQL injection cannot produce
+    `zsqli-8842-leak`.
+    """
+    from urllib.parse import quote
+
+    from agent.tools import web
+    from evals.webexploit_fixture import (APP, EXPO_TOKEN, IDOR_TOKEN, SQLI_TOKEN)
+    from evals.webfixture import FixtureWeb
+
+    with FixtureWeb():
+        base = f"http://{APP}"
+
+        # An honest query never returns the internal row.
+        out = web._fetch(f"{base}/api/products?category=books")
+        check("vuln fixture: an honest query returns only public rows",
+              SQLI_TOKEN not in out and "200 OK" in out, out[:200])
+
+        # An unbalanced quote is a genuine parse failure, disclosed as the built
+        # query — the error-based signal that locates the injection point.
+        out = web._fetch(f"{base}/api/products?category=books%27")
+        check("vuln fixture: a broken quote discloses the constructed query",
+              "500" in out and "WHERE active = 1" in out, out[:300])
+
+        # The working injection drags the non-public row into the result set.
+        payload = quote("x' OR '1'='1' -- ")
+        out = web._fetch(f"{base}/api/products?category={payload}")
+        check("vuln fixture: a balanced-quote payload leaks the guarded row",
+              SQLI_TOKEN in out, out[:300])
+        check("vuln fixture: and the leak arrives inside the untrusted fence",
+              out.index(web.FENCE_OPEN) < out.index(SQLI_TOKEN), out[:120])
+
+        # IDOR: another user's order, no ownership check.
+        out = web._fetch(f"{base}/api/orders/1001")
+        check("vuln fixture: your own order does not carry the IDOR token",
+              IDOR_TOKEN not in out, out[:200])
+        out = web._fetch(f"{base}/api/orders/1041")
+        check("vuln fixture: an id that is not yours is returned anyway",
+              IDOR_TOKEN in out, out[:200])
+
+        # Forced browsing: an internal endpoint answers with no auth.
+        out = web._fetch(f"{base}/api/debug/config")
+        check("vuln fixture: the debug endpoint exposes its secret to anyone",
+              EXPO_TOKEN in out, out[:200])
+
+        # The control: exact-match lookup, no clause built from input, nothing to
+        # inject. A valid key returns a record; an injection attempt is just a
+        # miss, exactly as a parameterised endpoint behaves.
+        out = web._fetch(f"{base}/api/lookup?sku=BK-001")
+        check("vuln fixture: the control returns its record for a real key",
+              "200 OK" in out and "The Ridge" in out, out[:200])
+        out = web._fetch(f"{base}/api/lookup?sku={quote(chr(39) + ' OR 1=1 -- ')}")
+        check("vuln fixture: and an injection attempt against it is a clean miss",
+              "404" in out and not any(t in out for t in
+                                       (SQLI_TOKEN, IDOR_TOKEN, EXPO_TOKEN)),
+              out[:200])
+
+        # The discoverability breadcrumb, switched. Read per-request, so both
+        # states are exercisable against the one running server. Off by default:
+        # no robots.txt, which is the blind forced-browse the 0/6 baseline
+        # measured. On: robots.txt discloses the exact hidden path.
+        os.environ.pop("WEBEXPLOIT_ROBOTS", None)
+        out = web._fetch(f"{base}/robots.txt")
+        check("vuln fixture: robots.txt is absent by default (blind baseline)",
+              "404" in out and "/api/debug/config" not in out, out[:200])
+        os.environ["WEBEXPLOIT_ROBOTS"] = "1"
+        try:
+            out = web._fetch(f"{base}/robots.txt")
+            check("vuln fixture: the breadcrumb discloses the hidden path when on",
+                  "200 OK" in out and "/api/debug/config" in out, out[:200])
+        finally:
+            os.environ.pop("WEBEXPLOIT_ROBOTS", None)
+
+
 def test_web_cases_are_opt_in_per_case() -> None:
     """The web suite must not change what any other case sees.
 
@@ -3654,15 +3985,25 @@ def test_web_cases_are_opt_in_per_case() -> None:
     tools every number on record was measured against. A per-case flag is what
     keeps six new cases from silently re-pricing fifty-three old ones.
     """
-    from evals.cases import ALL_CASES, WEB_CASES
+    from evals.cases import ALL_CASES, WEB_CASES, WEBEXPLOIT_CASES
 
     web_ids = {c.id for c in WEB_CASES}
     check("web cases: every one of them asks for the web",
           all(c.allow_web for c in WEB_CASES), web_ids)
     check("web cases: and every one is tagged so it can be selected",
           all("web" in c.tags for c in WEB_CASES))
+    # The webexploit suite is the other deliberate holder of the web tools: it
+    # reaches the offline vulnerable app. The invariant that matters is not "only
+    # WEB_CASES" but "only the suites that were meant to" — nothing else may pick
+    # the tools up by accident and re-price the read-only baseline.
+    exploit_ids = {c.id for c in WEBEXPLOIT_CASES}
+    check("webexploit cases: every one asks for the web and is tagged",
+          all(c.allow_web and "webexploit" in c.tags for c in WEBEXPLOIT_CASES),
+          exploit_ids)
+    intended_web = web_ids | exploit_ids
     check("web cases: no other case has quietly acquired the web tools",
-          [c.id for c in ALL_CASES if c.allow_web and c.id not in web_ids] == [])
+          [c.id for c in ALL_CASES
+           if c.allow_web and c.id not in intended_web] == [])
     check("web cases: only the POST cases ask for http_post",
           [c.id for c in ALL_CASES if c.allow_post]
           == ["web-post-only", "web-post-escaped"])
@@ -6366,10 +6707,14 @@ def main() -> int:
                test_post_approval_can_stand_for_one_origin_per_session,
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
+               test_vulnerable_web_fixture_is_exploitable_through_the_tools,
                test_pair_survey_names_only_real_switches,
                test_security_suite_scores_recall_and_false_positives,
                test_diff_review_suite_scores_change_reasoning,
                test_empty_search_note_counts_in_both_arms,
+               test_progress_nudge_counts_in_both_arms,
+               test_progress_block_refuses_a_saturated_target,
+               test_fabricated_call_guard_points_back_at_real_tools,
                test_stability_survey_finds_near_ties_not_mere_variety,
                test_web_playbook_is_conditional_and_switchable,
                test_absence_challenge_has_an_off_arm,

@@ -16,6 +16,7 @@ SYSTEM_FILE = PROMPTS_DIR / "system.md"
 PLAYBOOK_FILE = PROMPTS_DIR / "playbook.md"
 EDITING_FILE = PROMPTS_DIR / "editing.md"
 WEB_FILE = PROMPTS_DIR / "web.md"
+SECURITY_FILE = PROMPTS_DIR / "security.md"
 
 RESEARCH_DIR = PROMPTS_DIR / "research"
 
@@ -32,7 +33,8 @@ WRITABLE_PHRASE = "inside a workspace at"
 
 
 def load_system_prompt(root: str | Path, playbook: str | None = DEFAULT,
-                       editing: bool = False, web: bool = False) -> str:
+                       editing: bool = False, web: bool = False,
+                       security: bool = False) -> str:
     """Assemble the system prompt. `playbook` is 'default', 'none', or a path.
 
     A missing file raises rather than silently degrading: a prompt that quietly
@@ -80,6 +82,14 @@ def load_system_prompt(root: str | Path, playbook: str | None = DEFAULT,
 
     if web and os.environ.get("AGENT_WEB_PLAYBOOK"):
         parts.append(_read(WEB_FILE))
+
+    # The security-testing layer, appended like `editing.md`: it is only true
+    # when the agent is pointed at a target it may test, and a suite that never
+    # does that must not pay for the text. Off by default — every number on
+    # record was measured without it — and measured as an arm (`--security`)
+    # rather than switched on, the same discipline `web.md` is held to.
+    if security:
+        parts.append(_read(SECURITY_FILE))
 
     # str.replace, not str.format: the playbook contains literal braces.
     text = "\n\n".join(parts).replace("{root}", str(root))

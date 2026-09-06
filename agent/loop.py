@@ -19,6 +19,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from typing import Callable
+from urllib.parse import urlparse
 
 from .edits import RESERVED, EditSession
 from .imports import check_workspace, definition_pattern
@@ -230,6 +231,116 @@ def empty_search_note_enabled() -> bool:
     given it.
     """
     return bool(os.environ.get("AGENT_EMPTY_SEARCH_NOTE"))
+
+
+# The no-progress nudge: the strongest model's most expensive habit is not a
+# capability ceiling, it is hammering one target after the answer is already in
+# hand. Measured on nemotron: on `webexploit-sqli` it recovered the token on the
+# 3rd call and then spent eleven more on UNION/ORDER-BY variations of the same
+# endpoint; on `webexploit-clean` it probed the safe endpoint a dozen ways, each
+# coming back clean, and ran the budget out without ever giving the "it's safe"
+# verdict it had earned. The exact-argument repeat guard cannot see this: every
+# payload is a *different* URL, so `repeat_blocks` stays 0.
+#
+# Keyed on the request *target*, not its arguments — for a URL, host+path with
+# the query dropped, so twelve payloads against `/api/lookup` collapse to one
+# target. Web tools only: the pathology is endpoint-hammering, and scoping it
+# there keeps every non-web case (which has no web tools) byte-identical even in
+# the on arm. Advisory, not a block — a legitimate multi-call flow is not broken,
+# only told it is repeating.
+SAME_TARGET_TRIGGER = 4
+
+NO_PROGRESS = (
+    "You have now sent {n} requests to {target}. If you already have what you "
+    "need to answer, give your final answer now. If these requests are not "
+    "yielding it, another variation of the same one will not either — a "
+    "different endpoint, tool, or approach is what changes the result."
+)
+
+
+def progress_nudge_enabled() -> bool:
+    """Off by default; `AGENT_PROGRESS_NUDGE=1` is the on arm.
+
+    A new mechanism ships off and is measured as an arm — the project's rule for
+    anything add-only. Counted in both arms so the baseline is a zero, not a gap.
+    """
+    return bool(os.environ.get("AGENT_PROGRESS_NUDGE"))
+
+
+# Enforcement, the escalation the advisory nudge earned. Measured, the nudge cut
+# wasted budget on the case the model already answered (nemotron sqli 14 calls ->
+# 4) but did not rescue `clean`: told it *may* stop, nemotron kept probing the
+# safe endpoint and then degenerated into emitting a result value as a fake tool
+# call. Advice lands on a finding in hand, not on a refusal to conclude a
+# negative. So this stops advising and *acts*, the way the exact-repeat guard
+# does: once one target has been hit past a hard ceiling, further calls to it are
+# refused before they run, and the refusal tells the model to answer from what it
+# has. The ceiling sits above the nudge trigger so the advice comes first and the
+# block only when it was ignored.
+SAME_TARGET_BLOCK = 6
+
+TARGET_BLOCKED = (
+    "ERROR: you have already sent {n} requests to {target} and it is not "
+    "yielding anything new. Further requests to it are refused. Answer from what "
+    "you have already seen, or query a genuinely different endpoint — not another "
+    "variation of this one."
+)
+
+
+def progress_block_enabled() -> bool:
+    """Off by default; `AGENT_PROGRESS_BLOCK=1` is the on arm.
+
+    The enforcing half of the no-progress mechanism, switched separately from the
+    advisory nudge so each can be measured on its own. Counted in both arms."""
+    return bool(os.environ.get("AGENT_PROGRESS_BLOCK"))
+
+
+# Fabricated tool calls: the failure under the budget failure. When the no-progress
+# work stopped nemotron hammering the safe endpoint, it did not conclude — it spent
+# the rest of the budget calling `The Ridge`, a product name from an earlier
+# response, as if it were a *tool*, six times. That is the exact analogue of the
+# prose fabrication `FABRICATION_REBUKE` already catches — the model passing its
+# own context back as though a tool produced it — but on the tool-call side, where
+# `reply.tool_calls` is non-empty so the prose path never sees it. The bare
+# "unknown tool" error does not break the spiral (the repeat guard blocks the
+# duplicates, and the model keeps producing new garbage names). This does what the
+# prose rebuke does: name it once, and point at the exit — answer, or a real tool.
+FABRICATED_CALL_REBUKE = (
+    "'{name}' is not one of your tools — that looks like text from an earlier "
+    "result passed back as a tool call. Your tools are: {tools}. If you have "
+    "enough to answer, give your final answer in prose now. Otherwise call one "
+    "of those tools, for real."
+)
+
+
+def fabricated_call_guard_enabled() -> bool:
+    """Off by default; `AGENT_FABRICATED_CALL_GUARD=1` is the on arm.
+
+    A new mechanism ships off and is measured as an arm. Counted in both arms so
+    the fire rate is priced even where the rebuke is not delivered."""
+    return bool(os.environ.get("AGENT_FABRICATED_CALL_GUARD"))
+
+
+def _web_target(name: str, args: dict) -> str | None:
+    """The endpoint a call hits, or None if it is not a web request.
+
+    host+path, lowercased, query and fragment dropped, so payload variations of
+    the same request share one target. Only the web tools have a URL to key on;
+    everything else returns None and never contributes to the count."""
+    if name not in ("fetch_url", "http_post"):
+        return None
+    url = (args or {}).get("url")
+    if not isinstance(url, str) or not url.strip():
+        return None
+    try:
+        p = urlparse(url.strip())
+    except ValueError:
+        return None
+    host = (p.hostname or "").lower()
+    if not host:
+        return None
+    return f"{host}{p.path or '/'}"
+
 
 # Worded to be true in both regimes it fires in. Simulated over the stored curves
 # before it was ever run: at qwen's pin the trigger is due from turn 2 while the
@@ -888,6 +999,15 @@ class RunStats:
     # looked for. Counted always; the note is delivered only in one arm.
     empty_searches: list[str] = field(default_factory=list)
     empty_search_notes: int = 0
+    # Times the no-progress nudge fired (once per run). Counted in both arms.
+    progress_nudges: int = 0
+    # Calls refused because their target was saturated past the hard ceiling.
+    # Counted in both arms: incremented whenever a call *would* be blocked, so
+    # the off arm records the block rate without acting on it.
+    progress_blocks: int = 0
+    # Calls to a name that is not a real tool — an earlier result echoed back as a
+    # tool call. Counted in both arms; the rebuke is delivered once, in one arm.
+    fabricated_calls: int = 0
     # Whether this turn stopped because the user asked it to, and how many
     # mid-turn instructions it was given. A run that was interrupted is not a run
     # that failed, and a scored suite has to be able to tell them apart.
@@ -961,6 +1081,10 @@ class Agent:
     trace: Trace = field(default_factory=Trace)
     stats: RunStats = field(default_factory=RunStats)
     playbook: str | None = DEFAULT
+    # Append the security-testing layer (`prompts/security.md`). Off by default
+    # and measured as an arm, the same as the web playbook: it is guidance for
+    # testing a live target, only true when the agent is pointed at one.
+    security: bool = False
     # Present only when the write tools are registered; it is the same object
     # the tools mutate, so the loop can report what was changed.
     session: EditSession | None = None
@@ -984,6 +1108,7 @@ class Agent:
                     # Keyed on the registry rather than on a flag, so the
                     # guidance appears exactly when the tools it describes do.
                     web="web_search" in self.registry.tools,
+                    security=self.security,
                 ),
             })
 
@@ -1317,6 +1442,8 @@ class Agent:
         rebuked = False
         nudged = False
         searched_enough = False
+        nudged_progress = False
+        rebuked_call = False
         # Whatever was already broken before the agent touched anything, taken in
         # `ask()`. Without it the loop would report a repo's pre-existing mess as
         # the agent's doing, which is both wrong and unfixable by it.
@@ -1519,6 +1646,47 @@ class Agent:
                     self.trace.on_thinking(
                         f"[{len(self.stats.empty_searches)} searches, no matches]")
 
+            # No progress on one target: the same endpoint hit past the trigger,
+            # counting every call to it this run (failures included — a failing
+            # retry is the same wasted step). Fired once, from the evidence,
+            # while there are still steps to spend differently — the same place
+            # and shape as the empty-search note. Counted in both arms.
+            if not nudged_progress:
+                counts: dict[str, int] = {}
+                for cname, cargs in self.stats.tool_calls:
+                    tgt = _web_target(cname, cargs)
+                    if tgt is not None:
+                        counts[tgt] = counts.get(tgt, 0) + 1
+                worst = max(counts.items(), key=lambda kv: kv[1], default=(None, 0))
+                if worst[1] >= SAME_TARGET_TRIGGER:
+                    nudged_progress = True
+                    self.stats.progress_nudges += 1
+                    if progress_nudge_enabled():
+                        self.messages.append({
+                            "role": "user",
+                            "content": NO_PROGRESS.format(n=worst[1], target=worst[0]),
+                        })
+                        self.trace.on_thinking(
+                            f"[{worst[1]} requests to {worst[0]}, no progress]")
+
+            # A tool call to a name that is not a tool — an earlier result echoed
+            # back as a call. The tool-call twin of the prose fabrication rebuke,
+            # here rather than in the prose branch because a fabricated *call*
+            # never reaches that branch. Once, from the evidence, with steps left
+            # to answer or call a real tool. Counted in both arms.
+            if not rebuked_call and self.stats.fabricated_calls > 0:
+                rebuked_call = True
+                if fabricated_call_guard_enabled():
+                    bad = next((nm for nm, _ in reversed(self.stats.tool_calls)
+                                if nm not in self.registry.tools), "that")
+                    real = ", ".join(sorted(self.registry.tools))
+                    self.messages.append({
+                        "role": "user",
+                        "content": FABRICATED_CALL_REBUKE.format(name=bad, tools=real),
+                    })
+                    self.trace.on_thinking(
+                        f"[{bad!r} is not a tool; pointing back at the real ones]")
+
             # Halfway through the budget, with edits on disk and steps left to
             # act on what it says. Once: a report repeated every step is noise,
             # and the second copy would be answering a question nobody asked
@@ -1631,6 +1799,11 @@ class Agent:
                   failed: dict[str, int] | None = None) -> None:
         self.trace.on_tool_call(call.name, call.arguments)
         self.stats.tool_calls.append((call.name, call.arguments))
+        # A call to a name that is not a real tool is the tool-call analogue of a
+        # fabricated prose result. Counted here, in both arms; the loop delivers
+        # the rebuke once, only in the on arm.
+        if call.name not in self.registry.tools:
+            self.stats.fabricated_calls += 1
         failed = {} if failed is None else failed
 
         # Only *successful* calls are remembered as repeats. Fingerprinting a
@@ -1650,6 +1823,18 @@ class Agent:
         # First, because a call that must not run should not be fingerprinted as
         # a repeat or counted as a failure: the repeat guard's own lesson is that
         # remembering calls which never ran turns two guards against each other.
+        # Target saturation, computed once and counted in both arms: how many
+        # times this call's endpoint has now been hit (this call included). Only
+        # web requests have a target; everything else is None and never
+        # saturates, so the coding suites are untouched.
+        target = _web_target(call.name, call.arguments)
+        target_hits = (
+            sum(1 for nm, ar in self.stats.tool_calls if _web_target(nm, ar) == target)
+            if target is not None else 0)
+        saturated = target is not None and target_hits > SAME_TARGET_BLOCK
+        if saturated:
+            self.stats.progress_blocks += 1
+
         refusal = self._unrequested_creation(call)
         if refusal is not None:
             self.stats.creations_blocked += 1
@@ -1670,6 +1855,11 @@ class Agent:
                 "a different tool — rather than sending it again.",
                 False,
             )
+        elif saturated and progress_block_enabled():
+            # Enforcement: refuse before dispatch. Not recorded as a failure —
+            # the call is fine, it is the repetition that is refused — so the
+            # fingerprint is left out of both `seen` and `failed`.
+            text, ok = TARGET_BLOCKED.format(n=target_hits, target=target), False
         else:
             text, ok = self.registry.dispatch(call.name, call.arguments)
             if ok:
