@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 3,942 runs behind it are **in
+That bet is measured rather than asserted. The 3,966 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -295,6 +295,73 @@ model *does* answer; the other two ship off and switchable as documented negativ
 results. Where the review suites showed recall is easy and false positives are the
 cost, this shows the deeper floor for a local exploitation agent is getting the
 weaker model to *conclude* at all.
+
+### A narrow enumeration tool unlocks IDOR — at a schema cost (`AGENT_ENUM_TOOL`)
+
+The failures above are the model's; this one was the *tool set's*. IDOR sat at
+0/6 for a procedural reason: the model tried a handful of object ids by hand and
+gave up short of the one that mattered. The question that raises is whether an
+execution-style affordance — the thing a real tester reaches a shell for — would
+help, without becoming a shell. `enumerate_ids` is the answer in this project's
+own idiom (`check_imports`, not `run_command`): one purpose, no interpreter, a
+GET sweep of an integer range into a `{}` template, capped at 100, behind the
+same URL guard as `fetch_url`, and collapsed so the one record that differs is
+the report. It is off by default and never enters the registry until turned on.
+
+It works, and it does not come free:
+
+| `--security` + enum tool | qwen3-coder:30b | nemotron-3.5-lightning |
+|---|---|---|
+| IDOR (was 0/6) | **pass** — swept 1000–1050, recovered the token | **pass** — same |
+| SQLi (was passing) | fail | fail |
+| clean (was passing) | fail (qwen3) | — |
+
+**The affordance did exactly its job**: both 30B models used it, swept a range
+that covered the hidden order, and recovered `zidor-4417-note` — a class that no
+prompt or budget mechanism had moved. **And adding its schema regressed the cases
+it was not for**: on `sqli` and `clean`, where the model never even called the new
+tool, its mere presence in the prompt shifted a brittle model off answers it had
+been getting. That is this project's oldest measured rule, the one behind every
+tool being opt-in — *advertising a tool is prompt text charged on every request,
+and it has cost cases before* — now paid in the other direction. So the verdict
+is not "add the tool" but "add it **for the task it is for**": switched on for an
+IDOR sweep, off for everything else. Execution-style automation earns its place
+on the class it was built for and taxes the rest, which is the honest shape of
+the answer to "would running commands help" — yes, narrowly, and never for free.
+(One rep; the IDOR wins are unambiguous, the regressions want reps to separate
+from noise. Runs on disk under `evals/results/enum-*.json`.)
+
+### Revealing the tool only when it is needed wins both (`AGENT_ENUM_JIT`)
+
+"For the task it is for" is a switch a person flips; the schema tax says the
+*advertising* was the mistake, not the tool. So do not advertise it globally.
+Register `enumerate_ids` **unadvertised** — dispatchable but out of the schema, at
+zero prompt cost, exactly as `undo_edit` already is — and reveal it *just in time*:
+the loop watches for the model fetching one endpoint with two different integer
+ids (the definition of enumerating by hand) and, at that moment, advertises the
+tool and says so. The task that needs it pays its schema; the tasks that never
+enumerate never see it.
+
+Same three models, `--security`, the enumeration tool present all three ways:
+
+| | baseline | static (`AGENT_ENUM_TOOL`) | JIT (`AGENT_ENUM_JIT`) |
+|---|---|---|---|
+| qwen3-coder:30b | 2/4 (sqli, clean) | 1/4 (idor; **lost** sqli+clean) | 2/4 (sqli, clean; no tax) |
+| nemotron-3.5-lightning | 1/4 (sqli) | 1/4 (idor; **lost** sqli) | **2/4 (sqli + idor)** |
+
+JIT is **strictly better than static**: the tax is gone — both models keep the
+cases the static schema broke — and IDOR is still won when the model actually
+enumerates. nemotron shows the whole point in one trace: it fetches
+`/api/orders/1001` and `/1002` by hand, the reveal fires, it calls
+`enumerate_ids` over the range, finds `1041`, and recovers the token — **SQLi and
+IDOR passing together, which the static tool could never do because it always
+broke SQLi to buy IDOR**. qwen3 did not reach 3/4 here only because that run wandered
+the local workspace and tested the target just once, too late to enumerate — an
+orthogonal failure the tool cannot touch, and one it beat in the static run, so
+3/4 is within reach on reps. The lesson is the sharper form of the schema rule:
+a tool costs prompt on every request it is *advertised* on, so advertise it on the
+requests that need it and no others. (One rep; wins unambiguous, the
+workspace-wander variance wants reps. Runs under `evals/results/jit-*.json`.)
 
 ## What you need
 

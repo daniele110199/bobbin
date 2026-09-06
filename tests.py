@@ -3977,6 +3977,160 @@ def test_vulnerable_web_fixture_is_exploitable_through_the_tools() -> None:
             os.environ.pop("WEBEXPLOIT_ROBOTS", None)
 
 
+def test_enumerate_tool_sweeps_a_range_and_flags_the_outlier() -> None:
+    """The narrow offensive affordance: enumeration without a shell.
+
+    IDOR failed 0/6 for a procedural reason — the model tried a handful of object
+    ids by hand and gave up three short of the one that mattered. `enumerate_ids`
+    is the `check_imports`-not-`run_command` answer: a single-purpose GET sweep,
+    capped, behind its own flag so it never enters the default web registry.
+
+    It shares `_check` with `fetch_url`, so the guard runs on every id in the
+    sweep, and it collapses the modal response to a count so the outlier — the
+    one record that belongs to someone else — is what the report is about.
+    """
+    import os
+
+    from agent.sandbox import Workspace, ToolError
+    from agent.tools import build_registry, web
+    from evals.webfixture import FixtureWeb
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        ws = Workspace(Path(tmpdir))
+        os.environ.pop("AGENT_ENUM_TOOL", None)
+        base = {s["function"]["name"] for s in build_registry(ws, allow_web=True).schemas()}
+        check("enumerate: opt-in — absent from the default web registry",
+              "enumerate_ids" not in base, sorted(base))
+        os.environ["AGENT_ENUM_TOOL"] = "1"
+        try:
+            on = {s["function"]["name"] for s in build_registry(ws, allow_web=True).schemas()}
+            check("enumerate: the flag registers it alongside the web tools",
+                  "enumerate_ids" in on and "fetch_url" in on, sorted(on))
+        finally:
+            os.environ.pop("AGENT_ENUM_TOOL", None)
+
+    with FixtureWeb():
+        out = web._enumerate("http://shop.hazelmart.test/api/orders/{}", 1035, 1045)
+        check("enumerate: the sweep finds the id that is not the model's own",
+              "id 1041" in out and "zidor-4417-note" in out, out)
+        check("enumerate: the boring 404s are collapsed, not listed one by one",
+              "identical" in out and out.count("404") == 1, out)
+        check("enumerate: and the output is fenced as untrusted like any web read",
+              out.startswith(web.FENCE_OPEN), out[:80])
+
+        # The guard is live on every id, exactly as for a single fetch.
+        try:
+            web._enumerate("http://127.0.0.1/api/orders/{}", 1, 3)
+            check("enumerate: loopback is refused mid-sweep too", False)
+        except ToolError:
+            check("enumerate: loopback is refused mid-sweep too", True)
+
+    # The cap and the template contract are enforced before any request is sent.
+    for bad_args, why in (
+        (("http://h.test/o/{}", 1, 1000), "a range past the cap"),
+        (("http://h.test/o/noplaceholder", 1, 3), "a template with no '{}'"),
+        (("http://h.test/o/{}", 9, 1), "end before start"),
+    ):
+        try:
+            web._enumerate(*bad_args)
+            check(f"enumerate: {why} is refused", False)
+        except ToolError:
+            check(f"enumerate: {why} is refused", True)
+
+
+def test_enumerate_tool_is_revealed_just_in_time() -> None:
+    """The advertising fix: pay the schema only on the task that needs the tool.
+
+    The static tool unlocked IDOR and regressed the cases that never called it,
+    because its schema is in every prompt in the run. JIT mode registers it
+    *unadvertised* — zero schema cost — and the loop advertises it the moment the
+    model fetches the same endpoint with two different integer ids. A task that
+    never enumerates by hand never sees the schema, which is how both IDOR and the
+    cases the static tool broke can be won at once.
+    """
+    import os
+
+    from agent.loop import Agent, _id_template
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry
+    from evals.webfixture import FixtureWeb
+
+    # The path-id detector: the pattern is in the path, and a query digit is not it.
+    check("jit: a path id yields a template",
+          _id_template("http://h.test/api/orders/1001") == ("http://h.test/api/orders/{}", 1001))
+    check("jit: a query-only digit is not read as an id sweep",
+          _id_template("http://h.test/api/lookup?sku=BK-001") is None
+          or _id_template("http://h.test/api/lookup?sku=BK-001")[0].endswith("/api/lookup"))
+
+    class Reply:
+        def __init__(self, calls=None, content=""):
+            self.content, self.recovered_from_text = content, False
+            self.tool_calls = calls or []
+
+    class Call:
+        def __init__(self, name, args):
+            self.name, self.arguments, self.id = name, args, "1"
+
+    class HandEnum:
+        """Fetches two sequential order ids by hand, then answers."""
+        def __init__(self):
+            self.n = 0
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n == 1:
+                return Reply([Call("fetch_url", {"url": "http://shop.hazelmart.test/api/orders/1001"})])
+            if self.n == 2:
+                return Reply([Call("fetch_url", {"url": "http://shop.hazelmart.test/api/orders/1002"})])
+            return Reply(content="Done.")
+
+    class OneEndpoint:
+        """Never enumerates — hits one non-id endpoint, then answers."""
+        def __init__(self):
+            self.n = 0
+
+        def chat(self, messages, schemas):
+            self.n += 1
+            if self.n <= 2:
+                return Reply([Call("fetch_url", {"url": "http://shop.hazelmart.test/api/lookup?sku=BK-001"})])
+            return Reply(content="Safe.")
+
+    def run(client):
+        os.environ["AGENT_ENUM_JIT"] = "1"
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                ws = Workspace(Path(tmpdir))
+                reg = build_registry(ws, allow_web=True)
+                # Registered but hidden: dispatchable, not in the advertised schema.
+                advertised_before = {s["function"]["name"] for s in reg.schemas()}
+                hidden = ("enumerate_ids" in reg.tools
+                          and "enumerate_ids" not in advertised_before)
+                agent = Agent(client=client, registry=reg, workspace=ws, max_steps=6)
+                with FixtureWeb():
+                    agent.ask("Test the order endpoint for IDOR.")
+                revealed_after = "enumerate_ids" in {s["function"]["name"] for s in reg.schemas()}
+                notes = [m for m in agent.messages
+                         if m.get("role") == "user"
+                         and "enumerate_ids(" in str(m.get("content"))]
+                return hidden, agent.stats, revealed_after, notes
+        finally:
+            os.environ.pop("AGENT_ENUM_JIT", None)
+
+    hidden, stats, revealed, notes = run(HandEnum())
+    check("jit: the tool starts registered but unadvertised (no schema cost)", hidden)
+    check("jit: hand-enumeration reveals it exactly once",
+          stats.enum_reveals == 1, stats.enum_reveals)
+    check("jit: and it is in the advertised schema afterwards, callable next turn",
+          revealed)
+    check("jit: with a note naming the tool and the template",
+          len(notes) == 1 and "/api/orders/{}" in notes[0]["content"], notes)
+
+    _, stats2, revealed2, notes2 = run(OneEndpoint())
+    check("jit: a task that never enumerates by hand never triggers the reveal",
+          stats2.enum_reveals == 0 and not revealed2 and notes2 == [],
+          (stats2.enum_reveals, revealed2, notes2))
+
+
 def test_web_cases_are_opt_in_per_case() -> None:
     """The web suite must not change what any other case sees.
 
@@ -6707,6 +6861,8 @@ def main() -> int:
                test_post_approval_can_stand_for_one_origin_per_session,
                test_response_metadata_is_reported_on_success_and_failure,
                test_offline_web_fixture_serves_the_real_tools,
+               test_enumerate_tool_sweeps_a_range_and_flags_the_outlier,
+               test_enumerate_tool_is_revealed_just_in_time,
                test_vulnerable_web_fixture_is_exploitable_through_the_tools,
                test_pair_survey_names_only_real_switches,
                test_security_suite_scores_recall_and_false_positives,

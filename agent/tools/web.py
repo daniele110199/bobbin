@@ -58,6 +58,14 @@ TIMEOUT_S = 15
 MAX_BYTES = 512_000
 MAX_LINES = 200
 MAX_RESULTS = 8
+# The enumeration tool's ceiling: the widest sweep it will do in one call. Big
+# enough for a real object-id range (an IDOR sweep is dozens, not thousands),
+# small enough that one call cannot become an unbounded scan of the target.
+MAX_ENUM = 100
+# How much of each interesting response body to show inline. Enough to see whose
+# record it is and spot a leaked field, not so much that a dozen hits flood the
+# context.
+ENUM_SNIPPET = 200
 SNIPPET_CHARS = 220
 # Outbound, not inbound. A GraphQL query or an RPC call is a few hundred bytes;
 # anything approaching this cap is not the use this tool was built for.
@@ -125,6 +133,30 @@ def metadata_enabled() -> bool:
     return not os.environ.get("AGENT_NO_HTTP_META")
 
 
+def enum_tool_enabled() -> bool:
+    """Whether `enumerate_ids` is registered. Off unless `AGENT_ENUM_TOOL=1`.
+
+    A narrow offensive affordance — the project's `check_imports`-not-a-shell
+    pattern applied to enumeration — and, like every web tool, kept out of the
+    default registry so no number on record moves until it is deliberately turned
+    on and measured. It is the experiment for "does an execution-style affordance
+    unlock a class the model cannot sweep by hand": IDOR, where the model
+    enumerated a few object ids by hand and missed the one that mattered.
+    """
+    return bool(os.environ.get("AGENT_ENUM_TOOL"))
+
+
+def enum_jit_enabled() -> bool:
+    """Whether `enumerate_ids` is registered unadvertised for just-in-time reveal.
+
+    Off unless `AGENT_ENUM_JIT=1`. This is the answer to the static tool's schema
+    tax: register the affordance with zero schema cost and let the loop advertise
+    it the moment the model's own behaviour — fetching sequential ids by hand —
+    shows it is needed. The reveal itself lives in `agent/loop.py`.
+    """
+    return bool(os.environ.get("AGENT_ENUM_JIT"))
+
+
 def fenced(body: str) -> str:
     """Mark web text as data rather than instruction.
 
@@ -185,6 +217,39 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
             fn=_fetch,
         ),
     ]
+    # `enumerate_ids` in two modes. Static (`AGENT_ENUM_TOOL`) advertises it to
+    # every request in the run — which unlocked IDOR and, measured, regressed the
+    # cases that never called it, because a schema is prompt text charged on every
+    # request. Just-in-time (`AGENT_ENUM_JIT`) registers it *unadvertised* — zero
+    # schema cost, dispatchable like `undo_edit` — and the loop reveals it the
+    # moment the model starts fetching sequential ids by hand. The task that needs
+    # it pays for it; the tasks that do not never see it.
+    if enum_tool_enabled() or enum_jit_enabled():
+        tools.append(Tool(
+            name="enumerate_ids",
+            description=(
+                "Sweep a range of numeric ids into a URL and report which ones "
+                "answer differently. Use it to test access control on an object "
+                "addressed by id (an order, a user, an invoice): put '{}' where "
+                "the id goes and give a start and end, and it GETs each one and "
+                "shows the responses that stand out from the rest. Read-only, "
+                "capped, nothing is executed or saved."
+            ),
+            params=[
+                Param("url_template", "string",
+                      "Absolute http(s) URL with '{}' where the id goes, e.g. "
+                      "'http://host/api/orders/{}'.",
+                      required=True),
+                Param("start", "integer",
+                      "First id to try (inclusive).", required=True),
+                Param("end", "integer",
+                      "Last id to try (inclusive).", required=True),
+            ],
+            fn=_enumerate,
+            # Advertised up front only in static mode; in JIT mode it stays out of
+            # the schema until the loop reveals it.
+            advertised=enum_tool_enabled(),
+        ))
     if post_approve is not None:
         tools.append(Tool(
             name="http_post",
@@ -563,3 +628,89 @@ def _fetch(url: str) -> str:
         return f"ERROR: could not reach {url}: {exc}."
 
     return _render(url, final, content_type, body, status, reason)
+
+
+def _probe(url: str) -> tuple[int | None, str]:
+    """One GET, reduced to (status, short text). The building block of the sweep.
+
+    Shares `_check` and the same request path as `_fetch`, so the guard runs on
+    every id and the enumeration cannot reach loopback or the metadata endpoint
+    any more than a single fetch can. Returns status None on a transport error,
+    with the reason as the text."""
+    url = _check(url, tool="enumerate_ids")
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=TIMEOUT_S) as response:
+            ctype = (response.headers.get("Content-Type") or "").lower()
+            body = response.read(MAX_BYTES + 1)
+            return response.status, _to_text(body, ctype)
+    except urllib.error.HTTPError as exc:
+        try:
+            ctype = (exc.headers.get("Content-Type") or "").lower()
+            return exc.code, _to_text(exc.read(MAX_BYTES), ctype)
+        except Exception:  # noqa: BLE001
+            return exc.code, ""
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        return None, str(getattr(exc, "reason", exc))
+
+
+def _enumerate(url_template: str, start, end) -> str:
+    """Sweep an integer range into a URL template and report the odd ones out.
+
+    The IDOR affordance: instead of guessing object ids by hand — which is how
+    the sweep gets abandoned three ids short of the one that matters — substitute
+    each id in `[start, end]` into `{}` and GET it. The report shows every
+    response that is *not* the modal one (usually the 404s), because an id that
+    answers differently is the whole finding, and collapses the rest into a
+    count so a hundred requests do not become a hundred lines.
+    """
+    if "{}" not in url_template:
+        raise ToolError(
+            "enumerate_ids needs a url_template with '{}' where the id goes, e.g. "
+            "'http://host/api/orders/{}'.")
+    try:
+        start, end = int(start), int(end)
+    except (TypeError, ValueError):
+        raise ToolError("enumerate_ids needs integer start and end.")
+    if end < start:
+        raise ToolError(f"enumerate_ids: end ({end}) is before start ({start}).")
+    count = end - start + 1
+    if count > MAX_ENUM:
+        raise ToolError(
+            f"enumerate_ids: {count} ids is more than the {MAX_ENUM} cap. Narrow "
+            "the range and sweep the most likely ids first.")
+    # Validate the URL shape once, before firing the whole range at it.
+    _check(url_template.replace("{}", str(start)), tool="enumerate_ids")
+
+    results = []  # (id, status, text)
+    for n in range(start, end + 1):
+        status, text = _probe(url_template.replace("{}", str(n)))
+        results.append((n, status, text))
+
+    # The modal (status, size) bucket is the boring baseline — "not found" for an
+    # id that does not exist. Everything else is what a tester is looking for.
+    from collections import Counter
+    signature = Counter((s, len(t)) for _, s, t in results)
+    modal = signature.most_common(1)[0][0] if signature else None
+
+    lines = [f"Enumerated {url_template} for ids {start}..{end} "
+             f"({count} requests):"]
+    modal_ids = []
+    for n, status, text in results:
+        if (status, len(text)) == modal:
+            modal_ids.append(n)
+            continue
+        shown = " ".join(text.split())[:ENUM_SNIPPET]
+        code = status if status is not None else "no response"
+        lines.append(f"  id {n}: {code}"
+                     + (f" — {shown}" if shown else ""))
+    if modal_ids:
+        code = modal[0] if modal and modal[0] is not None else "no response"
+        rng = (f"{modal_ids[0]}..{modal_ids[-1]}"
+               if len(modal_ids) > 1 else str(modal_ids[0]))
+        lines.append(f"  ids {rng}: {code} (identical, {len(modal_ids)} of "
+                     f"{count}) — the baseline; the lines above are what differ")
+    if len(lines) == 2 and modal_ids:
+        lines.append("  Every id in the range answered the same way; nothing "
+                     "stands out. Try a different range or endpoint.")
+    return fenced("\n".join(lines))

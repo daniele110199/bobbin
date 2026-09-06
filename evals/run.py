@@ -242,6 +242,7 @@ def run_turn(agent, case: Case, turn, index: int, root: Path) -> dict:
         "progress_nudges": st.progress_nudges,
         "progress_blocks": st.progress_blocks,
         "fabricated_calls": st.fabricated_calls,
+        "enum_reveals": st.enum_reveals,
         "interrupted": st.interrupted,
         "steers": st.steers,
         "context_notices": st.context_notices,
@@ -386,6 +387,7 @@ def run_case(model: str, case: Case, opts) -> dict:
         "progress_nudges": total("progress_nudges"),
         "progress_blocks": total("progress_blocks"),
         "fabricated_calls": total("fabricated_calls"),
+        "enum_reveals": total("enum_reveals"),
         # A run stopped by its user is not a run that failed, and a
         # scored suite has to be able to tell them apart.
         "interrupted": any(r["interrupted"] for r in rows),
@@ -474,7 +476,7 @@ def run_model(model: str, cases: list[Case], opts) -> list[dict]:
                        "quoted_absences": 0, "presupposition_challenges": 0,
                        "scope_challenges": 0,
                        "empty_search_notes": 0, "progress_nudges": 0, "progress_blocks": 0,
-                       "fabricated_calls": 0,
+                       "fabricated_calls": 0, "enum_reveals": 0,
                        "context_notices": 0, "compactions": 0,
                        "digest_previews": [],
                        "fabrications": 0, "budget_exhausted": False,

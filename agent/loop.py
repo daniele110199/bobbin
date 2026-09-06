@@ -321,6 +321,49 @@ def fabricated_call_guard_enabled() -> bool:
     return bool(os.environ.get("AGENT_FABRICATED_CALL_GUARD"))
 
 
+# Just-in-time reveal of `enumerate_ids`. The static tool unlocked IDOR and, on
+# the same arm, regressed the cases that never called it — a schema is prompt text
+# charged on every request, and its mere presence moved a brittle model off
+# answers it had. The fix is to stop advertising globally: register the tool
+# unadvertised (zero schema cost) and reveal it here, the moment the model's own
+# behaviour shows it needs it — fetching the same endpoint with a different
+# integer id, twice. The task that needs the tool pays its schema; the tasks that
+# do not never see it.
+ENUM_REVEAL = (
+    "You are fetching {template} one id at a time. There is a tool for exactly "
+    "that: enumerate_ids(url_template=\"{template}\", start=…, end=…) sweeps a "
+    "whole range of ids in one call and reports which ones answer differently. "
+    "Try it across the ids around the ones you have — for example start={lo}, "
+    "end={hi} — and widen the range if nothing stands out."
+)
+
+
+def _id_template(url: str) -> tuple[str, int] | None:
+    """The (endpoint, id) of a URL whose path ends in — or contains — a number.
+
+    `/api/orders/1001` -> ('http://host/api/orders/{}', 1001). Query is dropped:
+    the enumeration pattern lives in the path (an object id), not in a payload
+    parameter, and keying on the path keeps a query digit like `sku=BK-001` from
+    reading as an id sweep. Returns None when the path has no number."""
+    try:
+        p = urlparse(url or "")
+    except ValueError:
+        return None
+    if not p.path:
+        return None
+    last = None
+    for last in re.finditer(r"\d+", p.path):
+        pass
+    if last is None:
+        return None
+    host = (p.hostname or "").lower()
+    if not host:
+        return None
+    netloc = host + (f":{p.port}" if p.port else "")
+    path_t = p.path[:last.start()] + "{}" + p.path[last.end():]
+    return f"{p.scheme or 'http'}://{netloc}{path_t}", int(last.group())
+
+
 def _web_target(name: str, args: dict) -> str | None:
     """The endpoint a call hits, or None if it is not a web request.
 
@@ -1008,6 +1051,8 @@ class RunStats:
     # Calls to a name that is not a real tool — an earlier result echoed back as a
     # tool call. Counted in both arms; the rebuke is delivered once, in one arm.
     fabricated_calls: int = 0
+    # Times the just-in-time enumerate_ids reveal fired (once per run).
+    enum_reveals: int = 0
     # Whether this turn stopped because the user asked it to, and how many
     # mid-turn instructions it was given. A run that was interrupted is not a run
     # that failed, and a scored suite has to be able to tell them apart.
@@ -1444,6 +1489,7 @@ class Agent:
         searched_enough = False
         nudged_progress = False
         rebuked_call = False
+        revealed_enum = False
         # Whatever was already broken before the agent touched anything, taken in
         # `ask()`. Without it the loop would report a repo's pre-existing mess as
         # the agent's doing, which is both wrong and unfixable by it.
@@ -1668,6 +1714,37 @@ class Agent:
                         })
                         self.trace.on_thinking(
                             f"[{worst[1]} requests to {worst[0]}, no progress]")
+
+            # Just-in-time reveal: the model is enumerating object ids by hand —
+            # the same endpoint fetched with two different integer ids — and there
+            # is an unadvertised tool that sweeps the range in one call. Advertise
+            # it now (so the next turn can call it) and say so. Fires once, only
+            # when enumerate_ids is registered-but-hidden, which is JIT mode.
+            if not revealed_enum and os.environ.get("AGENT_ENUM_JIT"):
+                tool = self.registry.tools.get("enumerate_ids")
+                if tool is not None and not tool.advertised:
+                    id_hits: dict[str, set] = {}
+                    for nm, ar in self.stats.tool_calls:
+                        if nm != "fetch_url":
+                            continue
+                        t = _id_template((ar or {}).get("url", ""))
+                        if t is not None:
+                            id_hits.setdefault(t[0], set()).add(t[1])
+                    hit = next(((tpl, vals) for tpl, vals in id_hits.items()
+                                if len(vals) >= 2), None)
+                    if hit is not None:
+                        revealed_enum = True
+                        self.stats.enum_reveals += 1
+                        tool.advertised = True
+                        tpl, vals = hit
+                        lo = min(vals)
+                        self.messages.append({
+                            "role": "user",
+                            "content": ENUM_REVEAL.format(
+                                template=tpl, lo=lo, hi=lo + 49),
+                        })
+                        self.trace.on_thinking(
+                            f"[hand-enumerating {tpl}; revealing enumerate_ids]")
 
             # A tool call to a name that is not a tool — an earlier result echoed
             # back as a call. The tool-call twin of the prose fabrication rebuke,
