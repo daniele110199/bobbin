@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,041 runs behind it are **in
+That bet is measured rather than asserted. The 4,042 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -449,6 +449,23 @@ running-target assessment, give the agent a workspace with no source in it.** A
 code repo is not context here, it is a distraction the weaker model cannot resist.
 (pass@3 runs under `evals/results/pass3*.json`; nemotron's three-rep pass was
 cut short by a full swap file, an ops limit, not a result.)
+
+### Testing behind a login (`fetch_url` / `http_post` share a session)
+
+Most of a real app is behind auth, and the biggest gap was that the web tools
+were stateless — a login went nowhere. Now the HTTP tools in one run **share a
+cookie jar**: a login response's `Set-Cookie` is stored and sent on every later
+request, through either tool, with no header for the model to carry by hand. The
+jar is per run, so one assessment's session never leaks into another's.
+
+The fixture proves the whole chain: `/api/login` issues a session cookie, and
+`/api/admin/metrics` needs it but checks only that you are *logged in*, never that
+you are an *admin* — a broken-function-level-access-control / privilege-escalation
+flaw whose token is reachable only after login. qwen3 lands it end to end: it
+POSTs the login as the regular user `alice`, the cookie carries across to a
+`fetch_url` GET of the admin endpoint, and it recovers the token — logging in on
+one tool and staying logged in on another. A jar that never logged in stays 401,
+so the pass is the session working, not a hole. (Run: `evals/results/auth-*.json`.)
 
 ## What you need
 

@@ -3945,6 +3945,44 @@ def test_broader_vuln_classes_leak_only_on_exploit() -> None:
               "401" in no and AUTH_TOKEN not in no, no[:200])
 
 
+def test_authenticated_session_carries_across_requests() -> None:
+    """Authenticated testing: log in once, stay logged in.
+
+    The web tools in one build share a cookie jar (`_session_openers`), so a login
+    response's Set-Cookie is stored and every later request sends it back — no
+    header for the model to carry by hand. The fixture's admin-metrics endpoint
+    needs a session (proving the carry) and checks only that you are logged in,
+    never that you are an admin (the privilege-escalation flaw). Its token is
+    reachable only after login, so it cannot pass by accident, and a *fresh* jar
+    stays locked out — proving it was the cookie, not a hole.
+    """
+    from agent.tools.web import _fetch, _post, _session_openers
+    from evals.webexploit_fixture import PRIVESC_TOKEN
+    from evals.webfixture import FixtureWeb
+
+    with FixtureWeb():
+        b = "http://shop.hazelmart.test"
+        get_op, post_op = _session_openers()   # one shared jar, as build() makes
+
+        anon = _fetch(f"{b}/api/admin/metrics", opener=get_op)
+        check("auth session: the protected endpoint is 401 before login",
+              "401" in anon and PRIVESC_TOKEN not in anon, anon[:200])
+
+        login = _post(f"{b}/api/login",
+                      '{"username": "alice", "password": "hunter2"}',
+                      "json", approve=lambda *a: True, opener=post_op)
+        check("auth session: a valid login authenticates", '"authenticated"' in login)
+
+        after = _fetch(f"{b}/api/admin/metrics", opener=get_op)
+        check("auth session: the same jar carries the cookie to the next request",
+              PRIVESC_TOKEN in after, after[:200])
+
+        fresh, _ = _session_openers()
+        locked = _fetch(f"{b}/api/admin/metrics", opener=fresh)
+        check("auth session: a jar that never logged in stays locked out",
+              "401" in locked and PRIVESC_TOKEN not in locked, locked[:200])
+
+
 def test_vulnerable_web_fixture_is_exploitable_through_the_tools() -> None:
     """The security-test target's flaws are real behaviour, reached the shipped way.
 
@@ -4262,7 +4300,8 @@ def test_web_cases_are_opt_in_per_case() -> None:
            if c.allow_web and c.id not in intended_web] == [])
     check("web cases: only the POST cases ask for http_post",
           [c.id for c in ALL_CASES if c.allow_post]
-          == ["web-post-only", "web-post-escaped", "webexploit-authbypass"])
+          == ["web-post-only", "web-post-escaped", "webexploit-authbypass",
+              "webexploit-privesc"])
 
     # The measurement each case is actually for, pinned so a later edit cannot
     # quietly turn the suite into six variations of "fetch a page".
@@ -6991,6 +7030,7 @@ def main() -> int:
                test_enumerate_tool_sweeps_a_range_and_flags_the_outlier,
                test_enumerate_tool_is_revealed_just_in_time,
                test_fetch_raw_exposes_what_text_mode_strips,
+               test_authenticated_session_carries_across_requests,
                test_vulnerable_web_fixture_is_exploitable_through_the_tools,
                test_broader_vuln_classes_leak_only_on_exploit,
                test_pair_survey_names_only_real_switches,

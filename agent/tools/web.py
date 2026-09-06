@@ -41,6 +41,7 @@ its own links, and the page it lands on is written by whoever ranked for the que
 from __future__ import annotations
 
 import html
+import http.cookiejar
 import json
 import os
 import re
@@ -177,13 +178,32 @@ _BLANK = re.compile(r"\n\s*\n\s*\n+")
 _SPACES = re.compile(r"[ \t]{2,}")
 
 
+def _session_openers() -> tuple:
+    """A GET opener and a POST opener that share one cookie jar.
+
+    This is what makes authenticated testing work: a login response's `Set-Cookie`
+    is stored in the jar, and every later request through either opener sends it
+    back — so the agent logs in once and stays logged in, with no header to carry
+    by hand. The jar is created per `build()` call, i.e. per run, so one
+    assessment's session never leaks into another's. The POST opener keeps the
+    no-redirect handler it already had; both just gain the cookie processor."""
+    jar = http.cookiejar.CookieJar()
+    cookies = urllib.request.HTTPCookieProcessor(jar)
+    return (urllib.request.build_opener(cookies),
+            urllib.request.build_opener(cookies, _NoRedirect))
+
+
 def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[Tool]:
     """The web tools. `http_post` appears only when a human gate is supplied.
 
     Same shape as the write tools: the model makes the call, the *user* decides.
     No approver, no POST tool — there is no unattended mode for it, because the
     thing it does cannot be taken back.
+
+    All the HTTP tools in one build share a cookie jar (`_session_openers`), so a
+    login carries across the run — see there.
     """
+    get_opener, post_opener = _session_openers()
     tools = [
         Tool(
             name="web_search",
@@ -221,7 +241,7 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       "Default false.",
                       required=False, default=False),
             ],
-            fn=_fetch,
+            fn=partial(_fetch, opener=get_opener),
         ),
     ]
     # `enumerate_ids` in two modes. Static (`AGENT_ENUM_TOOL`) advertises it to
@@ -252,7 +272,7 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                 Param("end", "integer",
                       "Last id to try (inclusive).", required=True),
             ],
-            fn=_enumerate,
+            fn=partial(_enumerate, opener=get_opener),
             # Advertised up front only in static mode; in JIT mode it stays out of
             # the schema until the loop reveals it.
             advertised=enum_tool_enabled(),
@@ -281,7 +301,7 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       required=False, default="json",
                       enum=sorted(POST_TYPES)),
             ],
-            fn=partial(_post, approve=post_approve),
+            fn=partial(_post, approve=post_approve, opener=post_opener),
         ))
     return tools
 
@@ -483,7 +503,7 @@ _POST_OPENER = urllib.request.build_opener(_NoRedirect)
 
 
 def _post(url: str, body: str, content_type: str = "json",
-          *, approve: Callable[[str, str, str], bool]) -> str:
+          *, approve: Callable[[str, str, str], bool], opener=None) -> str:
     url = _check(url, tool="http_post")
     kind = (content_type or "json").strip().lower()
     if kind not in POST_TYPES:
@@ -533,7 +553,7 @@ def _post(url: str, body: str, content_type: str = "json",
         headers={"User-Agent": USER_AGENT, "Content-Type": POST_TYPES[kind]},
     )
     try:
-        with _POST_OPENER.open(request, timeout=TIMEOUT_S) as response:
+        with (opener or _POST_OPENER).open(request, timeout=TIMEOUT_S) as response:
             got = (response.headers.get("Content-Type") or "").lower()
             raw = response.read(MAX_BYTES + 1)
             final = response.geturl()
@@ -629,13 +649,14 @@ def _render(url: str, final: str, content_type: str, raw: bytes,
     return fenced(cap(lines, MAX_LINES, "lines"))
 
 
-def _fetch(url: str, raw: bool = False) -> str:
+def _fetch(url: str, raw: bool = False, opener=None) -> str:
     url = _check(url)
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    _open = opener.open if opener is not None else urllib.request.urlopen
     try:
-        # No custom opener, so urllib's default redirect handler applies — and it
-        # only ever follows http(s), which is the property that matters here.
-        with urllib.request.urlopen(request, timeout=TIMEOUT_S) as response:
+        # The opener (when the session jar is in play) follows http(s) redirects
+        # and carries cookies; the default urlopen does the redirect half only.
+        with _open(request, timeout=TIMEOUT_S) as response:
             content_type = (response.headers.get("Content-Type") or "").lower()
             body = response.read(MAX_BYTES + 1)
             final = response.geturl()
@@ -651,7 +672,7 @@ def _fetch(url: str, raw: bool = False) -> str:
     return _render(url, final, content_type, body, status, reason, raw_mode=raw)
 
 
-def _probe(url: str) -> tuple[int | None, str]:
+def _probe(url: str, opener=None) -> tuple[int | None, str]:
     """One GET, reduced to (status, short text). The building block of the sweep.
 
     Shares `_check` and the same request path as `_fetch`, so the guard runs on
@@ -660,8 +681,9 @@ def _probe(url: str) -> tuple[int | None, str]:
     with the reason as the text."""
     url = _check(url, tool="enumerate_ids")
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    _open = opener.open if opener is not None else urllib.request.urlopen
     try:
-        with urllib.request.urlopen(request, timeout=TIMEOUT_S) as response:
+        with _open(request, timeout=TIMEOUT_S) as response:
             ctype = (response.headers.get("Content-Type") or "").lower()
             body = response.read(MAX_BYTES + 1)
             return response.status, _to_text(body, ctype)
@@ -675,7 +697,7 @@ def _probe(url: str) -> tuple[int | None, str]:
         return None, str(getattr(exc, "reason", exc))
 
 
-def _enumerate(url_template: str, start, end) -> str:
+def _enumerate(url_template: str, start, end, opener=None) -> str:
     """Sweep an integer range into a URL template and report the odd ones out.
 
     The IDOR affordance: instead of guessing object ids by hand — which is how
@@ -705,7 +727,7 @@ def _enumerate(url_template: str, start, end) -> str:
 
     results = []  # (id, status, text)
     for n in range(start, end + 1):
-        status, text = _probe(url_template.replace("{}", str(n)))
+        status, text = _probe(url_template.replace("{}", str(n)), opener=opener)
         results.append((n, status, text))
 
     # The modal (status, size) bucket is the boring baseline — "not found" for an
