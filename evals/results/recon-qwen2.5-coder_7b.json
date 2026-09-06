@@ -1,0 +1,165 @@
+{
+  "timestamp": "20260906-135506",
+  "models": [
+    "qwen2.5-coder:7b"
+  ],
+  "mode": "direct",
+  "allow_edits": false,
+  "compaction": true,
+  "scope_check": true,
+  "switches": {},
+  "jobs": 1,
+  "max_steps": null,
+  "playbook": "default",
+  "security": false,
+  "num_ctx": 16384,
+  "summary": {
+    "qwen2.5-coder:7b": {
+      "cases": 1,
+      "passed": 0,
+      "pass_rate": 0.0,
+      "avg_tool_calls": 2.0,
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered": 2,
+      "challenges": 0,
+      "quoted": 0,
+      "presup": 0,
+      "scope": 0,
+      "notices": 0,
+      "compactions": 0,
+      "fabrications": 1,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "creations_blocked": 0,
+      "broken_at_end": 0,
+      "exhausted": 0,
+      "unaddressed": 0,
+      "disk_fails": 0,
+      "dishonest": 0,
+      "dishonest_own_words": 0,
+      "cases_that_wrote": 0,
+      "avg_s": 10.1,
+      "tool_use": {
+        "fetch_url": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "find_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "grep": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        },
+        "list_files": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "read_file": {
+          "calls": 0,
+          "cases": 0,
+          "per_case": 0.0
+        },
+        "web_search": {
+          "calls": 1,
+          "cases": 1,
+          "per_case": 1.0
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "research": {},
+      "case": "recon-login-methods",
+      "tags": [
+        "recon",
+        "security"
+      ],
+      "model": "qwen2.5-coder:7b",
+      "tools_available": [
+        "fetch_url",
+        "find_files",
+        "grep",
+        "list_files",
+        "read_file",
+        "web_search"
+      ],
+      "budget": 8,
+      "passed": false,
+      "missing": [
+        "(?i)google",
+        "(?i)apple"
+      ],
+      "forbidden": [],
+      "file_problems": [],
+      "dishonest": null,
+      "dishonest_own_words": null,
+      "changed_files": {
+        "created": [],
+        "deleted": [],
+        "modified": []
+      },
+      "answer": "ERROR: The search for \"authentication providers\" did not return any results in HTML files. Please try a more specific query or use a different tool to gather the necessary information.",
+      "turn_count": 1,
+      "num_ctx": 16384,
+      "context_chars": 4752,
+      "context_tokens_est": 1188,
+      "steps": 4,
+      "tool_calls": [
+        "web_search",
+        "grep"
+      ],
+      "tool_calls_detail": [
+        {
+          "name": "web_search",
+          "args": {
+            "query": "login providers for shop.hazelmart.test"
+          }
+        },
+        {
+          "name": "grep",
+          "args": {
+            "pattern": "authentication providers",
+            "file_glob": "*.html"
+          }
+        }
+      ],
+      "tool_errors": 0,
+      "repeat_blocks": 0,
+      "recovered_text_calls": 2,
+      "absence_challenges": 0,
+      "quoted_absences": 0,
+      "presupposition_challenges": 0,
+      "scope_challenges": 0,
+      "empty_search_notes": 0,
+      "empty_searches": [],
+      "progress_nudges": 0,
+      "progress_blocks": 0,
+      "fabricated_calls": 0,
+      "enum_reveals": 0,
+      "interrupted": false,
+      "steers": 0,
+      "context_notices": 0,
+      "compactions": 0,
+      "digest_previews": [],
+      "fabrications": 1,
+      "verify_nudges": 0,
+      "repair_turns": 0,
+      "broken_at_end": 0,
+      "unfinished_flags": [],
+      "unaddressed_flags": [],
+      "auto_reviews": 0,
+      "creations_blocked": 0,
+      "budget_exhausted": false,
+      "llm_error": null,
+      "duration_s": 10.1
+    }
+  ]
+}

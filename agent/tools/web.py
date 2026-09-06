@@ -213,6 +213,13 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                 Param("url", "string",
                       "Absolute http:// or https:// URL to fetch.",
                       required=True),
+                Param("raw", "boolean",
+                      "Return the raw HTML source instead of reduced text. Use it "
+                      "to see what text mode strips out — <script> tags, SDK and "
+                      "provider URLs, hidden or JS-loaded markup — for example to "
+                      "find which login or third-party services a page loads. "
+                      "Default false.",
+                      required=False, default=False),
             ],
             fn=_fetch,
         ),
@@ -321,14 +328,26 @@ def _check(url: str, tool: str = "fetch_url") -> str:
     return url
 
 
-def _to_text(body: bytes, content_type: str) -> str:
+def _decode(body: bytes, content_type: str) -> str:
+    """Bytes to text by the response's charset, and nothing more. The raw source,
+    tags and scripts intact — what `raw=true` returns."""
     charset = "utf-8"
     if "charset=" in content_type:
         charset = content_type.split("charset=", 1)[1].split(";")[0].strip() or "utf-8"
     try:
-        text = body.decode(charset, errors="replace")
+        return body.decode(charset, errors="replace")
     except LookupError:
-        text = body.decode("utf-8", errors="replace")
+        return body.decode("utf-8", errors="replace")
+
+
+def _to_text(body: bytes, content_type: str) -> str:
+    """Decode, then reduce HTML to readable text — scripts and tags stripped.
+
+    The default, and the right thing for reading documentation. But the stripping
+    is lossy in a way that matters for recon: a page that loads its login or its
+    trackers from `<script src=…>` looks empty here, because the script tag is the
+    first thing removed. That is what `fetch_url(raw=true)` exists to get past."""
+    text = _decode(body, content_type)
     if "html" in content_type:
         text = _SCRIPT.sub(" ", text)
         text = _TAG.sub(" ", text)
@@ -575,7 +594,8 @@ def _failure_detail(exc: urllib.error.HTTPError) -> str:
 
 
 def _render(url: str, final: str, content_type: str, raw: bytes,
-            status: int | None = None, reason: str = "") -> str:
+            status: int | None = None, reason: str = "",
+            raw_mode: bool = False) -> str:
     """Turn a response into capped, fenced text. Shared by fetch_url and http_post.
 
     The status line is the cheapest thing this tool layer can offer and was
@@ -597,7 +617,8 @@ def _render(url: str, final: str, content_type: str, raw: bytes,
     summary = "  ".join(meta)
     show_meta = metadata_enabled()
 
-    text = _to_text(raw[:MAX_BYTES], content_type)
+    text = (_decode(raw[:MAX_BYTES], content_type) if raw_mode
+            else _to_text(raw[:MAX_BYTES], content_type))
     if not text:
         return (f"{final}\n{summary}, no readable text." if show_meta
                 else f"{final} returned no readable text.")
@@ -608,7 +629,7 @@ def _render(url: str, final: str, content_type: str, raw: bytes,
     return fenced(cap(lines, MAX_LINES, "lines"))
 
 
-def _fetch(url: str) -> str:
+def _fetch(url: str, raw: bool = False) -> str:
     url = _check(url)
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
@@ -627,7 +648,7 @@ def _fetch(url: str) -> str:
     except (TimeoutError, OSError) as exc:
         return f"ERROR: could not reach {url}: {exc}."
 
-    return _render(url, final, content_type, body, status, reason)
+    return _render(url, final, content_type, body, status, reason, raw_mode=raw)
 
 
 def _probe(url: str) -> tuple[int | None, str]:

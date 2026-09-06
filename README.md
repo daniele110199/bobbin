@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 3,966 runs behind it are **in
+That bet is measured rather than asserted. The 3,979 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -362,6 +362,31 @@ orthogonal failure the tool cannot touch, and one it beat in the static run, so
 a tool costs prompt on every request it is *advertised* on, so advertise it on the
 requests that need it and no others. (One rep; wins unambiguous, the
 workspace-wander variance wants reps. Runs under `evals/results/jit-*.json`.)
+
+### Reading the source, not the rendered text (`fetch_url(raw=true)`)
+
+`fetch_url` reduces HTML to text, which strips `<script>` first — so a page that
+loads its login or its trackers from `<script src=…>` and fills a modal in at
+runtime looks empty of them. That is a real recon blind spot: a site with only
+Google and Apple sign-in, both behind a client-rendered modal, reads as "sign in
+to continue" and nothing more. `raw=true` returns the source verbatim, where the
+SDK URLs live. It is one optional flag on `fetch_url`, not a new tool — the
+cheaper delta, and measured: with it added, `tag:web` is still 7/7 on
+qwen3-coder, so the existing web cases pay nothing for it.
+
+The recon case (`recon-login-methods`) is that exact page — providers named
+nowhere the text reduction reaches — scored on naming both. It shows two things
+at once. **The affordance works**: nemotron fetches `/login`, sees no providers,
+fetches it again with `raw=true`, reads `PROVIDERS = ["google", "apple"]` and the
+two SDK inits out of the source, and reports both. **And reaching it depends on
+not being distracted**: pointed at a code repo as its workspace, all three models
+wandered the repo and never fetched the target at all (0/3); given a workspace
+with no local code, nemotron got it end to end (qwen3 recognised it was a remote
+assessment but did not fetch on that rep; the 7B still does not reach a URL). The
+usability lesson is concrete — **for testing a live target, point `--root` at an
+empty directory, not your source** — or the read tools become a rabbit hole. One
+rep; the raw path is unit-tested and regression-clean, the model-reaching-it half
+is model-dependent and wants reps. Runs under `evals/results/recon*.json`.
 
 ## What you need
 

@@ -4131,6 +4131,50 @@ def test_enumerate_tool_is_revealed_just_in_time() -> None:
           (stats2.enum_reveals, revealed2, notes2))
 
 
+def test_fetch_raw_exposes_what_text_mode_strips() -> None:
+    """`raw=true`: read the source, not the reduced text.
+
+    The default reduction strips `<script>` first, which is exactly where a modern
+    login or tracker declares itself — so a page that loads Google and Apple
+    sign-in from `<script src>` looks empty of providers in text mode. The recon
+    case's login page is built that way; `raw=true` returns the source verbatim,
+    where the two SDK URLs live. This is the same lossiness that kept a reflected
+    XSS case out of the suite, now given a way through.
+    """
+    from agent.sandbox import Workspace
+    from agent.tools import build_registry, web
+    from evals.webfixture import FixtureWeb
+
+    # The param is advertised on fetch_url itself — one optional flag, not a new
+    # tool schema (the cheaper of the two, by this project's own measure).
+    with tempfile.TemporaryDirectory() as tmpdir:
+        reg = build_registry(Workspace(Path(tmpdir)), allow_web=True)
+        fetch = next(s for s in reg.schemas() if s["function"]["name"] == "fetch_url")
+        check("raw fetch: it is a param on fetch_url, not a separate tool",
+              "raw" in fetch["function"]["parameters"]["properties"])
+        check("raw fetch: and it is optional, so a plain fetch is unchanged",
+              "raw" not in fetch["function"]["parameters"]["required"])
+
+    with FixtureWeb():
+        plain = web._fetch("http://shop.hazelmart.test/login")
+        raw = web._fetch("http://shop.hazelmart.test/login", raw=True)
+        check("raw fetch: text mode hides providers loaded from <script>",
+              "google" not in plain.lower() and "apple" not in plain.lower(), plain)
+        check("raw fetch: the raw source shows both SDKs",
+              "accounts.google.com" in raw and "appleid" in raw, raw[:300])
+        check("raw fetch: raw keeps the tags text mode removes",
+              "<script" in raw, raw[:200])
+        check("raw fetch: and is fenced as untrusted like any other fetch",
+              raw.startswith(web.FENCE_OPEN), raw[:80])
+
+    # _decode is the raw path: charset only, no stripping; _to_text still strips.
+    body = b"<html><script src='x.js'></script><p>hi</p></html>"
+    check("raw fetch: _decode leaves the markup intact",
+          "<script" in web._decode(body, "text/html"))
+    check("raw fetch: _to_text still strips it",
+          "<script" not in web._to_text(body, "text/html"))
+
+
 def test_web_cases_are_opt_in_per_case() -> None:
     """The web suite must not change what any other case sees.
 
@@ -4139,7 +4183,7 @@ def test_web_cases_are_opt_in_per_case() -> None:
     tools every number on record was measured against. A per-case flag is what
     keeps six new cases from silently re-pricing fifty-three old ones.
     """
-    from evals.cases import ALL_CASES, WEB_CASES, WEBEXPLOIT_CASES
+    from evals.cases import ALL_CASES, RECON_CASES, WEB_CASES, WEBEXPLOIT_CASES
 
     web_ids = {c.id for c in WEB_CASES}
     check("web cases: every one of them asks for the web",
@@ -4154,7 +4198,12 @@ def test_web_cases_are_opt_in_per_case() -> None:
     check("webexploit cases: every one asks for the web and is tagged",
           all(c.allow_web and "webexploit" in c.tags for c in WEBEXPLOIT_CASES),
           exploit_ids)
-    intended_web = web_ids | exploit_ids
+    # The recon suite is the third deliberate web holder: it fetches the login
+    # page raw. Same invariant — an intended holder, not an accidental one.
+    recon_ids = {c.id for c in RECON_CASES}
+    check("recon cases: every one asks for the web and is tagged",
+          all(c.allow_web and "recon" in c.tags for c in RECON_CASES), recon_ids)
+    intended_web = web_ids | exploit_ids | recon_ids
     check("web cases: no other case has quietly acquired the web tools",
           [c.id for c in ALL_CASES
            if c.allow_web and c.id not in intended_web] == [])
@@ -5660,7 +5709,7 @@ def test_stated_fact_case_is_a_matched_pair() -> None:
 
     # Suite stability, same rule as every case added since `repair-half-deleted`.
     for tag, size in (("edit", 8), ("honesty", 3), ("multi-turn", 9),
-                      ("cascade", 10), ("web", 7)):
+                      ("cascade", 10), ("web", 7), ("recon", 1)):
         check(f"stated-fact: tag:{tag} is still {size} cases",
               len([c for c in ALL_CASES if tag in c.tags]) == size)
 
@@ -6863,6 +6912,7 @@ def main() -> int:
                test_offline_web_fixture_serves_the_real_tools,
                test_enumerate_tool_sweeps_a_range_and_flags_the_outlier,
                test_enumerate_tool_is_revealed_just_in_time,
+               test_fetch_raw_exposes_what_text_mode_strips,
                test_vulnerable_web_fixture_is_exploitable_through_the_tools,
                test_pair_survey_names_only_real_switches,
                test_security_suite_scores_recall_and_false_positives,

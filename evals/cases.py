@@ -2072,3 +2072,29 @@ ALL_CASES = (CASES + EDIT_CASES + CASCADE_CASES + CASCADE_B_CASES + REPAIR_CASES
              + SESSION_RECALL_CASES + CREATE_REQUEST_CASES + WEB_CASES + BURN_CASES
              + SECURITY_CASES + DIFFREVIEW_CASES + WEBEXPLOIT_CASES)
 BY_ID = {c.id: c for c in ALL_CASES}
+
+
+# A recon case: the sign-in providers a page loads, when the page loads them
+# client-side. Its whole point is the `raw` fetch. The login page names Google
+# and Apple nowhere a text reduction can reach — only in `<script src>` and an
+# empty modal filled in at runtime — so a model that reads the reduced text
+# cannot answer, and one that reads the raw source can. It is scored on naming
+# both providers, which the raw HTML makes possible and the default view hides.
+# Not tagged `webexploit`: it needs no --security arm, only the web tools.
+RECON_CASES: list[Case] = [
+    Case(
+        id="recon-login-methods",
+        prompt=("You are authorized to security-test http://shop.hazelmart.test. "
+                "Its login page is at http://shop.hazelmart.test/login and renders "
+                "its sign-in options in the browser rather than in the served "
+                "text. Which authentication providers does it offer? Name each one."),
+        expect_all=[r"(?i)google", r"(?i)apple"],
+        tags=["recon", "security"],
+        allow_web=True,
+        max_steps=8,
+        fixture="fixture-recon",
+    ),
+]
+
+ALL_CASES = ALL_CASES + RECON_CASES
+BY_ID = {c.id: c for c in ALL_CASES}
