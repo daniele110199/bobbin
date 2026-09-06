@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 3,354 runs behind it are **in
+That bet is measured rather than asserted. The 3,879 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -102,6 +102,38 @@ settings by someone who does not use it daily, and a 900s timeout that 19 of its
 72 real-repo runs hit, all on nemotron. Both tables are **3 reps per cell**, 450
 runs in total. The harness ships so any of that can be corrected and re-run.
 
+## Reviewing code that can't leave the machine
+
+Because the model runs locally through Ollama and nothing is sent anywhere, the
+agent can review code you are not allowed to paste into a hosted LLM — under an
+NDA, a client engagement, or a data-egress rule. That is a real niche a frontier
+model in the cloud cannot fill at any quality, and it is worth measuring rather
+than asserting, so there are two eval suites for it.
+
+```bash
+python3 -m evals.run --cases tag:security     # whole-file review
+python3 -m evals.run --cases tag:diffreview   # review a staged change
+```
+
+Both score **two** numbers, because a reviewer that flags everything has perfect
+recall and is useless: how many real vulnerabilities it finds, and how often it
+invents one in code that is fine. The fixtures plant SQL injection, command
+injection, weak hashing, a hardcoded secret, a predictable token and a path
+traversal, alongside a control file that does the same *kinds* of things
+correctly.
+
+The honest headline, on `qwen3-coder:30b`, `nemotron-3.5-lightning` and
+`qwen2.5-coder:7b`: **recall is the easy part** — all three find every planted
+bug and propose the right fix. The cost of a local reviewer is false positives:
+on a whole file, the strongest model flagged a *correct* `subprocess.run([...])`
+call as command injection — the argument-list form that is the fix for it. On a
+*diff*, where the model reasons about what changed rather than pattern-matching
+the whole file, all three stayed clean and still caught every introduced bug.
+
+So it is a useful *first pass* that a human then reads, not an oracle — which is
+the honest claim for a local security reviewer, and the reproduction commands
+above let you check it rather than take it.
+
 ## What you need
 
 - **Python 3.9+**: the standard library and nothing else. There is no
@@ -124,7 +156,7 @@ Then clone and run. There is no build step and nothing to compile:
 
 ```bash
 git clone <this repo> && cd llm-agent-project
-python3 tests.py        # 838 tests, no network, no model needed
+python3 tests.py        # 963 tests, no network, no model needed
 ./install.sh            # symlinks `bobbin` into ~/.local/bin
 bobbin qwen2.5-coder:7b
 ```
@@ -144,8 +176,14 @@ bobbin qwen3-coder:30b                   # or name one
 bobbin --root ~/some/repo
 bobbin -p "what does this project do?"   # one-shot
 bobbin --allow-edits                     # editing on, every diff confirmed
+bobbin --allow-web -p "what changed in the argparse API in 3.13?"
 bobbin --mode research -p "trace what happens when the CLI runs"
 ```
+
+`--allow-web` adds read-only web search and fetch for when the answer is not in
+the workspace; `--allow-post` additionally allows POST (for an API that needs
+it), gated behind a per-request confirmation. Both are off by default and
+absent from the schema the model sees unless asked for.
 
 Naming a model you have not pulled fails immediately with the list of the ones
 you have, rather than a 404 from Ollama halfway through.
@@ -159,7 +197,7 @@ tool layer or the model?":
 ```
 
 ```bash
-python3 tests.py                            # 838 tests, no network
+python3 tests.py                            # 963 tests, no network
 python3 -m evals.run --cases tag:edit       # score a suite
 ```
 
@@ -192,12 +230,12 @@ side.
 ```
 agent/       the loop, tools, sandbox, edit session, context handling
 prompts/     system contract, playbook, per-phase research prompts
-evals/       cases, fixtures, runner, scoring, 3,354 stored runs
+evals/       cases, fixtures, runner, scoring, 3,879 stored runs
 evals/compare/   the aider head-to-head and its real-repo oracle
 bobbin         the command (a symlinked launcher; `install.sh` links it)
 main.py      chat REPL
 tools_cli.py run tools without a model
-tests.py     838 tests, no network
+tests.py     963 tests, no network
 ```
 
 ## Licence
