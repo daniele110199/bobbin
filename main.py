@@ -80,7 +80,24 @@ def make_approver(dry_run: bool, assume_yes: bool):
     return approve
 
 
-def make_post_approver(dry_run: bool, assume_yes: bool, ask=None):
+def post_target_origins(target: str) -> set[str]:
+    """The origin(s) `--post-target` pre-approves.
+
+    A full origin (`https://host[:port]`) is taken as-is; a bare host is expanded
+    to both schemes, since a tester who writes `myapp.test` means whichever one it
+    serves. Everything else stays gated — the grant is for the one target you have
+    said you are authorized to POST to, not the world."""
+    target = (target or "").strip()
+    if not target:
+        return set()
+    if "://" in target:
+        return {origin(target)}
+    host = target.split("/")[0].lower()
+    return {f"http://{host}", f"https://{host}"}
+
+
+def make_post_approver(dry_run: bool, assume_yes: bool, ask=None,
+                       pre_approved: set[str] | None = None):
     """The human gate for `http_post`, and the same bargain as the write gate.
 
     The model composes the address and the body; the user is the one who decides
@@ -106,8 +123,13 @@ def make_post_approver(dry_run: bool, assume_yes: bool, ask=None):
     grant still prints in full — a POST nobody can see is worse than a prompt.
 
     `ask` is injectable so the policy can be tested without a terminal.
+
+    `pre_approved` seeds the standing grant before the run — this is what
+    `--post-target` sets, so POSTs to a target you have declared authorized go
+    unattended (still printed) while a POST to anywhere else still stops. It is
+    the non-interactive form of answering `a`, scoped to one origin on purpose.
     """
-    standing: set[str] = set()
+    standing: set[str] = set(pre_approved or ())
 
     def prompt(where: str) -> str:
         if not sys.stdin.isatty():
@@ -234,6 +256,12 @@ def main() -> int:
                          "Every request is shown to you in full and sent only if "
                          "you approve it; answer 'a' to allow that one endpoint "
                          "for the rest of the session")
+    ap.add_argument("--post-target", metavar="ORIGIN", default=None,
+                    help="auto-approve POSTs to this target without a prompt "
+                         "(each is still printed) — for testing a host you are "
+                         "authorized to POST to. Give an origin (https://host[:port]) "
+                         "or a bare host. POSTs anywhere else are still gated. "
+                         "Implies --allow-post")
     ap.add_argument("--security", action="store_true",
                     help="append the security-testing playbook: find and prove "
                          "vulnerabilities in a target you are authorized to test. "
@@ -251,7 +279,8 @@ def main() -> int:
                     help="research mode: print the verified evidence pack after each answer")
     opts = ap.parse_args()
 
-    if (opts.dry_run or opts.yes) and not (opts.allow_edits or opts.allow_post):
+    if (opts.dry_run or opts.yes) and not (opts.allow_edits or opts.allow_post
+                                           or opts.post_target):
         raise SystemExit("--dry-run and --yes only mean anything with "
                          "--allow-edits or --allow-post")
     if opts.dry_run and opts.yes:
@@ -272,13 +301,19 @@ def main() -> int:
     except LLMError as exc:
         raise SystemExit(str(exc))
 
+    # --post-target implies --allow-post: you cannot pre-approve a target without
+    # the tool that posts to it.
+    allow_post = opts.allow_post or bool(opts.post_target)
+
     ws = Workspace(opts.root)
     session = EditSession(approve=make_approver(opts.dry_run, opts.yes)) \
         if opts.allow_edits else None
     registry = build_registry(
         ws, session,
-        allow_web=opts.allow_web or opts.allow_post,
-        post_approve=make_post_approver(opts.dry_run, opts.yes) if opts.allow_post
+        allow_web=opts.allow_web or allow_post,
+        post_approve=make_post_approver(
+            opts.dry_run, opts.yes,
+            pre_approved=post_target_origins(opts.post_target)) if allow_post
         else None)
     client = OllamaClient(opts.model, host=opts.host, num_ctx=opts.num_ctx)
     trace = make_trace(opts.verbose)

@@ -4518,6 +4518,31 @@ def test_post_approval_can_stand_for_one_origin_per_session() -> None:
               approve("https://api.example.com/x", "{}", "application/json") is False
               and asked == [], asked)
 
+    # -- --post-target: a pre-seeded, scoped auto-approval -------------------
+    check("post-target: a full origin is taken as-is",
+          main.post_target_origins("https://myapp.test:3000")
+          == {"https://myapp.test:3000"})
+    check("post-target: a bare host expands to both schemes",
+          main.post_target_origins("myapp.test")
+          == {"http://myapp.test", "https://myapp.test"})
+    check("post-target: empty means nothing pre-approved",
+          main.post_target_origins("") == set())
+
+    asked2: list[str] = []
+    def never(where):  # a non-interactive run: no human to ask
+        asked2.append(where)
+        return "n"
+    approve = main.make_post_approver(
+        False, False, ask=never,
+        pre_approved=main.post_target_origins("http://myapp.test:3000"))
+    with redirect_stdout(io.StringIO()):
+        on_target = approve("http://myapp.test:3000/api/login", '{"u":1}', "application/json")
+        off_target = approve("https://elsewhere.example/x", "{}", "application/json")
+    check("post-target: POSTs to the target are sent without asking",
+          on_target and asked2 == ["https://elsewhere.example"], asked2)
+    check("post-target: a POST anywhere else is still gated (and here refused)",
+          off_target is False, off_target)
+
 
 def test_post_body_hint_names_the_defect() -> None:
     """A JSON error the model can act on, rather than one it can only re-read.
