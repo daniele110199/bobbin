@@ -4313,7 +4313,8 @@ def test_web_cases_are_opt_in_per_case() -> None:
     tools every number on record was measured against. A per-case flag is what
     keeps six new cases from silently re-pricing fifty-three old ones.
     """
-    from evals.cases import ALL_CASES, RECON_CASES, WEB_CASES, WEBEXPLOIT_CASES
+    from evals.cases import (ALL_CASES, CHAINED_CASES, RECON_CASES, WEB_CASES,
+                             WEBEXPLOIT_CASES)
 
     web_ids = {c.id for c in WEB_CASES}
     check("web cases: every one of them asks for the web",
@@ -4333,14 +4334,19 @@ def test_web_cases_are_opt_in_per_case() -> None:
     recon_ids = {c.id for c in RECON_CASES}
     check("recon cases: every one asks for the web and is tagged",
           all(c.allow_web and "recon" in c.tags for c in RECON_CASES), recon_ids)
-    intended_web = web_ids | exploit_ids | recon_ids
+    chained_ids = {c.id for c in CHAINED_CASES}
+    check("chained cases: every one asks for the web and is tagged",
+          all(c.allow_web and "chained" in c.tags for c in CHAINED_CASES),
+          chained_ids)
+    intended_web = web_ids | exploit_ids | recon_ids | chained_ids
     check("web cases: no other case has quietly acquired the web tools",
           [c.id for c in ALL_CASES
            if c.allow_web and c.id not in intended_web] == [])
     check("web cases: only the POST cases ask for http_post",
           [c.id for c in ALL_CASES if c.allow_post]
           == ["web-post-only", "web-post-escaped", "webexploit-authbypass",
-              "webexploit-privesc", "webexploit-massassign"])
+              "webexploit-privesc", "webexploit-massassign",
+              "webexploit-chained"])
 
     # The measurement each case is actually for, pinned so a later edit cannot
     # quietly turn the suite into six variations of "fetch a page".
@@ -5865,7 +5871,7 @@ def test_stated_fact_case_is_a_matched_pair() -> None:
 
     # Suite stability, same rule as every case added since `repair-half-deleted`.
     for tag, size in (("edit", 8), ("honesty", 3), ("multi-turn", 9),
-                      ("cascade", 10), ("web", 7), ("recon", 1)):
+                      ("cascade", 10), ("web", 7), ("recon", 1), ("chained", 1)):
         check(f"stated-fact: tag:{tag} is still {size} cases",
               len([c for c in ALL_CASES if tag in c.tags]) == size)
 

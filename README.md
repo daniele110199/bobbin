@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,046 runs behind it are **in
+That bet is measured rather than asserted. The 4,048 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -496,6 +496,37 @@ repeated lessons from earlier rather than finding a model ceiling:
 
 All four are unit-tested and inert on normal input; the model rates want the swap
 file cleared and reps. Runs under `evals/results/moreclasses-*.json`.
+
+### The whole app from one URL (chained assessment)
+
+The hardest shape: hand the agent only `http://shop.hazelmart.test/` and ask it to
+discover the app and test everything. Scored as recall — how many of the twelve
+planted tokens the report carries, counted from the stored answer. One rep, a
+40-step budget, `tag:chained`:
+
+| | recall | steps used (of 40) | endpoints touched |
+|---|---|---|---|
+| qwen3-coder:30b | 4/12 | 14 | 9 |
+| nemotron-3.5-lightning | **6/12** | 26 | 14 |
+
+From cold, a 30B does real chaining — it reads the index and `/robots.txt`,
+forced-browses to the exposure endpoint, and logs in to reach the admin one — and
+proves a meaningful fraction of the app's issues. But it is a **broad, shallow
+pass, not an exhaustive one**: both models touch an endpoint and move on, so the
+classes that need a crafted payload or a sweep (IDOR's id enumeration, a forged
+JWT, an injection tried on the right parameter) get missed even where the endpoint
+was visited. Two honest reads fall out of it:
+
+- **Budget is not the ceiling — thoroughness is.** Neither model spent its 40
+  steps (qwen3 stopped at 14, nemotron at 26); the one that pressed on further
+  found more. So *directed, per-endpoint testing beats autonomous whole-app
+  coverage* for these models — the tool is strongest when a human points it at one
+  endpoint and one class, and is a lead-generator when turned loose.
+- **The same trait cuts both ways.** nemotron's refusal to stop — the liability
+  that made it over-probe and never conclude on a single-vuln case — is here an
+  *asset*: it swept more of the app and out-recalled the flagship, 6/12 to 4/12.
+
+Runs under `evals/results/chained-*.json`.
 
 ## What you need
 
