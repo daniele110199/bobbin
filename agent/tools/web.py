@@ -95,6 +95,15 @@ POST_TYPES = {
 SEARCH_URL = "https://lite.duckduckgo.com/lite/?q={query}"
 USER_AGENT = "llm-agent-project/1.0 (+local coding agent)"
 
+
+def _auth_headers(bearer):
+    """The Authorization header for a bearer token, or nothing. A bearer token
+    (JWT, OAuth2, most API tokens) is returned in a login response *body*, so
+    unlike a cookie it cannot be carried automatically — the caller reads it and
+    passes it back here, and it goes out as `Authorization: Bearer <token>`."""
+    b = (bearer or "").strip()
+    return {"Authorization": f"Bearer {b}"} if b else {}
+
 # Loopback and the link-local metadata address are the two that turn a "read a
 # doc page" tool into a way out of the sandbox: one reaches whatever the user is
 # running locally, the other is the cloud credential endpoint.
@@ -240,6 +249,12 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       "find which login or third-party services a page loads. "
                       "Default false.",
                       required=False, default=False),
+                Param("bearer", "string",
+                      "A bearer token to send as the Authorization header, for "
+                      "testing endpoints behind token auth (JWT/OAuth). Get it "
+                      "from a login response, then pass it here on the protected "
+                      "requests.",
+                      required=False),
             ],
             fn=partial(_fetch, opener=get_opener),
         ),
@@ -300,6 +315,10 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       "checked for validity before anything is sent.",
                       required=False, default="json",
                       enum=sorted(POST_TYPES)),
+                Param("bearer", "string",
+                      "A bearer token to send as the Authorization header, for a "
+                      "POST behind token auth (JWT/OAuth).",
+                      required=False),
             ],
             fn=partial(_post, approve=post_approve, opener=post_opener),
         ))
@@ -503,7 +522,7 @@ _POST_OPENER = urllib.request.build_opener(_NoRedirect)
 
 
 def _post(url: str, body: str, content_type: str = "json",
-          *, approve: Callable[[str, str, str], bool], opener=None) -> str:
+          *, approve: Callable[[str, str, str], bool], opener=None, bearer=None) -> str:
     url = _check(url, tool="http_post")
     kind = (content_type or "json").strip().lower()
     if kind not in POST_TYPES:
@@ -550,7 +569,8 @@ def _post(url: str, body: str, content_type: str = "json",
 
     request = urllib.request.Request(
         url, data=encoded, method="POST",
-        headers={"User-Agent": USER_AGENT, "Content-Type": POST_TYPES[kind]},
+        headers={"User-Agent": USER_AGENT, "Content-Type": POST_TYPES[kind],
+                 **_auth_headers(bearer)},
     )
     try:
         with (opener or _POST_OPENER).open(request, timeout=TIMEOUT_S) as response:
@@ -649,9 +669,10 @@ def _render(url: str, final: str, content_type: str, raw: bytes,
     return fenced(cap(lines, MAX_LINES, "lines"))
 
 
-def _fetch(url: str, raw: bool = False, opener=None) -> str:
+def _fetch(url: str, raw: bool = False, opener=None, bearer=None) -> str:
     url = _check(url)
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    request = urllib.request.Request(
+        url, headers={"User-Agent": USER_AGENT, **_auth_headers(bearer)})
     _open = opener.open if opener is not None else urllib.request.urlopen
     try:
         # The opener (when the session jar is in play) follows http(s) redirects

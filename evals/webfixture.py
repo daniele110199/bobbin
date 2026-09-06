@@ -182,7 +182,9 @@ class _Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or 0)
         body = self.rfile.read(length).decode("utf-8", "replace") if length else ""
         cookie = self.headers.get("Cookie") or ""
-        result = serve(self._host(), method, self.path, body, cookie=cookie)
+        auth = self.headers.get("Authorization") or ""
+        result = serve(self._host(), method, self.path, body, cookie=cookie,
+                       auth=auth)
         if result is None:
             self._reply(404, b'{"error": "no such route"}', "application/json")
             return True

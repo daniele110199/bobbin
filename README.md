@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,057 runs behind it are **in
+That bet is measured rather than asserted. The 4,058 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -466,6 +466,19 @@ POSTs the login as the regular user `alice`, the cookie carries across to a
 `fetch_url` GET of the admin endpoint, and it recovers the token — logging in on
 one tool and staying logged in on another. A jar that never logged in stays 401,
 so the pass is the session working, not a hole. (Run: `evals/results/auth-*.json`.)
+
+Cookies are carried automatically; **bearer tokens are not**, because they arrive
+in the login *body*, not a `Set-Cookie` header — the dominant real-world API
+pattern (JWT, OAuth2). So `fetch_url` and `http_post` take a `bearer` param (the
+narrow-affordance way, not an arbitrary headers dict): the model reads the token
+from the login response and passes it back, and it goes out as
+`Authorization: Bearer …`. The fixture proves it — `POST /api/token` returns an
+`access_token`, and `GET /api/admin/report` requires it in the header but checks
+only that the token is valid, never that its bearer is an admin (the same broken
+access control, on the bearer path). qwen3 does the whole flow: it POSTs the token
+request as `alice`, reads `tok_alice_…` out of the body, sends it as the bearer on
+the report, and recovers the token — the harder auth shape, since nothing carries
+it for the model. (Run: `evals/results/bearer-*.json`.)
 
 ### Twelve classes now
 
