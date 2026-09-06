@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,061 runs behind it are **in
+That bet is measured rather than asserted. The 4,109 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -528,6 +528,30 @@ repeated lessons from earlier rather than finding a model ceiling:
 
 All four are unit-tested and inert on normal input; the model rates want the swap
 file cleared and reps. Runs under `evals/results/moreclasses-*.json`.
+
+### Three reps: the per-class rates are stable, not lucky
+
+The one-rep numbers above invite the obvious doubt — is a pass a capability or a
+coin flip? Three reps of the whole webexploit suite on qwen3, best config, answer
+it: **thirteen of the sixteen cases are 3/3 and the other three are 0/3 — not a
+single 1/3 or 2/3 cell.** The per-class outcome is essentially deterministic, so
+the earlier singles were representative. The three 0/3 are honest and specific:
+`jwt` (forging base64url is arithmetic the model gets wrong — a real ceiling),
+`ssti` (it confirms the injection with `{{2*2}}` but does not escalate to the
+secret), and `exposure` (with the app's index now advertising a dozen routes it
+follows those and skips the `/robots.txt`→`/api/debug/config` chain — enriching
+the map for the chained case cost the directed one).
+
+The run also paid for itself by catching a **scoring** bug the singles had hidden:
+the clean control was failing 3/3 not because qwen3 cried wolf but because its
+correct verdict, "no evidence of SQL injection … it is *not* vulnerable", tripped
+a forbidden pattern that read "is … vulnerable" straight through the "not" — the
+`sec-clean` negation trap, still latent in the *forbidden* half after being fixed
+in the required half. Tempering the gap so it cannot swallow a negation flips all
+three reps to pass. This is the whole reason to pay for reps: it separated a real
+capability floor (`jwt`, `ssti`) from a measurement artefact (`clean`) that a
+single run reported as the same kind of failure. (Runs:
+`evals/results/rep3-webexploit-qwen3-*.json`.)
 
 ### The whole app from one URL (chained assessment)
 
