@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,058 runs behind it are **in
+That bet is measured rather than asserted. The 4,059 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -479,6 +479,15 @@ access control, on the bearer path). qwen3 does the whole flow: it POSTs the tok
 request as `alice`, reads `tok_alice_…` out of the body, sends it as the bearer on
 the report, and recovers the token — the harder auth shape, since nothing carries
 it for the model. (Run: `evals/results/bearer-*.json`.)
+
+The last transport is the custom header — API-key auth (`X-API-Key`,
+`X-Auth-Token`, and the like). The tools take a `header` param, curl style
+(`header="X-API-Key: abc123"`), which composes with `bearer` and covers any
+single custom header without opening a general headers escape hatch. The fixture
+guards `/api/internal/stats` behind `X-API-Key`; qwen3 reaches it in one call,
+sending the issued key in the header. So the tool now tests behind all three of
+the common shapes: **cookie sessions, bearer tokens, and API-key headers**. (Run:
+`evals/results/apikey-*.json`.)
 
 ### Twelve classes now
 

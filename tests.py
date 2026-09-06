@@ -4112,6 +4112,21 @@ def test_authenticated_session_carries_across_requests() -> None:
         check("bearer: a bogus token is refused",
               "401" in bogus and BEARER_TOKEN not in bogus, bogus[:120])
 
+    # Custom-header (API-key) auth: the `header` param carries an X-API-Key.
+    from evals.webexploit_fixture import APIKEY, APIKEY_TOKEN
+
+    with FixtureWeb():
+        b = "http://shop.hazelmart.test"
+        g3, _ = _session_openers()
+        check("api-key: the endpoint is 401 without the header",
+              "401" in _fetch(f"{b}/api/internal/stats", opener=g3))
+        ok = _fetch(f"{b}/api/internal/stats", opener=g3, header=f"X-API-Key: {APIKEY}")
+        check("api-key: the right key in an X-API-Key header reaches it",
+              APIKEY_TOKEN in ok, ok[:200])
+        check("api-key: a wrong key is refused",
+              "401" in _fetch(f"{b}/api/internal/stats", opener=g3,
+                              header="X-API-Key: wrong"))
+
 
 def test_vulnerable_web_fixture_is_exploitable_through_the_tools() -> None:
     """The security-test target's flaws are real behaviour, reached the shipped way.

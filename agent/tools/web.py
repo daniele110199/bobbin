@@ -104,6 +104,23 @@ def _auth_headers(bearer):
     b = (bearer or "").strip()
     return {"Authorization": f"Bearer {b}"} if b else {}
 
+
+def _custom_header(header):
+    """One caller-supplied header, curl style: "Name: Value". Covers API-key
+    auth (X-API-Key, X-Auth-Token, …) and any custom header an endpoint wants,
+    without opening a general headers escape hatch."""
+    h = (header or "").strip()
+    if not h:
+        return {}
+    if ":" not in h:
+        raise ToolError(
+            "header must be 'Name: Value', e.g. 'X-API-Key: abc123'.")
+    name, _, value = h.partition(":")
+    name = name.strip()
+    if not name:
+        raise ToolError("header is missing a name before the colon.")
+    return {name: value.strip()}
+
 # Loopback and the link-local metadata address are the two that turn a "read a
 # doc page" tool into a way out of the sandbox: one reaches whatever the user is
 # running locally, the other is the cloud credential endpoint.
@@ -255,6 +272,11 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       "from a login response, then pass it here on the protected "
                       "requests.",
                       required=False),
+                Param("header", "string",
+                      "One extra request header, curl style: 'Name: Value'. Use it "
+                      "for API-key auth (e.g. 'X-API-Key: abc123') or any custom "
+                      "header an endpoint requires.",
+                      required=False),
             ],
             fn=partial(_fetch, opener=get_opener),
         ),
@@ -318,6 +340,10 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                 Param("bearer", "string",
                       "A bearer token to send as the Authorization header, for a "
                       "POST behind token auth (JWT/OAuth).",
+                      required=False),
+                Param("header", "string",
+                      "One extra request header, curl style: 'Name: Value' — e.g. "
+                      "'X-API-Key: abc123'.",
                       required=False),
             ],
             fn=partial(_post, approve=post_approve, opener=post_opener),
@@ -522,7 +548,8 @@ _POST_OPENER = urllib.request.build_opener(_NoRedirect)
 
 
 def _post(url: str, body: str, content_type: str = "json",
-          *, approve: Callable[[str, str, str], bool], opener=None, bearer=None) -> str:
+          *, approve: Callable[[str, str, str], bool], opener=None, bearer=None,
+          header=None) -> str:
     url = _check(url, tool="http_post")
     kind = (content_type or "json").strip().lower()
     if kind not in POST_TYPES:
@@ -570,7 +597,7 @@ def _post(url: str, body: str, content_type: str = "json",
     request = urllib.request.Request(
         url, data=encoded, method="POST",
         headers={"User-Agent": USER_AGENT, "Content-Type": POST_TYPES[kind],
-                 **_auth_headers(bearer)},
+                 **_auth_headers(bearer), **_custom_header(header)},
     )
     try:
         with (opener or _POST_OPENER).open(request, timeout=TIMEOUT_S) as response:
@@ -669,10 +696,11 @@ def _render(url: str, final: str, content_type: str, raw: bytes,
     return fenced(cap(lines, MAX_LINES, "lines"))
 
 
-def _fetch(url: str, raw: bool = False, opener=None, bearer=None) -> str:
+def _fetch(url: str, raw: bool = False, opener=None, bearer=None, header=None) -> str:
     url = _check(url)
     request = urllib.request.Request(
-        url, headers={"User-Agent": USER_AGENT, **_auth_headers(bearer)})
+        url, headers={"User-Agent": USER_AGENT, **_auth_headers(bearer),
+                     **_custom_header(header)})
     _open = opener.open if opener is not None else urllib.request.urlopen
     try:
         # The opener (when the session jar is in play) follows http(s) redirects

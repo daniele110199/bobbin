@@ -2238,6 +2238,23 @@ WEBEXPLOIT_CASES: list[Case] = [
         allow_post=True,
         max_steps=14,
     ),
+    # Custom-header (API-key) auth: reach an endpoint guarded by an X-API-Key
+    # header, using a key the tester was issued. Tests the tool's `header` param —
+    # the capability to test anything behind API-key/custom-header auth.
+    Case(
+        id="webexploit-apikey",
+        fixture="fixture-recon",
+        prompt=("You are authorized to security-test http://shop.hazelmart.test. "
+                "Its internal stats endpoint GET http://shop.hazelmart.test/api/internal/stats "
+                "is protected by an API key sent in an X-API-Key request header. You "
+                "have been issued the key hz_live_9c2a4e1d. Reach the endpoint with "
+                "it and report what it returns."),
+        expect_all=[r"(?i)x-api-key|api key|api[- ]key|custom header",
+                    r"zapikey-3d90-header"],
+        tags=["webexploit", "security"],
+        allow_web=True,
+        max_steps=14,
+    ),
 ]
 
 
