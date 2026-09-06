@@ -106,20 +106,25 @@ def _auth_headers(bearer):
 
 
 def _custom_header(header):
-    """One caller-supplied header, curl style: "Name: Value". Covers API-key
-    auth (X-API-Key, X-Auth-Token, …) and any custom header an endpoint wants,
-    without opening a general headers escape hatch."""
-    h = (header or "").strip()
-    if not h:
-        return {}
-    if ":" not in h:
-        raise ToolError(
-            "header must be 'Name: Value', e.g. 'X-API-Key: abc123'.")
-    name, _, value = h.partition(":")
-    name = name.strip()
-    if not name:
-        raise ToolError("header is missing a name before the colon.")
-    return {name: value.strip()}
+    """Caller-supplied headers, curl style: "Name: Value", one per line for
+    several. Covers API-key auth (X-API-Key, X-Auth-Token, …) and any custom
+    headers an endpoint wants — an API that needs both a key and a client id,
+    say — without opening a general headers escape hatch."""
+    result = {}
+    for line in (header or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ":" not in line:
+            raise ToolError(
+                "each header must be 'Name: Value', e.g. 'X-API-Key: abc123'; "
+                "put one per line for several.")
+        name, _, value = line.partition(":")
+        name = name.strip()
+        if not name:
+            raise ToolError("a header is missing a name before the colon.")
+        result[name] = value.strip()
+    return result
 
 # Loopback and the link-local metadata address are the two that turn a "read a
 # doc page" tool into a way out of the sandbox: one reaches whatever the user is
@@ -273,9 +278,11 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       "requests.",
                       required=False),
                 Param("header", "string",
-                      "One extra request header, curl style: 'Name: Value'. Use it "
-                      "for API-key auth (e.g. 'X-API-Key: abc123') or any custom "
-                      "header an endpoint requires.",
+                      "Extra request header(s) for API-key or custom-header auth, "
+                      "curl style 'Name: Value'. For one: 'X-API-Key: abc123'. For "
+                      "several, put them ALL in this one string, one per line, e.g. "
+                      "'X-API-Key: abc123\\nX-Client-ID: 42' — they must go on the "
+                      "same request, not separate calls.",
                       required=False),
             ],
             fn=partial(_fetch, opener=get_opener),
@@ -342,8 +349,8 @@ def build(post_approve: Callable[[str, str, str], bool] | None = None) -> list[T
                       "POST behind token auth (JWT/OAuth).",
                       required=False),
                 Param("header", "string",
-                      "One extra request header, curl style: 'Name: Value' — e.g. "
-                      "'X-API-Key: abc123'.",
+                      "Extra request headers, curl style: 'Name: Value', one per "
+                      "line for several — e.g. 'X-API-Key: abc123'.",
                       required=False),
             ],
             fn=partial(_post, approve=post_approve, opener=post_opener),

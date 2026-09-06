@@ -4127,6 +4127,16 @@ def test_authenticated_session_carries_across_requests() -> None:
               "401" in _fetch(f"{b}/api/internal/stats", opener=g3,
                               header="X-API-Key: wrong"))
 
+        # Several custom headers at once, one per line.
+        from evals.webexploit_fixture import APIKEY, PARTNER_ID, PARTNER_TOKEN
+        both = _fetch(f"{b}/api/partner/data", opener=g3,
+                      header=f"X-API-Key: {APIKEY}\nX-Client-ID: {PARTNER_ID}")
+        check("multi-header: both headers on one request reach the endpoint",
+              PARTNER_TOKEN in both, both[:200])
+        check("multi-header: only one of the two is refused",
+              "401" in _fetch(f"{b}/api/partner/data", opener=g3,
+                              header=f"X-API-Key: {APIKEY}"))
+
 
 def test_vulnerable_web_fixture_is_exploitable_through_the_tools() -> None:
     """The security-test target's flaws are real behaviour, reached the shipped way.

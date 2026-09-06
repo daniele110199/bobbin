@@ -184,8 +184,9 @@ class _Handler(BaseHTTPRequestHandler):
         cookie = self.headers.get("Cookie") or ""
         auth = self.headers.get("Authorization") or ""
         api_key = self.headers.get("X-API-Key") or ""
+        client_id = self.headers.get("X-Client-ID") or ""
         result = serve(self._host(), method, self.path, body, cookie=cookie,
-                       auth=auth, api_key=api_key)
+                       auth=auth, api_key=api_key, client_id=client_id)
         if result is None:
             self._reply(404, b'{"error": "no such route"}', "application/json")
             return True

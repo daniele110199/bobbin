@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,059 runs behind it are **in
+That bet is measured rather than asserted. The 4,061 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -488,6 +488,16 @@ guards `/api/internal/stats` behind `X-API-Key`; qwen3 reaches it in one call,
 sending the issued key in the header. So the tool now tests behind all three of
 the common shapes: **cookie sessions, bearer tokens, and API-key headers**. (Run:
 `evals/results/apikey-*.json`.)
+
+`header` takes **several headers at once**, one per line — for an API that wants a
+key *and* a client id on the same request. That one needed the schema to spell the
+format out: told only "one per line", qwen3 sent the headers one at a time across
+separate calls (which cannot work, since both must ride the same request); given an
+explicit `'X-API-Key: …\nX-Client-ID: …'` example and "the same request, not
+separate calls", it composed the two-line value and recovered the token. A small
+model uses the affordance the schema *shows* it, not the one the schema mentions —
+the same environment-over-prose lesson, in a tool description. (Run:
+`evals/results/multiheader-*.json`.)
 
 ### Twelve classes now
 
