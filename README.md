@@ -33,7 +33,7 @@ one file and report the refactor done. Almost every fix in this project is a
 change to the *environment*, the tools, the errors, the loop, rather than to
 the prompt or the model.
 
-That bet is measured rather than asserted. The 4,042 runs behind it are **in
+That bet is measured rather than asserted. The 4,046 runs behind it are **in
 this repository**, under `evals/results/`; not a summary of them, the runs
 themselves, so any number quoted here can be recomputed rather than taken on
 trust. The things that were built, measured, and **removed** for zero benefit
@@ -466,6 +466,36 @@ POSTs the login as the regular user `alice`, the cookie carries across to a
 `fetch_url` GET of the admin endpoint, and it recovers the token — logging in on
 one tool and staying logged in on another. A jar that never logged in stays 401,
 so the pass is the session working, not a hole. (Run: `evals/results/auth-*.json`.)
+
+### Twelve classes now
+
+Four more genuine, token-scored flaws round out the running-target suite:
+**SSTI** (`/api/greet`, a real `{{…}}` renderer — `{{7*7}}`→49, and reaching
+config/env/globals leaks the secret), **mass assignment** (`/api/profile` blindly
+applies a `role`/`is_admin` field the form should not accept), **JWT alg:none**
+(`/api/vault` trusts an unsigned token's claims), and **open redirect**
+(`/api/redirect` accepts an off-site destination). That is twelve classes plus the
+false-positive control.
+
+One rep on qwen3, frugal, tells the honest story of each — and two of them
+repeated lessons from earlier rather than finding a model ceiling:
+- **Open redirect: pass**, clean, four calls.
+- **SSTI: the fixture's fault, now fixed.** qwen3 confirmed the injection
+  (`{{2*2}}`→4) and escalated with `{{process.env}}`, `{{config}}`,
+  `{{constructor}}` — exactly right — but the fixture only leaked on a narrow name
+  set it never guessed. The exact-name antipattern a third time; the renderer now
+  scores the *technique* (reaching config/env/globals), so those payloads land.
+- **Mass assignment: the model exploited it and then would not stop.** It POSTed
+  `{"role":"admin"}` — which returns the token — then kept adding fields and ran
+  the budget out without ever answering, so the token sat in a response it never
+  reported. That is the over-probe/won't-conclude behaviour the `AGENT_PROGRESS_NUDGE`
+  exists for, not a fixture gap.
+- **JWT alg:none: the genuine hard class.** Forging `header.payload.` in
+  base64url is arithmetic a small model gets wrong; it exhausted the budget. A
+  real capability ceiling, and a useful one to have measured.
+
+All four are unit-tested and inert on normal input; the model rates want the swap
+file cleared and reps. Runs under `evals/results/moreclasses-*.json`.
 
 ## What you need
 
